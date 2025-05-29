@@ -4,7 +4,7 @@
 	export let form;
 </script>
 
-<div class="top-left">
+<div class="bottom-left">
   <ThemeToggle />
 </div>
 
@@ -33,10 +33,11 @@
 </div>
 
 <style>
-  .top-left {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
+  .bottom-left {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 10;
   }
 
   .login-container {

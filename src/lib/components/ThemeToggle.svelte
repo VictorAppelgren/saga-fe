@@ -10,37 +10,49 @@
 
 <style>
   .theme-toggle {
-    background: none;
-    border: none;
+    background: var(--card-bg, #f5f5f5);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 20px;
     cursor: pointer;
-    padding: 8px;
+    padding: 4px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    width: 120px;
+    position: relative;
+    transition: background-color 0.3s;
   }
 
-  .icon {
-    width: 24px;
-    height: 24px;
+  .toggle-slider {
+    width: 50%;
+    height: 26px;
+    background: var(--text-color, black);
+    border-radius: 16px;
+    position: absolute;
+    transition: transform 0.3s;
+    left: 4px;
   }
 
-  :global(.dark) .theme-toggle .icon {
-    fill: white;
+  .toggle-text {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color, black);
+    z-index: 1;
+    transition: color 0.3s;
   }
 
-  .theme-toggle .icon {
-    fill: black;
+  .active {
+    color: var(--bg-color, white);
+  }
+
+  .dark .toggle-slider {
+    transform: translateX(calc(100% - 8px));
   }
 </style>
 
-<button class="theme-toggle" on:click={toggleTheme} aria-label="Toggle theme">
-  {#if $theme === 'light'}
-    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z"/>
-    </svg>
-  {:else}
-    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C12 9.31371 12 12 12 18Z"/>
-    </svg>
-  {/if}
+<button class="theme-toggle {$theme}" on:click={toggleTheme} aria-label="Toggle theme">
+  <div class="toggle-slider"></div>
+  <span class="toggle-text {$theme === 'light' ? 'active' : ''}">Light</span>
+  <span class="toggle-text {$theme === 'dark' ? 'active' : ''}">Dark</span>
 </button>
