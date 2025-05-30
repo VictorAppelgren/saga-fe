@@ -26,7 +26,8 @@
   .theme-info {
     padding: 2rem;
     background: var(--card-bg, #f5f5f5);
-    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   h2 {

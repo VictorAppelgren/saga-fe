@@ -30,9 +30,11 @@
 </script>
 
 <div class="theme-form-container">
-  <button class="add-theme-button" on:click={toggleForm}>
-    + Add Theme
-  </button>
+  {#if !isFormVisible}
+    <button class="add-theme-button" on:click={toggleForm}>
+      <span class="plus">+</span> Add Theme
+    </button>
+  {/if}
 
   {#if isFormVisible}
     <form class="theme-form" on:submit|preventDefault={handleSubmit}>
@@ -66,7 +68,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="cancel" on:click={toggleForm}>Cancel</button>
+        <button type="button" class="secondary-button" on:click={toggleForm}>Cancel</button>
         <button type="submit" class="submit" disabled={!name || !thesis}>Create Theme</button>
       </div>
     </form>
@@ -76,11 +78,11 @@
 <style>
   .theme-form-container {
     margin-top: 1rem;
+    padding: 0;
   }
 
   .add-theme-button {
     width: 100%;
-    padding: 0.75rem;
     background: none;
     border: 1px dashed var(--border-color, #e0e0e0);
     border-radius: 8px;
@@ -88,6 +90,11 @@
     cursor: pointer;
     font-size: 0.875rem;
     transition: all 0.2s;
+    text-align: left;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .add-theme-button:hover {
@@ -97,7 +104,7 @@
 
   .theme-form {
     margin-top: 1rem;
-    padding: 1rem;
+    padding: 0.75rem;
     background: var(--card-bg, #f5f5f5);
     border: 1px solid var(--border-color, #e0e0e0);
     border-radius: 8px;
@@ -153,9 +160,13 @@
     transition: background-color 0.2s;
   }
 
-  .cancel {
+  .secondary-button {
     background: var(--border-color, #e0e0e0);
     color: var(--text-color, black);
+  }
+
+  .secondary-button:hover {
+    background: #d0d0d0;
   }
 
   .submit {
@@ -166,10 +177,6 @@
   .submit:disabled {
     background: #cccccc;
     cursor: default;
-  }
-
-  .cancel:hover {
-    background: #d0d0d0;
   }
 
   .submit:hover:not(:disabled) {
