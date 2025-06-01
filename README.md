@@ -1,22 +1,17 @@
-## Developing
+# Argos Intelligence Frontend
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+This is the frontend application for Argos Intelligence, built with SvelteKit and TypeScript.
 
-```bash
-npm run dev
+## Development
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
+This project uses pnpm as its package manager. First, install dependencies:
 
 ```bash
-npm run build
+pnpm install
 ```
 
-You can preview the production build with `npm run preview`.
+Then start the development server:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+pnpm run dev
+```
