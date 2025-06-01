@@ -1,8 +1,11 @@
 <script lang="ts">
-  export let themeName: string;
+  import type { Theme } from '$lib/types/storage';
+  export let theme: Theme;
+
+
 
   // Mock review data
-  const review = `Market Analysis Report - ${themeName} (${new Date().toLocaleDateString()})
+  const review = `Market Analysis Report - ${theme.name} (${new Date().toLocaleDateString()})
 
 Recent market developments have shown significant shifts in sentiment and trading patterns. Key indicators suggest a complex interplay of fundamental and technical factors that warrant careful analysis.
 

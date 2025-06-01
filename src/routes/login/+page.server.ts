@@ -16,6 +16,7 @@ export const actions: Actions = {
 		cookies.set('session', username, {
 			path: '/',
 			httpOnly: true,
+			secure: false, // CHANGE IN PRODUCTION
 			maxAge: 60 * 60 // 1 hour
 		});
 

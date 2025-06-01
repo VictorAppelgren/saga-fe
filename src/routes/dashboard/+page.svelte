@@ -1,69 +1,75 @@
 <script lang="ts">
   import { theme } from '$lib/stores/theme';
-  import { get } from 'svelte/store';
+  import { onMount } from 'svelte';
+  import type { Theme, HistoryEntry, HistoryType } from '$lib/types/storage';
   import ThemeForm from '$lib/components/ThemeForm.svelte';
   import ThemeReview from '$lib/components/ThemeReview.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ThemeInfo from '$lib/components/ThemeInfo.svelte';
   import Chat from '$lib/components/Chat.svelte';
 
-  interface Theme {
-    name: string;
-    thesis: string;
-    marketFocus: string;
+  let historyEntries: HistoryEntry[] = [];
+  let groupedHistory: Record<string, HistoryEntry[]> = {};
+
+  async function loadHistory() {
+    const response = await fetch('/api/history');
+    const data = await response.json();
+    historyEntries = data.entries || [];
   }
 
-  // Mock history data
-  const historyData = [
-    {
-      date: 'Today',
-      items: [
-        {
-          time: '13:45',
-          type: 'update',
-          title: 'EUR/USD Analysis',
-          description: 'was updated with new market data',
-          details: 'Changes made to market focus and thesis'
-        },
-        {
-          time: '09:22',
-          type: 'create',
-          title: 'Tech Sector Analysis',
-          description: 'New theme was created'
-        }
-      ]
-    },
-    {
-      date: 'Yesterday',
-      items: [
-        {
-          time: '16:30',
-          type: 'system',
-          title: 'System',
-          description: 'System performed automated data refresh',
-          details: 'Updated 3 themes with latest market data'
-        },
-        {
-          time: '11:15',
-          type: 'delete',
-          title: 'Crypto Markets',
-          description: 'Theme was archived'
-        }
-      ]
-    },
-    {
-      date: 'May 28, 2025',
-      items: [
-        {
-          time: '14:20',
-          type: 'update',
-          title: 'Automotive Trends',
-          description: 'analysis was updated',
-          details: 'Added new market research data and updated projections'
-        }
-      ]
+  async function addHistoryEntry(type: HistoryType, title: string, description: string, themeId?: string) {
+    const entry: HistoryEntry = {
+      type,
+      title,
+      description,
+      timestamp: new Date().toISOString(),
+      themeId
+    };
+
+    await fetch('/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+
+    historyEntries = [...historyEntries, entry];
+  }
+
+  function formatTimestamp(isoString: string): { date: string, time: string } {
+    const date = new Date(isoString);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let dateStr = '';
+    if (date.toDateString() === now.toDateString()) {
+      dateStr = 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      dateStr = 'Yesterday';
+    } else {
+      dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
-  ];
+
+    const timeStr = date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Europe/Stockholm'
+    });
+
+    return { date: dateStr, time: timeStr };
+  }
+
+  function groupHistoryByDate(entries: HistoryEntry[]): Record<string, HistoryEntry[]> {
+    return entries.reduce((groups, entry) => {
+      const { date } = formatTimestamp(entry.timestamp);
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(entry);
+      return groups;
+    }, {} as Record<string, HistoryEntry[]>);
+  }
 
   let selectedFilter = 'all';
   
@@ -71,76 +77,86 @@
     selectedFilter = filter.toLowerCase();
   }
 
-  $: filteredHistory = historyData.map(group => ({
-    date: group.date,
-    items: group.items.filter(item => 
+  $: filteredHistory = Object.entries(groupedHistory).map(([date, entries]) => ({
+    date,
+    items: entries.filter(item => 
       selectedFilter === 'all' || 
-      (selectedFilter === 'changes' && (item.type === 'create' || item.type === 'delete')) ||
-      (selectedFilter === 'updates' && item.type === 'update') ||
+      (selectedFilter === 'changes' && item.type === 'theme') ||
       (selectedFilter === 'system' && item.type === 'system')
     )
   })).filter(group => group.items.length > 0);
 
   export let data;
 
-  let themes = [
-    {
-      name: 'EUR/USD',
-      thesis: 'Analysis of EUR/USD currency pair movements and market dynamics',
-      marketFocus: 'Foreign Exchange'
-    },
-    {
-      name: 'Automotive Trends',
-      thesis: 'Tracking global automotive industry trends and technological shifts',
-      marketFocus: 'Automotive Industry'
+  let themes: Theme[] = [];
+
+  async function loadThemes() {
+    const response = await fetch('/api/themes');
+    if (response.ok) {
+      themes = await response.json();
     }
-  ];
-
-  interface Theme {
-    name: string;
-    thesis: string;
-    marketFocus: string;
   }
 
-  interface MarketReview {
-    date: string;
-    outlook: 'Bullish' | 'Bearish' | 'Neutral';
-    analysis: string;
-    impact: 'High' | 'Medium' | 'Low';
-    confidence: number;
-  }
+  onMount(async () => {
+    await Promise.all([
+      loadThemes(),
+      loadHistory()
+    ]);
+  });
+
+
 
   type Selection = {
     type: 'theme' | 'nav';
     value: string;
   };
 
-  let currentSelection: Selection = { type: 'nav', value: 'dashboard' };
+  let currentSelection: Selection = { type: 'nav', value: 'history' };
+  let showThemeForm = false;
 
   function selectTheme(theme: Theme): void {
-    currentSelection = { type: 'theme', value: theme.name };
+    currentSelection = { type: 'theme', value: theme.id };
   }
 
   function selectNav(value: string): void {
     currentSelection = { type: 'nav', value };
   }
 
-  function handleThemeCreated(event: CustomEvent<Theme>): void {
-    const newTheme = event.detail;
-    themes = [...themes, newTheme];
+  async function handleThemeCreated(event: CustomEvent<Theme>): Promise<void> {
+    const response = await fetch('/api/themes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(event.detail)
+    });
+
+    if (response.ok) {
+      const newTheme = await response.json();
+      themes = [...themes, newTheme];
+      showThemeForm = false;
+      // Add history entry
+      await addHistoryEntry('theme', `Created new theme: ${newTheme.name}`, newTheme.id);
+      // Select the newly created theme
+      currentSelection = { type: 'theme', value: newTheme.id };
+    }
+  }
+
+  async function handleDeleteTheme(theme: Theme): Promise<void> {
+    const response = await fetch(`/api/themes/${theme.id}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      themes = themes.filter(t => t.id !== theme.id);
+      await addHistoryEntry('theme', `Deleted theme: ${theme.name}`, theme.id);
+      currentSelection = { type: 'nav', value: 'history' };
+    }
   }
 
   $: selectedTheme = currentSelection.type === 'theme' 
-    ? themes.find(t => t.name === currentSelection.value) || {
-        name: '',
-        thesis: '',
-        marketFocus: ''
-      }
-    : {
-        name: '',
-        thesis: '',
-        marketFocus: ''
-      };
+    ? themes.find(t => t.id === currentSelection.value)
+    : null;
 </script>
 
 <div class="app-container">
@@ -154,14 +170,16 @@
     <div class="themes-section">
       <ul class="themes-list">
         {#each themes as theme}
-          <li class:active={currentSelection.type === 'theme' && currentSelection.value === theme.name}>
+          <li class:active={currentSelection.type === 'theme' && currentSelection.value === theme.id}>
             <button on:click={() => selectTheme(theme)}>
               {theme.name}
             </button>
           </li>
         {/each}
       </ul>
-      <ThemeForm on:themeCreated={handleThemeCreated} />
+      <button class="add-theme-button" on:click={() => { showThemeForm = true; currentSelection = { type: 'nav', value: 'new-theme' }; }}>
+        + Add Theme
+      </button>
     </div>
 
     <div class="sidebar-spacer"></div>
@@ -212,9 +230,30 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    {#if currentSelection.type === 'theme'}
-      <ThemeInfo theme={selectedTheme} />
-      <ThemeReview themeName={currentSelection.value} />
+    {#if showThemeForm}
+      <div class="top-bar">
+        <h1>New Theme</h1>
+      </div>
+      <div class="form-container">
+        <ThemeForm 
+          on:themeCreated={handleThemeCreated}
+          on:cancel={() => { showThemeForm = false; currentSelection = { type: 'nav', value: 'history' }; }}
+        />
+      </div>
+    {:else if currentSelection.type === 'theme'}
+      {#if selectedTheme}
+        <div class="theme-header">
+          <div class="spacer"></div>
+          <button class="delete-button" on:click={() => handleDeleteTheme(selectedTheme)}>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+            Delete Theme
+          </button>
+        </div>
+        <ThemeInfo theme={selectedTheme} />
+        <ThemeReview theme={selectedTheme} />
+      {/if}
     {:else if currentSelection.type === 'nav'}
       {#if currentSelection.value === 'dashboard'}
         <div class="top-bar">
@@ -330,28 +369,25 @@
         </div>
 
         <div class="history-container">
-          {#each filteredHistory as group}
-            <div class="history-group">
-              <h2 class="history-date">{group.date}</h2>
-              {#each group.items as item}
-                <div class="history-item">
-                  <div class="history-time">{item.time}</div>
-                  <div class="history-icon {item.type}" aria-hidden="true"></div>
-                  <div class="history-content">
-                    <div class="history-text">
-                      {#if item.title}
-                        <span class="highlight">{item.title}</span>
-                      {/if}
-                      {item.description}
-                      {#if item.details}
-                        <div class="history-details">{item.details}</div>
-                      {/if}
+          {#if historyEntries.length > 0}
+            {#each Object.entries(groupedHistory) as [date, entries] (date)}
+              <div class="history-group">
+                <h3>{date}</h3>
+                <div class="history-entries">
+                  {#each entries as entry (entry.timestamp)}
+                    <div class="history-entry">
+                      <span class="time">{formatTimestamp(entry.timestamp).time}</span>
+                      <span class="type">{entry.type}</span>
+                      <span class="title">{entry.title}</span>
+                      <span class="description">{entry.description}</span>
                     </div>
-                  </div>
+                  {/each}
                 </div>
-              {/each}
-            </div>
-          {/each}
+              </div>
+            {/each}
+          {:else}
+            <p>No history entries yet.</p>
+          {/if}
         </div>
       {:else if currentSelection.value === 'settings'}
         <div class="top-bar">
@@ -713,6 +749,47 @@
 
   .highlight {
     font-weight: 500;
+  }
+
+  .theme-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .delete-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #FFEBEE;
+    color: #c62828;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+  }
+
+  .delete-button:hover {
+    background: #FFCDD2;
+  }
+
+  .delete-button .icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 0;
+    fill: currentColor;
+  }
+
+  :global(.dark) .delete-button {
+    background: #c62828;
+    color: white;
+  }
+
+  :global(.dark) .delete-button:hover {
+    background: #b71c1c;
   }
 
   .top-bar {

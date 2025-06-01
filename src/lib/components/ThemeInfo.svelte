@@ -1,9 +1,6 @@
 <script lang="ts">
-  export let theme: {
-    name: string;
-    thesis: string;
-    marketFocus?: string;
-  };
+  import type { Theme } from '$lib/types/storage';
+  export let theme: Theme;
 </script>
 
 <div class="theme-info">
@@ -14,12 +11,28 @@
     <p>{theme.thesis}</p>
   </div>
 
-  {#if theme.marketFocus}
-    <div class="info-section">
-      <h3>Market Focus</h3>
-      <p>{theme.marketFocus}</p>
+  <div class="info-section">
+    <h3>Focus Area</h3>
+    <p class="focus-area">{theme.focusArea.charAt(0).toUpperCase() + theme.focusArea.slice(1)}</p>
+  </div>
+
+  <div class="info-section">
+    <h3>Rewrite Schedule</h3>
+    <div class="periodicity-info">
+      <div class="schedule-item">
+        <span class="label">Frequency:</span>
+        <span class="value">{theme.periodicity.frequency.charAt(0).toUpperCase() + theme.periodicity.frequency.slice(1)}</span>
+      </div>
+      <div class="schedule-item">
+        <span class="label">Time:</span>
+        <span class="value">{theme.periodicity.timeOfDay}</span>
+      </div>
+      <div class="schedule-item">
+        <span class="label">Timezone:</span>
+        <span class="value">{theme.periodicity.timezone.replace('_', ' ')}</span>
+      </div>
     </div>
-  {/if}
+  </div>
 </div>
 
 <style>
@@ -58,5 +71,39 @@
   p {
     margin: 0;
     line-height: 1.5;
+  }
+
+  .focus-area {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--hover-bg, #eeeeee);
+    border-radius: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .periodicity-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .schedule-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .label {
+    font-size: 0.75rem;
+    color: #666;
+  }
+
+  :global(.dark) .label {
+    color: #999;
+  }
+
+  .value {
+    font-weight: 500;
   }
 </style>
