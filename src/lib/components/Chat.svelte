@@ -1,5 +1,7 @@
 <!-- Chat.svelte -->
 <script lang="ts">
+  import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
+  export let asset_id: string | null = null;
   import { onMount } from 'svelte';
 
   interface Message {
@@ -21,8 +23,12 @@
     }, 0);
   }
 
+  let loading = false;
+  let errorMsg = '';
+
   async function handleSubmit() {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || loading) return;
+    errorMsg = '';
 
     // Add user message
     const userMessage: Message = {
@@ -35,19 +41,45 @@
     scrollToBottom();
 
     const userInput = inputText;
-    inputText = ''; // Clear input
+    inputText = '';
+    loading = true;
 
-    // Simulate API response (for now, just echo back the message)
-    setTimeout(() => {
+    try {
+      // Prepare message history for backend (optional, can be extended)
+      const history = messages.map(m => ({
+        role: m.isUser ? 'user' : 'argos',
+        content: m.text
+      }));
+      const body: any = { message: userInput, history };
+      if (asset_id) body.asset_id = asset_id;
+      const resp = await fetch(import.meta.env.VITE_API_BASE_URL + '/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) throw new Error('Server error: ' + resp.status);
+      const data = await resp.json();
       const botMessage: Message = {
         id: crypto.randomUUID(),
-        text: userInput,
+        text: data.response,
         isUser: false,
         timestamp: new Date()
       };
       messages = [...messages, botMessage];
       scrollToBottom();
-    }, 1000); // Simulate network delay
+    } catch (err: any) {
+      errorMsg = err.message || 'Unknown error';
+      const botMessage: Message = {
+        id: crypto.randomUUID(),
+        text: '[Error] ' + errorMsg,
+        isUser: false,
+        timestamp: new Date()
+      };
+      messages = [...messages, botMessage];
+      scrollToBottom();
+    } finally {
+      loading = false;
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -67,7 +99,11 @@
     {#each messages as message (message.id)}
       <div class="message {message.isUser ? 'user' : 'bot'}">
         <div class="message-bubble">
-          {message.text}
+          {#if message.isUser}
+              {message.text}
+            {:else}
+              {@html simpleMarkdown(message.text)}
+            {/if}
         </div>
         <div class="message-time">
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

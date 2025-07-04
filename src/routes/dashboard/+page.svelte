@@ -1,12 +1,35 @@
 <script lang="ts">
-  import { theme } from '$lib/stores/theme';
+  // Robust API base: use env if available, fallback to backend default, fallback to window.location.origin
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://0.0.0.0:8000';
+
+  // Simple markdown renderer: bold, headings, bullets, spacing
+import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
+// simpleMarkdown is now imported from utils for DRYness.
+
   import { onMount } from 'svelte';
-  import type { Theme, HistoryEntry, HistoryType } from '$lib/types/storage';
-  import ThemeForm from '$lib/components/ThemeForm.svelte';
+  import type { Theme, HistoryEntry } from '$lib/types/storage';
+  import type { Asset } from '$lib/api/assets';
   import ThemeReview from '$lib/components/ThemeReview.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ThemeInfo from '$lib/components/ThemeInfo.svelte';
   import Chat from '$lib/components/Chat.svelte';
+
+  export let data;
+// data.assets is now populated from the backend API for sidebar rendering.
+
+  // Hardcode the 'hell' theme to ensure its data is always available for display.
+  const themes: Theme[] = [
+    {
+      id: 'hell',
+      name: 'Hell',
+      description: "A theme that will make you feel like you're in hell",
+      colors: {
+        primary: '#ff0000',
+        secondary: '#000000',
+        background: '#ffffff'
+      }
+    }
+  ];
 
   let historyEntries: HistoryEntry[] = [];
   let groupedHistory: Record<string, HistoryEntry[]> = {};
@@ -15,24 +38,6 @@
     const response = await fetch('/api/history');
     const data = await response.json();
     historyEntries = data.entries || [];
-  }
-
-  async function addHistoryEntry(type: HistoryType, title: string, description: string, themeId?: string) {
-    const entry: HistoryEntry = {
-      type,
-      title,
-      description,
-      timestamp: new Date().toISOString(),
-      themeId
-    };
-
-    await fetch('/api/history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry)
-    });
-
-    historyEntries = [...historyEntries, entry];
   }
 
   function formatTimestamp(isoString: string): { date: string, time: string } {
@@ -50,8 +55,8 @@
       dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    const timeStr = date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    const timeStr = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
       hour12: false,
       timeZone: 'Europe/Stockholm'
@@ -71,48 +76,17 @@
     }, {} as Record<string, HistoryEntry[]>);
   }
 
-  let selectedFilter = 'all';
-  
-  function filterHistory(filter: string) {
-    selectedFilter = filter.toLowerCase();
-  }
-
-  $: filteredHistory = Object.entries(groupedHistory).map(([date, entries]) => ({
-    date,
-    items: entries.filter(item => 
-      selectedFilter === 'all' || 
-      (selectedFilter === 'changes' && item.type === 'theme') ||
-      (selectedFilter === 'system' && item.type === 'system')
-    )
-  })).filter(group => group.items.length > 0);
-
-  export let data;
-
-  let themes: Theme[] = [];
-
-  async function loadThemes() {
-    const response = await fetch('/api/themes');
-    if (response.ok) {
-      themes = await response.json();
-    }
-  }
-
   onMount(async () => {
-    await Promise.all([
-      loadThemes(),
-      loadHistory()
-    ]);
+    await loadHistory();
   });
 
+  type Selection = { type: 'theme' | 'nav' | 'asset'; value: string };
 
+  let currentSelection: Selection = { type: 'nav', value: 'dashboard' };
 
-  type Selection = {
-    type: 'theme' | 'nav';
-    value: string;
-  };
-
-  let currentSelection: Selection = { type: 'nav', value: 'history' };
-  let showThemeForm = false;
+  function selectAsset(asset: Asset): void {
+    currentSelection = { type: 'asset', value: asset.id };
+  }
 
   function selectTheme(theme: Theme): void {
     currentSelection = { type: 'theme', value: theme.id };
@@ -122,42 +96,33 @@
     currentSelection = { type: 'nav', value };
   }
 
-  async function handleThemeCreated(event: CustomEvent<Theme>): Promise<void> {
-    const response = await fetch('/api/themes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(event.detail)
-    });
-
-    if (response.ok) {
-      const newTheme = await response.json();
-      themes = [...themes, newTheme];
-      showThemeForm = false;
-      // Add history entry
-      await addHistoryEntry('theme', `Created new theme: ${newTheme.name}`, newTheme.id);
-      // Select the newly created theme
-      currentSelection = { type: 'theme', value: newTheme.id };
+  $: themeForDisplay = (() => {
+    if (currentSelection.type === 'theme') {
+      return themes.find(t => t.id === currentSelection.value);
     }
+    if (currentSelection.type === 'asset') {
+      return themes.find(t => t.id === 'hell');
+    }
+    return null;
+  })();
+
+  let selectedFilter = 'all';
+
+  function filterHistory(filter: string) {
+    selectedFilter = filter.toLowerCase();
   }
 
-  async function handleDeleteTheme(theme: Theme): Promise<void> {
-    const response = await fetch(`/api/themes/${theme.id}`, {
-      method: 'DELETE'
-    });
-
-    if (response.ok) {
-      themes = themes.filter(t => t.id !== theme.id);
-      await addHistoryEntry('theme', `Deleted theme: ${theme.name}`, theme.id);
-      currentSelection = { type: 'nav', value: 'history' };
-    }
-  }
-
-  $: selectedTheme = currentSelection.type === 'theme' 
-    ? themes.find(t => t.id === currentSelection.value)
-    : null;
+  $: filteredHistory = Object.entries(groupedHistory).map(([date, entries]) => ({
+    date,
+    items: entries.filter(item =>
+      selectedFilter === 'all' ||
+      (selectedFilter === 'changes' && item.type === 'theme') ||
+      (selectedFilter === 'system' && item.type === 'system')
+    )
+  })).filter(group => group.items.length > 0);
 </script>
+
+
 
 <div class="app-container">
   <div class="dashboard-container">
@@ -168,18 +133,34 @@
     </div>
     
     <div class="themes-section">
-      <ul class="themes-list">
+       <ul class="themes-list">
+        {#each data.assets as asset}
+          <li class="asset-list-item">
+            <button class:active={currentSelection.type === 'asset' && currentSelection.value === asset.id}
+                    on:click={() => selectAsset(asset)}>
+              {asset.name}
+            </button>
+            <ul>
+              <li class="strategy-subitem" style="margin-left: 1.5rem; font-size: 0.9em; color: #666;">
+                <button class:active={currentSelection.type === 'strategy' && currentSelection.value === asset.id}
+                        style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; font-size: 0.95em;"
+                        on:click={() => currentSelection = { type: 'strategy', value: asset.id }}>
+                  Strategy
+                </button>
+              </li>
+            </ul>
+          </li>
+        {/each}
+
         {#each themes as theme}
           <li class:active={currentSelection.type === 'theme' && currentSelection.value === theme.id}>
-            <button on:click={() => selectTheme(theme)}>
+            <button on:click={() => { selectTheme(theme); }}>
               {theme.name}
             </button>
           </li>
         {/each}
       </ul>
-      <button class="add-theme-button" on:click={() => { showThemeForm = true; currentSelection = { type: 'nav', value: 'new-theme' }; }}>
-        + Add Theme
-      </button>
+      
     </div>
 
     <div class="sidebar-spacer"></div>
@@ -229,110 +210,56 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="main-content">
-    {#if showThemeForm}
-      <div class="top-bar">
-        <h1>New Theme</h1>
+  <main class="main-content scrollable-main">
+    {#if themeForDisplay}
+      <div class="theme-header">
+        <div class="spacer"></div>
       </div>
-      <div class="form-container">
-        <ThemeForm 
-          on:themeCreated={handleThemeCreated}
-          on:cancel={() => { showThemeForm = false; currentSelection = { type: 'nav', value: 'history' }; }}
-        />
-      </div>
-    {:else if currentSelection.type === 'theme'}
-      {#if selectedTheme}
-        <div class="theme-header">
-          <div class="spacer"></div>
-          <button class="delete-button" on:click={() => handleDeleteTheme(selectedTheme)}>
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-            </svg>
-            Delete Theme
-          </button>
-        </div>
-        <ThemeInfo theme={selectedTheme} />
-        <ThemeReview theme={selectedTheme} />
-      {/if}
-    {:else if currentSelection.type === 'nav'}
-      {#if currentSelection.value === 'dashboard'}
-        <div class="top-bar">
-          <h1>Dashboard</h1>
-        </div>
-
-      <div class="dashboard-grid">
-        <div class="card">
-          <h3>Quick Stats</h3>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-value">128</span>
-              <span class="stat-label">Total Projects</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">86%</span>
-              <span class="stat-label">Completion Rate</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">24</span>
-              <span class="stat-label">Active Tasks</span>
-            </div>
+      <ThemeInfo theme={themeForDisplay} />
+      <ThemeReview theme={themeForDisplay} />
+    {:else if currentSelection.type === 'asset'}
+      <section class="card asset-dashboard asset-dashboard-theme">
+        <h2 class="asset-dashboard-title">{data.assets.find(a => a.id === currentSelection.value)?.name}</h2>
+        <div class="info-row"><span class="info-label">Timezone:</span> <span class="info-value">Europe/Stockholm</span></div>
+        <div class="info-row"><span class="info-label">Type:</span> <span class="info-value">Currency Pair</span></div>
+        <div class="info-row"><span class="info-label">Strategy:</span> <span class="info-value">{data.assets.find(a => a.id === currentSelection.value)?.has_strategy ? 'Available' : 'Not set'}</span></div>
+        <div class="info-row"><span class="info-label">More Info:</span> <span class="info-value">(Add asset-specific info here)</span></div>
+      </section>
+      <section class="card asset-markdown-box asset-markdown-theme">
+        <h3 class="asset-markdown-title">Asset Documentation</h3>
+        {#await (async () => {
+          let response, data, url = `${API_BASE}/report/${currentSelection.value}`;
+          try {
+            response = await fetch(url);
+            if (!response.ok) throw new Error('No documentation found. HTTP status: ' + response.status);
+            data = await response.json();
+            if (data.content) return data.content;
+            throw new Error('No markdown content found. Raw response: ' + JSON.stringify(data));
+          } catch (err) {
+            throw { err, response, data, url };
+          }
+        })() then markdown}
+          <div class="asset-markdown-content markdown-root">
+            {#each markdown.split('\n') as line}
+              {@html simpleMarkdown(line)}
+            {/each}
           </div>
-        </div>
-
-        <div class="card">
-          <h3>Recent Activity</h3>
-          <ul class="activity-list">
-            <li>
-              <span class="activity-time">2h ago</span>
-              <span class="activity-text">New project "Atlas" created</span>
-            </li>
-            <li>
-              <span class="activity-time">5h ago</span>
-              <span class="activity-text">Updated team settings</span>
-            </li>
-            <li>
-              <span class="activity-time">1d ago</span>
-              <span class="activity-text">Completed milestone: Phase 1</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="card wide">
-          <h3>Project Overview</h3>
-          <table class="project-table">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th>Due Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Atlas Integration</td>
-                <td><span class="status active">Active</span></td>
-                <td>
-                  <div class="progress-bar">
-                    <div class="progress" style="width: 75%"></div>
-                  </div>
-                </td>
-                <td>June 15, 2025</td>
-              </tr>
-              <tr>
-                <td>Data Migration</td>
-                <td><span class="status pending">Pending</span></td>
-                <td>
-                  <div class="progress-bar">
-                    <div class="progress" style="width: 30%"></div>
-                  </div>
-                </td>
-                <td>July 1, 2025</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        {:catch info}
+          <div class="asset-markdown-error">No documentation found for this asset.<br>
+            <b>Error:</b> {info?.err?.message || info}<br>
+            <b>Status:</b> {info?.response?.status}<br>
+            <b>URL:</b> {info?.url}<br>
+            <b>Raw JSON:</b> <pre class="asset-markdown-error-json">{JSON.stringify(info?.data, null, 2)}</pre>
+          </div>
+        {/await}
+      </section>
+    {:else if currentSelection.type === 'strategy'}
+      <form class="strategy-form strategy-form-theme">
+        <label for="strategy-text" class="strategy-label">Strategy</label>
+        <textarea id="strategy-text" rows="14" placeholder="Enter your strategy here..." class="strategy-textarea"></textarea>
+        <button type="submit" class="strategy-save-btn">Save</button>
+      </form>
+      <!-- Removed stat-item and Project Overview blocks that may be causing errors -->
       {:else if currentSelection.value === 'history'}
         <div class="top-bar">
           <h1>History</h1>
@@ -389,6 +316,14 @@
             <p>No history entries yet.</p>
           {/if}
         </div>
+      {:else if currentSelection.value === 'dashboard'}
+        <div class="top-bar">
+          <h1>Dashboard</h1>
+        </div>
+        <section class="card welcome-box welcome-theme">
+          <h2 class="welcome-title">Welcome to Argos</h2>
+          <p class="welcome-description">Argos is your unified platform for asset intelligence, research, and strategy management. Use the sidebar to explore assets, manage strategies, and review your project history. Get started by selecting an asset or strategy, or explore your history and settings from the navigation menu.</p>
+        </section>
       {:else if currentSelection.value === 'settings'}
         <div class="top-bar">
           <h1>Settings</h1>
@@ -400,13 +335,17 @@
           </div>
         </div>
       {/if}
-    {/if}
-  </main>
+    </main>
   </div>
-  <Chat />
+  <Chat asset_id={currentSelection.type === 'asset' ? currentSelection.value : data.assets[0].id} />
 </div>
 
 <style>
+  .scrollable-main {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
   .app-container {
     display: grid;
     grid-template-columns: 1fr 25%;
@@ -948,4 +887,92 @@
   :global(.dark) .progress {
     background: #90caf9;
   }
+.asset-dashboard-theme {
+  max-width: 700px;
+  margin: 2rem auto;
+}
+.asset-dashboard-title {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: var(--primary);
+}
+.asset-markdown-theme {
+  max-width: 700px;
+  margin: 1.5rem auto 0 auto;
+  padding: 2rem 2.5rem;
+}
+.asset-markdown-title {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+.asset-markdown-content {
+  font-size: 1.05rem;
+  color: var(--text-primary, var(--text-color, #444)) !important;
+}
+.asset-markdown-error {
+  color: var(--text-secondary, #888);
+}
+.asset-markdown-error-json {
+  font-size: 0.9em;
+  color: var(--text-tertiary, #999);
+  background: var(--background-secondary, #f6f6f6);
+  padding: 0.5em;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.strategy-form-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.strategy-label {
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.strategy-textarea {
+  width: 100%;
+  max-width: 900px;
+  min-height: 300px;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  resize: vertical;
+}
+.strategy-save-btn {
+  width: 100%;
+  max-width: 900px;
+  padding: 1.2rem 0;
+  font-size: 1.25rem;
+  background: var(--primary, #2196f3);
+  color: var(--button-text, white);
+  border: none;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px var(--primary, #2196f33a);
+  cursor: pointer;
+}
+.welcome-theme {
+  max-width: 600px;
+  margin: 2rem auto 1.5rem auto;
+  padding: 2rem 2.5rem;
+  text-align: center;
+}
+.welcome-title {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+.welcome-description {
+  font-size: 1.1rem;
+  color: var(--text-primary, var(--text-color, #444)) !important;
+  transition: color 0.2s;
+}
+
+.markdown-root {
+  color: var(--text-primary, var(--text-color, #444)) !important;
+  transition: color 0.2s;
+}
+
 </style>
