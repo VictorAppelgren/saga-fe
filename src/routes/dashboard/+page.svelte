@@ -4,6 +4,7 @@
 
   // Simple markdown renderer: bold, headings, bullets, spacing
 import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
+import { linkifyIds } from '$lib/utils/linkifyIds';
 // simpleMarkdown is now imported from utils for DRYness.
 
   import { onMount } from 'svelte';
@@ -14,22 +15,56 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   import ThemeInfo from '$lib/components/ThemeInfo.svelte';
   import Chat from '$lib/components/Chat.svelte';
 
+  // --- STRATEGY API ---
+  let strategyText = '';
+  let loadingStrategy = false;
+  let savingStrategy = false;
+  let strategyError = '';
+
+  async function fetchStrategy() {
+    if (currentSelection.type !== 'strategy' || !currentSelection.value) return;
+    loadingStrategy = true;
+    strategyError = '';
+    try {
+      const res = await fetch(`${API_BASE}/strategy/${currentSelection.value}`);
+      if (!res.ok) throw new Error('Could not fetch strategy.');
+      const data = await res.json();
+      strategyText = data.strategy || '';
+    } catch (e) {
+      strategyError = 'Failed to load strategy.';
+      strategyText = '';
+    } finally {
+      loadingStrategy = false;
+    }
+  }
+
+  async function saveStrategy() {
+    if (!currentSelection.value) return;
+    savingStrategy = true;
+    strategyError = '';
+    try {
+      const res = await fetch(`${API_BASE}/strategy/${currentSelection.value}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: strategyText, research_domains: [] })
+      });
+      if (!res.ok) throw new Error('Could not save strategy.');
+      // Optionally show a success message
+    } catch (e) {
+      strategyError = 'Failed to save strategy.';
+    } finally {
+      savingStrategy = false;
+    }
+  }
+
+  // Watch for strategy section open/change
+  $: if (currentSelection.type === 'strategy' && currentSelection.value) {
+    fetchStrategy();
+  }
+
   export let data;
 // data.assets is now populated from the backend API for sidebar rendering.
 
-  // Hardcode the 'hell' theme to ensure its data is always available for display.
-  const themes: Theme[] = [
-    {
-      id: 'hell',
-      name: 'Hell',
-      description: "A theme that will make you feel like you're in hell",
-      colors: {
-        primary: '#ff0000',
-        secondary: '#000000',
-        background: '#ffffff'
-      }
-    }
-  ];
 
   let historyEntries: HistoryEntry[] = [];
   let groupedHistory: Record<string, HistoryEntry[]> = {};
@@ -96,15 +131,7 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
     currentSelection = { type: 'nav', value };
   }
 
-  $: themeForDisplay = (() => {
-    if (currentSelection.type === 'theme') {
-      return themes.find(t => t.id === currentSelection.value);
-    }
-    if (currentSelection.type === 'asset') {
-      return themes.find(t => t.id === 'hell');
-    }
-    return null;
-  })();
+  $: themeForDisplay = null;
 
   let selectedFilter = 'all';
 
@@ -152,13 +179,7 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
           </li>
         {/each}
 
-        {#each themes as theme}
-          <li class:active={currentSelection.type === 'theme' && currentSelection.value === theme.id}>
-            <button on:click={() => { selectTheme(theme); }}>
-              {theme.name}
-            </button>
-          </li>
-        {/each}
+
       </ul>
       
     </div>
@@ -241,7 +262,7 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
         })() then markdown}
           <div class="asset-markdown-content markdown-root">
             {#each markdown.split('\n') as line}
-              {@html simpleMarkdown(line)}
+              {@html linkifyIds(simpleMarkdown(line))}
             {/each}
           </div>
         {:catch info}
@@ -254,11 +275,27 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
         {/await}
       </section>
     {:else if currentSelection.type === 'strategy'}
-      <form class="strategy-form strategy-form-theme">
-        <label for="strategy-text" class="strategy-label">Strategy</label>
-        <textarea id="strategy-text" rows="14" placeholder="Enter your strategy here..." class="strategy-textarea"></textarea>
-        <button type="submit" class="strategy-save-btn">Save</button>
-      </form>
+      {#if currentSelection.type === 'strategy'}
+  <form class="strategy-form strategy-form-theme" on:submit|preventDefault={saveStrategy}>
+    <h2 class="strategy-heading">Strategy</h2>
+    <div class="strategy-description">
+      The strategy you define here is infused in all steps of your workflow. It sets the tone for your research, guides what market data to analyze, and is used when aggregating all research into a final report.
+    </div>
+    <textarea
+      id="strategy-text"
+      placeholder="Enter your strategy here..."
+      class="strategy-textarea"
+      bind:value={strategyText}
+      disabled={loadingStrategy}
+    ></textarea>
+    <button type="submit" class="strategy-save-btn" disabled={savingStrategy || loadingStrategy}>
+      {savingStrategy ? 'Saving...' : 'Save'}
+    </button>
+    {#if strategyError}
+      <div class="strategy-error">{strategyError}</div>
+    {/if}
+  </form>
+{/if}
       <!-- Removed stat-item and Project Overview blocks that may be causing errors -->
       {:else if currentSelection.value === 'history'}
         <div class="top-bar">
@@ -926,6 +963,12 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   flex-direction: column;
   align-items: center;
   width: 100%;
+  height: 90vh;
+  min-height: 600px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 1.5rem;
+  box-sizing: border-box;
 }
 .strategy-label {
   align-self: flex-start;
@@ -934,25 +977,64 @@ import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
 }
 .strategy-textarea {
   width: 100%;
-  max-width: 900px;
-  min-height: 300px;
+  flex: 1 1 auto;
+  min-height: 0;
   font-size: 1.1rem;
-  margin-bottom: 2rem;
-  resize: vertical;
+  margin-bottom: 1.2rem;
+  resize: none;
+  background: var(--card-bg, #f5f5f5);
+  color: var(--text-primary, var(--text-color, #222));
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.strategy-textarea:focus {
+  outline: none;
+  border-color: var(--primary, #2196f3);
+  background: var(--background-secondary, #fff);
 }
 .strategy-save-btn {
   width: 100%;
   max-width: 900px;
   padding: 1.2rem 0;
-  font-size: 1.25rem;
-  background: var(--primary, #2196f3);
-  color: var(--button-text, white);
-  border: none;
+  font-size: 1.15rem;
+  background: var(--card-bg, #f5f5f5);
+  color: var(--text-primary, var(--text-color, #222));
+  border: 1px solid var(--border-color, #e0e0e0);
   border-radius: 8px;
-  margin-top: 0.5rem;
-  box-shadow: 0 2px 8px var(--primary, #2196f33a);
+  margin-top: auto;
+  margin-bottom: 0;
+  box-shadow: none;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
+.strategy-save-btn:focus {
+  outline: 2px solid var(--primary, #2196f3);
+  outline-offset: 2px;
+}
+.strategy-save-btn:hover {
+  background: var(--background-secondary, #ededed);
+  border-color: var(--primary, #2196f3);
+}
+.strategy-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: var(--primary, var(--text-primary, #222));
+  width: 100%;
+  text-align: left;
+}
+.strategy-description {
+  font-size: 1.05rem;
+  color: var(--text-secondary, #555);
+  margin-bottom: 1.4rem;
+  width: 100%;
+  text-align: left;
+}
+
 .welcome-theme {
   max-width: 600px;
   margin: 2rem auto 1.5rem auto;

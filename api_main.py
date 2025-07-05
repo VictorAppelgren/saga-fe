@@ -1,3 +1,5 @@
+from custom_logging import setup_logging
+setup_logging(debug=False)
 # api/main.py
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +13,11 @@ import glob
 from datetime import datetime
 import re
 
+from paths import get_asset_reports_dir
+
+from model_config import get_complex_llm
+import traceback
+
 # Add parent directory to path to import db_loader
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db_loader import get_chromadb_client, get_or_create_collection, load_insights_collection
@@ -18,6 +25,10 @@ from custom_logging import get_logger
 
 # Initialize logger
 logger = get_logger('argos.api')
+
+# Initialize a single shared Complex LLM instance for all endpoints
+COMPLEX_LLM = get_complex_llm()
+logger.info("[Argos][init] COMPLEX_LLM initialized and ready for use.")
 
 # Initialize FastAPI
 app = FastAPI(
@@ -669,38 +680,81 @@ def build_llm_context_for_conversation(report_markdown, fetch_insight, fetch_art
     context.append("\n---\n")
     context.append("## Insights Used\n")
     context.extend([f"- {insight}" for insight in insights if insight])
-    context.append("\n## News Articles Used\n")
+    context.append("\n---\n")
+    context.append("## Articles Used\n")
     context.extend([f"- {article}" for article in articles if article])
-    logger.info("LLM context for conversation built successfully.")
+    context.append("\n---\n")
+    context.append("## User Message\n")
+    context.append(msg.message.strip())
     return "\n".join(context)
 
 @app.post("/chat")
 def chat_endpoint(msg: ChatMessage):
-    logger.info(f"Chat request: {msg.dict()}")
-    # Simulate Argos market intelligence chat
-    if (msg.asset_id and msg.asset_id.upper() == "EURUSD") or ("eurusd" in msg.message.lower()):
-        # Simulate pulling the latest EURUSD report
-        reports_dir = os.path.join("output", "EURUSD", "reports")
-        files = [f for f in glob.glob(os.path.join(reports_dir, "*.md"))]
-        files += [f for f in glob.glob(os.path.join(reports_dir, "*.MD"))]
-        files = [f for f in files if not os.path.basename(f).startswith(".") and not os.path.basename(f).startswith("~")]
-        if files:
-            files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
-            with open(files[0], "r", encoding="utf-8") as f:
-                content = f.read()
-            summary = content.split("## Executive Summary", 1)[-1].split("##", 1)[0].strip() if "## Executive Summary" in content else content[:300]
-            reply = f"[Argos] EURUSD Macro Intelligence:\n{summary}\n\nActionable Insight: Monitor Fed communications and European economic releases; a dovish Fed could drive EUR/USD toward 1.0800 in the next 2 months."
-        else:
-            reply = "[Argos] No EURUSD macro report available at this time."
-    else:
-        reply = "[Argos] Welcome to Argos Market Intelligence. Please specify an asset or ask about macro trends."
-    return {"response": reply}
+    asset = (msg.asset_id or "").upper().strip()
+    logger.info(f"[Argos][chat] Incoming chat request: asset='{asset}', message='{msg.message.strip()}'")
+    if not asset:
+        logger.warning(f"[Argos][chat] No asset provided in message: '{msg.message.strip()}'")
+        raise HTTPException(
+            status_code=400,
+            detail="no asset provided in message. Please specify an asset."
+        )
 
+    reports_dir: Path = get_asset_reports_dir(asset)
+    logger.info(f"[Argos][chat] Resolved reports_dir: {reports_dir}")
+    if not reports_dir.exists():
+        logger.warning(f"[Argos][directory_check] Reports directory does not exist for asset '{asset}': {reports_dir}")
+        raise HTTPException(
+            status_code=404,
+            detail="asset does not exist"
+        )
+    files = [f for f in reports_dir.glob("*.md")] + \
+            [f for f in reports_dir.glob("*.MD")] + \
+            [f for f in reports_dir.glob("*.mD")] + \
+            [f for f in reports_dir.glob("*.Md")]
+    files = [f for f in files if not f.name.startswith((".", "~"))]
+    logger.info(f"[Argos][chat] Found {len(files)} report files for asset '{asset}': {[f.name for f in files]}")
+    if not files:
+        logger.warning(f"[Argos][file_check] No .md report files found for asset '{asset}' in {reports_dir}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"No .md report files found for asset {asset}."
+        )
+    try:
+        files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        logger.info(f"[Argos][chat] Using latest report file: {files[0].name}")
+        with files[0].open("r", encoding="utf-8") as f:
+            report_content = f.read()
+    except Exception as e:
+        logger.error(f"[Argos][file_access] Error accessing report files for asset '{asset}': {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error accessing report files for asset {asset}."
+        )
+    if COMPLEX_LLM is None:
+        logger.error(f"[Argos][llm_init] LLM is not available at startup for asset '{asset}'")
+        raise HTTPException(
+            status_code=500,
+            detail="LLM is not available (initialization failed at startup)."
+        )
+    try:
+        logger.info(f"[Argos][chat] Invoking LLM for asset '{asset}'")
+        prompt = f"You are Argos, a market intelligence assistant.\n\n---\n## Latest Report for {asset}\n{report_content}\n---\nUser message: {msg.message}\n\nProvide a concise, actionable response using only the report above."
+        llm_response = COMPLEX_LLM.invoke(prompt)
+        reply = llm_response.content if hasattr(llm_response, 'content') else str(llm_response)
+        logger.info(f"[Argos][chat] LLM response generated for asset '{asset}'")
+        return {"response": reply.strip()}
+    except Exception as e:
+        logger.error(f"[Argos][llm_call] LLM call failed for asset '{asset}': {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"LLM call failed for asset {asset}."
+        )
+    
 # Run the server if this file is executed directly
 if __name__ == "__main__":
     DEBUG = False  # Ensure debug is set to False for production
     print("\nArgos API server starting...")
-    print("API available at: http://localhost:8000")
-    print("Docs available at: http://localhost:8000/docs\n")
+    print("API available at: http://0.0.0.0:8000")
+    print("Docs available at: http://0.0.0.0:8000/docs\n")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
