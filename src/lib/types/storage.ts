@@ -30,10 +30,10 @@ export interface Theme {
 
 export interface UserSettings {
   theme: 'light' | 'dark';
-  defaultView: 'history' | 'dashboard';
 }
 
 export interface UserData {
+  active: boolean;
   themes: Theme[];
   settings: UserSettings;
   history?: HistoryEntry[];

@@ -2,6 +2,24 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import type { Storage, Theme, UserSettings } from '$lib/types/storage';
 
+// Update a user's 'active' status
+export async function setUserActive(username: string, isActive: boolean): Promise<void> {
+    const storage = await readStorage();
+    if (!storage[username]) throw new Error('User not found');
+    storage[username].active = isActive;
+    await writeStorage(storage);
+}
+
+// Update a user's theme ("light" or "dark")
+export async function setUserTheme(username: string, theme: 'light' | 'dark'): Promise<void> {
+    const storage = await readStorage();
+    if (!storage[username]) throw new Error('User not found');
+    if (!storage[username].settings) storage[username].settings = {} as UserSettings;
+    storage[username].settings.theme = theme;
+    await writeStorage(storage);
+}
+
+
 const DB_FILE = path.join(process.cwd(), 'db.json');
 
 // Read storage

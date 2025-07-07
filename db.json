@@ -1,31 +1,17 @@
 {
   "william": {
-    "themes": [
-      {
-        "name": "hell",
-        "thesis": "hlrg",
-        "focusArea": "europe",
-        "periodicity": {
-          "frequency": "daily",
-          "timeOfDay": "09:00",
-          "timezone": "Europe/Stockholm"
-        },
-        "id": "85d18d57-2fbd-416f-8c59-6cc25fc6070c",
-        "createdAt": "2025-06-01T15:06:20.760Z",
-        "updatedAt": "2025-06-01T15:06:20.760Z"
-      }
-    ],
+    "password_plaintext": "123",
+    "active": true,
     "settings": {
-      "theme": "light",
-      "defaultView": "history"
+      "theme": "light"
     },
-    "history": [
-      {
-        "type": "theme",
-        "title": "Created new theme: hell",
-        "description": "85d18d57-2fbd-416f-8c59-6cc25fc6070c",
-        "timestamp": "2025-06-01T15:06:20.765Z"
-      }
-    ]
+    "history": []
+  },
+  "victor": {
+    "password_plaintext": "abc",
+    "active": true,
+    "settings": {
+      "theme": "dark"
+    }
   }
 }

@@ -1,6 +1,6 @@
 // src/lib/api/reports.ts
 
-import { api } from "./client";
+import { api } from "$lib/api/client";
 
 export type ReportSummary = {
   id: string;

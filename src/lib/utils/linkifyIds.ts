@@ -31,19 +31,19 @@ export function linkifyIds(text: string): string {
   }
 
   // 1. Replace Insight ID: XXXXXXX and Article ID: XXXXX patterns
-  let replaced = text.replace(/(Insight ID: )([A-Z0-9]{7})/g, (m, label, id) => `${label}<a href="/insight/${id}"><b>${id}</b></a>`)
-    .replace(/(Article ID: )([A-Z0-9]{5})/g, (m, label, id) => `${label}<a href="/article/${id}"><b>${id}</b></a>`);
+  let replaced = text.replace(/(Insight ID: )([A-Z0-9]{7})/g, (m, label, id) => `${label}<a href="/insight/${id}" data-insight-id="${id}"><b>${id}</b></a>`)
+    .replace(/(Article ID: )([A-Z0-9]{5})/g, (m, label, id) => `${label}<a href="/article/${id}" data-article-id="${id}"><b>${id}</b></a>`);
 
   // 2. Replace IDs in parentheses or comma-separated lists
   replaced = replaced.replace(/\(([A-Z0-9 ,:]+)\)/g, (match, inner) => {
-    let innerReplaced = linkifySafe(inner, /\b([A-Z0-9]{7})\b/g, id => `<a href="/insight/${id}"><b>${id}</b></a>`);
-    innerReplaced = linkifySafe(innerReplaced, /\b([A-Z0-9]{5})\b/g, id => `<a href="/article/${id}"><b>${id}</b></a>`);
+    let innerReplaced = linkifySafe(inner, /\b([A-Z0-9]{7})\b/g, id => `<a href="/insight/${id}" data-insight-id="${id}"><b>${id}</b></a>`);
+    innerReplaced = linkifySafe(innerReplaced, /\b([A-Z0-9]{5})\b/g, id => `<a href="/article/${id}" data-article-id="${id}"><b>${id}</b></a>`);
     return '(' + innerReplaced + ')';
   });
 
   // 3. Replace standalone 7-char and 5-char IDs at word boundaries (not already inside a link)
-  replaced = linkifySafe(replaced, /\b([A-Z0-9]{7})\b/g, id => `<a href="/insight/${id}"><b>${id}</b></a>`);
-  replaced = linkifySafe(replaced, /\b([A-Z0-9]{5})\b/g, id => `<a href="/article/${id}"><b>${id}</b></a>`);
+  replaced = linkifySafe(replaced, /\b([A-Z0-9]{7})\b/g, id => `<a href="/insight/${id}" data-insight-id="${id}"><b>${id}</b></a>`);
+  replaced = linkifySafe(replaced, /\b([A-Z0-9]{5})\b/g, id => `<a href="/article/${id}" data-article-id="${id}"><b>${id}</b></a>`);
 
   return replaced;
 }

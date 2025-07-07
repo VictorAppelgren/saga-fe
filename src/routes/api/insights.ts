@@ -1,6 +1,6 @@
 // src/lib/api/insights.ts
 
-import { api } from "./client";
+import { api } from "$lib/api/client";
 
 export type Insight = {
   id: string;

@@ -1,6 +1,6 @@
 // src/lib/api/chat.ts
 
-import { api } from "./client";
+import { api } from "$lib/api/client";
 
 export type ChatMessage = {
   message: string;

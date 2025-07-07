@@ -1,6 +1,6 @@
 // src/lib/api/strategy.ts
 
-import { api } from "./client";
+import { api } from "$lib/api/client";
 
 export type Strategy = {
   content: string;               // Markdown content of the strategy

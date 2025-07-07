@@ -1,6 +1,6 @@
 // src/lib/api/researchDomains.ts
 
-import { api } from "./client";
+import { api } from "$lib/api/client";
 
 export type ResearchDomain = {
   id: string;

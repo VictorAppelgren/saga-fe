@@ -3,11 +3,41 @@
   const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://0.0.0.0:8000';
 
   // Simple markdown renderer: bold, headings, bullets, spacing
-import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
-import { linkifyIds } from '$lib/utils/linkifyIds';
-// simpleMarkdown is now imported from utils for DRYness.
+  import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
+  import { linkifyIds } from '$lib/utils/linkifyIds';
+  import { getInsight } from '../api/insights';
+  import { getArticle } from '../api/articles';
+  // simpleMarkdown is now imported from utils for DRYness.
 
-  import { onMount } from 'svelte';
+  /**
+   * Robustly linkifies only valid insight/article IDs in text:
+   * - Matches explicit 'Insight ID: XXXXXXX' or 'Article ID: XXXXX'
+   * - Matches IDs only inside parentheses (not in normal words)
+   */
+  function linkifyInsightText(text: string): string {
+    function linkifySafe(str: string, regex: RegExp, replacer: (id: string) => string) {
+      return str.replace(regex, (match, id) => {
+        // If already inside <a ...>, skip
+        const before = str.slice(0, str.indexOf(match));
+        const openTag = before.lastIndexOf('<a ');
+        const closeTag = before.lastIndexOf('</a>');
+        if (openTag > closeTag) return match;
+        return replacer(id);
+      });
+    }
+    // 1. Replace explicit 'Insight ID: XXXXXXX' and 'Article ID: XXXXX'
+    let replaced = text.replace(/(Insight ID: )([A-Z0-9]{7})/gi, (m, label, id) => `${label}<a href="/insight/${id}" data-insight-id="${id}"><b>${id}</b></a>`);
+    replaced = replaced.replace(/(Article ID: )([A-Z0-9]{5})/gi, (m, label, id) => `${label}<a href="/article/${id}" data-article-id="${id}"><b>${id}</b></a>`);
+    // 2. Replace IDs only inside parentheses
+    replaced = replaced.replace(/\((.*?)\)/gi, (match, inner) => {
+      let innerReplaced = linkifySafe(inner, /\b([A-Z0-9]{7})\b/gi, id => `<a href="/insight/${id}" data-insight-id="${id}"><b>${id}</b></a>`);
+      innerReplaced = linkifySafe(innerReplaced, /\b([A-Z0-9]{5})\b/gi, id => `<a href="/article/${id}" data-article-id="${id}"><b>${id}</b></a>`);
+      return '(' + innerReplaced + ')';
+    });
+    return replaced;
+  }
+
+  import { onMount, afterUpdate } from 'svelte';
   import type { Theme, HistoryEntry } from '$lib/types/storage';
   import type { Asset } from '$lib/api/assets';
   import ThemeReview from '$lib/components/ThemeReview.svelte';
@@ -68,6 +98,236 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
 
   let historyEntries: HistoryEntry[] = [];
   let groupedHistory: Record<string, HistoryEntry[]> = {};
+
+  // --- Tabbed Insight/Article State ---
+  type Tab = {
+    type: 'report' | 'insight' | 'article',
+    id: string,
+    label: string,
+    content: string,
+    loading: boolean
+  };
+
+  let tabs: Tab[] = [
+    { type: 'report', id: '', label: 'Report', content: '', loading: false }
+  ];
+  let activeTabIdx = 0;
+
+  // Helper: open or focus a tab
+  // Open a new tab or focus an existing one for insight/article
+async function openTab(type: 'insight'|'article', id: string, label: string) {
+    const idx = tabs.findIndex(t => t.type === type && t.id === id);
+    if (idx !== -1) {
+      activeTabIdx = idx;
+      return;
+    }
+    // Add new tab
+    tabs = [...tabs, { type, id, label, content: '', loading: true }];
+    activeTabIdx = tabs.length - 1;
+    // Fetch content
+    try {
+      let data;
+      if (type === 'insight') {
+        data = await getInsight(id);
+
+        const fieldsToShow = [
+          ['Current Thesis', data.current_thesis],
+          ['Motivation', data.motivation_for_insight],
+          ['Market Impact', data.market_impact],
+          ['Confidence Level', data.confidence_level],
+          ['Key Risks', data.key_risks],
+          ['Implications', data.implications_of_insight],
+          ['Temporal Horizon', data.temporal_horizon],
+          ['Quantitative Parameters', data.quantitative_parameters],
+        ];
+
+        let contentHtml = fieldsToShow
+          .filter(([_, value]) => value && String(value ?? '').trim())
+          .map(([label, value]) => `<h3>${label}</h3><p>${linkifyInsightText(String(value ?? '').trim()).replace(/\n/g, '<br>')}</p>`)
+          .join('');
+
+        if (data.validation && data.validation.overall_passed) {
+          contentHtml += `<h3>Validation Summary</h3>`;
+          const validationFields = [
+            ['Economist Evaluation', data.validation.economist_evaluation?.explanation],
+            ['Relevance Test', data.validation.relevance_test?.explanation],
+            ['Factual Accuracy Check', data.validation.factual_accuracy_check?.explanation],
+          ];
+          
+          contentHtml += validationFields
+            .filter(([_, value]) => value && String(value).trim())
+            .map(([label, value]) => `<p><b>${label}:</b> ${linkifyInsightText(String(value).trim()).replace(/\n/g, '<br>')}</p>`)
+            .join('');
+        }
+
+        if (!contentHtml.trim()) {
+          tabs[activeTabIdx].content = `<div style='color:red;font-weight:bold;'>No insight text fields found. Debug info:<br/><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } else {
+          tabs[activeTabIdx].content = contentHtml;
+        }
+      } else {
+        data = await getArticle(id);
+        // Compose a rich HTML article view
+        let articleHtml = '';
+        // Helper to extract string from field (handles string, {text: ...}, or fallback)
+        function extractText(val: any): string {
+          if (!val) return '';
+          if (typeof val === 'string') return val;
+          if (typeof val === 'object' && val.text) return val.text;
+          return typeof val === 'object' ? JSON.stringify(val) : String(val);
+        }
+        // --- MODERN ARTICLE RENDERING ---
+        try {
+          // --- THE FINAL, 10/10, BULLETPROOF RENDERER ---
+
+          // Step 1: Helper to parse a value if it's a JSON string, otherwise return it.
+          const parseIfJson = (val) => {
+            if (typeof val === 'string' && val.trim().startsWith('{')) {
+              try { return JSON.parse(val); } catch (e) { /* ignore */ }
+            }
+            return val;
+          };
+
+          // Step 2: Parse all potential data containers and their metadata.
+          const topLevel = parseIfJson(data);
+          const summary = parseIfJson(topLevel.summary);
+          const full = parseIfJson(topLevel.full);
+          const content = parseIfJson(topLevel.content);
+
+          // Helper to safely get .metadata only from objects
+          function safeMeta(obj) {
+            return (obj && typeof obj === 'object' && obj.metadata && typeof obj.metadata === 'object') ? obj.metadata : {};
+          }
+
+          // Step 3: Unify all data sources into a single `article` and `meta` object.
+          // Priority: full > summary > content > top-level.
+          const article = { ...topLevel, ...content, ...summary, ...full };
+          const meta = {
+            ...(safeMeta(topLevel)),
+            ...(safeMeta(content)),
+            ...(safeMeta(summary)),
+            ...(safeMeta(full)),
+            ...(safeMeta(article)),
+            ...(article.metadata && typeof article.metadata === 'object' ? article.metadata : {})
+          };
+
+          // Step 4: Reliably extract final values from the unified objects.
+          const title = meta.title || article.title || 'Untitled Article';
+          const description = meta.description || article.description;
+          const summaryText = summary.content || article.summary;
+          const fullText = full.content || article.full;
+          const url = meta.url || article.url;
+          const pubDate = meta.pub_date || meta.published_date || article.pub_date || article.published_date;
+          const domain = meta.domain || article.domain;
+          const categories = meta.categories || article.categories;
+          const language = meta.language || article.language;
+          const relevanceScore = meta.relevance_score ?? article.relevance_score;
+          const articleId = meta.id || article.id || id;
+          const origin = meta.origin || article.origin;
+          const rawTaxonomies = meta.taxonomies || article.taxonomies;
+
+          // Helper to format taxonomies into nice pills
+          const formatTaxonomies = (taxonomies) => {
+            if (!taxonomies || typeof taxonomies !== 'string') return '';
+            return taxonomies.split(/, score: [0-9.]+, name: |name: /)
+              .filter(Boolean)
+              .map(item => `<span class="taxonomy-tag">${item.trim().replace(/, score: [0-9.]+$/, '')}</span>`)
+              .join(' ');
+          };
+          const formattedTaxonomies = formatTaxonomies(rawTaxonomies);
+
+          // Step 5: Build the final, beautifully structured HTML.
+           articleHtml += `<div class="article-card">
+             <div class="article-section">
+               <h3 style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 1.5rem 0 1rem;"><strong>Title</strong></h3>
+               <h2 class="article-title section-title-main">${linkifyInsightText(extractText(title))}</h2>
+              ${description ? `<div class="article-description">${linkifyInsightText(extractText(description))}</div>` : ''}
+            </div>
+
+            ${summaryText && typeof summaryText === 'string' ? `
+            <div class="article-section" style="margin-bottom: 2rem;">
+              <h3 style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 1.5rem 0 1rem;"><strong>Summary</strong></h3>
+              <div class="summary-content" style="font-size: 1.1rem; line-height: 1.6;">${linkifyInsightText(extractText(summaryText))}</div>
+            </div>` : ''}
+
+            ${fullText && typeof fullText === 'string' ? `
+            <div class="article-section" style="margin-bottom: 2rem;">
+              <h3 style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 1.5rem 0 1rem;"><strong>Full Article</strong></h3>
+              <div class="summary-content" style="font-size: 1.1rem; line-height: 1.6;">${linkifyInsightText(extractText(fullText))}</div>
+            </div>` : ''}
+
+            <div class="article-section" style="margin-top: 1.5rem;">
+              <h3 style="font-size: 1.5rem; font-weight: 700; color: #333; margin: 0 0 1.2rem;"><strong>Article Metadata</strong></h3>
+              ${url ? `<div style="margin-bottom: 1rem;"><strong style="font-size: 1.1rem; font-weight: 700; margin-right: 0.5rem;">URL:</strong> <a href="${url}" target="_blank" rel="noopener">${url}</a></div>` : ''}
+              ${pubDate ? `<div style="margin-bottom: 1rem;"><strong style="font-size: 1.1rem; font-weight: 700; margin-right: 0.5rem;">Published:</strong> <span>${new Date(pubDate).toLocaleDateString()}</span></div>` : ''}
+              ${domain ? `<div style="margin-bottom: 1rem;"><strong style="font-size: 1.1rem; font-weight: 700; margin-right: 0.5rem;">Domain:</strong> <span>${linkifyInsightText(String(domain))}</span></div>` : ''}
+              ${categories ? `<div style="margin-bottom: 1rem;"><strong style="font-size: 1.1rem; font-weight: 700; margin-right: 0.5rem;">Categories:</strong> <span>${categories}</span></div>` : ''}
+              ${language ? `<div style="margin-bottom: 1rem;"><strong style="font-size: 1.1rem; font-weight: 700; margin-right: 0.5rem;">Language:</strong> <span>${language}</span></div>` : ''}
+              <!-- Removed relevanceScore, articleId, origin, and taxonomies -->
+            </div>
+          </div>`;
+        } catch (err) {
+          tabs[activeTabIdx].content = `<div style='color:red;font-weight:bold;'>Failed to render article.<br>Error: ${err instanceof Error ? err.message : err}<br><br>Raw data:<br><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+          return;
+        }
+        // --- END MODERN ARTICLE RENDERING ---
+        // --- END MODERN ARTICLE RENDERING ---
+        // If nothing to show, fallback to debug
+        if (!articleHtml.trim()) {
+          tabs[activeTabIdx].content = `<div style='color:red;font-weight:bold;'>No article fields found. Debug info:<br/><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } else {
+          tabs[activeTabIdx].content = articleHtml;
+        }
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load tab content:', e);
+      tabs[activeTabIdx].content = 'Failed to load content.';
+    } finally {
+      tabs[activeTabIdx].loading = false;
+      tabs = [...tabs]; // trigger reactivity
+    }
+  }
+
+  function closeTab(idx: number) {
+    if (idx === 0) return; // Don't close Report
+    tabs = tabs.slice(0, idx).concat(tabs.slice(idx + 1));
+    if (activeTabIdx >= idx) {
+      activeTabIdx = Math.max(0, activeTabIdx - 1);
+    }
+  }
+
+  function selectTab(idx: number) {
+    activeTabIdx = idx;
+  }
+
+  // Intercept clicks on insight/article links in markdown
+  // Intercept clicks on insight/article links in markdown
+function handleTabLinkClick(event: MouseEvent) {
+  let target = event.target as HTMLElement;
+  // Traverse up in case the click is on a <b> or child inside <a>
+  while (target && target !== event.currentTarget) {
+    if (target.tagName === 'A') {
+      const insightId = target.getAttribute('data-insight-id');
+      const articleId = target.getAttribute('data-article-id');
+      if (insightId) {
+        event.preventDefault();
+        event.stopPropagation();
+        openTab('insight', insightId, `Insight ${insightId}`);
+        return;
+      }
+      if (articleId) {
+        event.preventDefault();
+        event.stopPropagation();
+        openTab('article', articleId, `Article ${articleId}`);
+        return;
+      }
+    }
+    target = target.parentElement;
+  }
+}
+
+
 
   async function loadHistory() {
     const response = await fetch('/api/history');
@@ -161,25 +421,25 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
     
     <div class="themes-section">
        <ul class="themes-list">
-        {#each data.assets as asset}
-          <li class="asset-list-item">
-            <button class:active={currentSelection.type === 'asset' && currentSelection.value === asset.id}
-                    on:click={() => selectAsset(asset)}>
-              {asset.name}
-            </button>
-            <ul>
-              <li class="strategy-subitem" style="margin-left: 1.5rem; font-size: 0.9em; color: #666;">
-                <button class:active={currentSelection.type === 'strategy' && currentSelection.value === asset.id}
-                        style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; font-size: 0.95em;"
-                        on:click={() => currentSelection = { type: 'strategy', value: asset.id }}>
-                  Strategy
-                </button>
-              </li>
-            </ul>
-          </li>
-        {/each}
-
-
+        {#if data && data.assets && Array.isArray(data.assets)}
+          {#each data.assets as asset}
+            <li class="asset-list-item">
+              <button class:active={currentSelection.type === 'asset' && currentSelection.value === asset.id}
+                      on:click={() => selectAsset(asset)}>
+                {asset.name}
+              </button>
+              <ul>
+                <li class="strategy-subitem" style="margin-left: 1.5rem; font-size: 0.9em; color: #666;">
+                  <button class:active={currentSelection.type === 'strategy' && currentSelection.value === asset.id}
+                          style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; font-size: 0.95em;"
+                          on:click={() => currentSelection = { type: 'strategy', value: asset.id }}>
+                    Strategy
+                  </button>
+                </li>
+              </ul>
+            </li>
+          {/each}
+        {/if}
       </ul>
       
     </div>
@@ -239,63 +499,88 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
       <ThemeInfo theme={themeForDisplay} />
       <ThemeReview theme={themeForDisplay} />
     {:else if currentSelection.type === 'asset'}
-      <section class="card asset-dashboard asset-dashboard-theme">
-        <h2 class="asset-dashboard-title">{data.assets.find(a => a.id === currentSelection.value)?.name}</h2>
+      <section class="card asset-info-box asset-info-theme wide-box">
+        <h2 class="asset-dashboard-title">{data?.assets?.find(a => a?.id === currentSelection?.value)?.name || 'No asset'}</h2>
         <div class="info-row"><span class="info-label">Timezone:</span> <span class="info-value">Europe/Stockholm</span></div>
         <div class="info-row"><span class="info-label">Type:</span> <span class="info-value">Currency Pair</span></div>
-        <div class="info-row"><span class="info-label">Strategy:</span> <span class="info-value">{data.assets.find(a => a.id === currentSelection.value)?.has_strategy ? 'Available' : 'Not set'}</span></div>
+        <div class="info-row"><span class="info-label">Strategy:</span> <span class="info-value">{data?.assets?.find(a => a?.id === currentSelection?.value)?.has_strategy ? 'Available' : 'Not set'}</span></div>
         <div class="info-row"><span class="info-label">More Info:</span> <span class="info-value">(Add asset-specific info here)</span></div>
       </section>
-      <section class="card asset-markdown-box asset-markdown-theme">
-        <h3 class="asset-markdown-title">Asset Documentation</h3>
-        {#await (async () => {
-          let response, data, url = `${API_BASE}/report/${currentSelection.value}`;
-          try {
-            response = await fetch(url);
-            if (!response.ok) throw new Error('No documentation found. HTTP status: ' + response.status);
-            data = await response.json();
-            if (data.content) return data.content;
-            throw new Error('No markdown content found. Raw response: ' + JSON.stringify(data));
-          } catch (err) {
-            throw { err, response, data, url };
-          }
-        })() then markdown}
-          <div class="asset-markdown-content markdown-root">
-            {#each markdown.split('\n') as line}
-              {@html linkifyIds(simpleMarkdown(line))}
-            {/each}
+      <!-- Tab bar and tab content area remain below for asset view -->
+      <div class="tab-bar" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+        {#each tabs as tab, idx}
+          <button
+            class="strategy-save-btn tab-button {activeTabIdx === idx ? 'active' : ''}"
+            style="max-width:unset; width:auto; border-radius:12px 12px 0 0; margin-bottom:-1.5px; position:relative; padding-right:2.2em;"
+            on:click={() => selectTab(idx)}
+          >
+            {tab.label}
+            {#if idx !== 0}
+              <span
+                class="tab-close"
+                style="position:absolute; right:0.6em; top:0.5em; color:var(--text-muted,#888); font-size:1.1em; cursor:pointer;"
+                on:click|stopPropagation={() => closeTab(idx)}
+                aria-label="Close tab"
+              >×</span>
+            {/if}
+          </button>
+        {/each}
+      </div>
+      <section class="card asset-markdown-box asset-markdown-theme wide-box">
+        <h3 class="asset-markdown-title">{tabs[activeTabIdx].label}</h3>
+        {#if tabs[activeTabIdx].type === 'report'}
+          {#await (async () => {
+            let response, data, url = `${API_BASE}/report/${currentSelection.value}`;
+            try {
+              response = await fetch(url);
+              if (!response.ok) throw new Error('No documentation found. HTTP status: ' + response.status);
+              data = await response.json();
+              if (data.content) return data.content;
+              throw new Error('No markdown content found. Raw response: ' + JSON.stringify(data));
+            } catch (err) {
+              throw { err, response, data, url };
+            }
+          })() then markdown}
+            <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
+              {#each markdown.split('\n') as line}
+                {@html linkifyIds(simpleMarkdown(line))}
+              {/each}
+            </div>
+          {:catch info}
+            <div class="asset-markdown-error">No documentation found for this asset.<br>
+              <b>Error:</b> {info?.err?.message || info}<br>
+              <b>Status:</b> {info?.response?.status}<br>
+              <b>URL:</b> {info?.url}<br>
+              <b>Raw JSON:</b> <pre class="asset-markdown-error-json">{JSON.stringify(info?.data, null, 2)}</pre>
+            </div>
+          {/await}
+        {:else}
+          <div class="tab-content" on:click={handleTabLinkClick}>
+            {@html tabs[activeTabIdx].content}
           </div>
-        {:catch info}
-          <div class="asset-markdown-error">No documentation found for this asset.<br>
-            <b>Error:</b> {info?.err?.message || info}<br>
-            <b>Status:</b> {info?.response?.status}<br>
-            <b>URL:</b> {info?.url}<br>
-            <b>Raw JSON:</b> <pre class="asset-markdown-error-json">{JSON.stringify(info?.data, null, 2)}</pre>
-          </div>
-        {/await}
+        {/if}
       </section>
     {:else if currentSelection.type === 'strategy'}
-      {#if currentSelection.type === 'strategy'}
-  <form class="strategy-form strategy-form-theme" on:submit|preventDefault={saveStrategy}>
-    <h2 class="strategy-heading">Strategy</h2>
-    <div class="strategy-description">
-      The strategy you define here is infused in all steps of your workflow. It sets the tone for your research, guides what market data to analyze, and is used when aggregating all research into a final report.
-    </div>
-    <textarea
-      id="strategy-text"
-      placeholder="Enter your strategy here..."
-      class="strategy-textarea"
-      bind:value={strategyText}
-      disabled={loadingStrategy}
-    ></textarea>
-    <button type="submit" class="strategy-save-btn" disabled={savingStrategy || loadingStrategy}>
-      {savingStrategy ? 'Saving...' : 'Save'}
-    </button>
-    {#if strategyError}
-      <div class="strategy-error">{strategyError}</div>
-    {/if}
-  </form>
-{/if}
+      <form class="strategy-form strategy-form-theme" on:submit|preventDefault={saveStrategy}>
+        <h2 class="strategy-heading">Strategy</h2>
+        <div class="strategy-description">
+          The strategy you define here is infused in all steps of your workflow. It sets the tone for your research, guides what market data to analyze, and is used when aggregating all research into a final report.
+        </div>
+        <textarea
+          id="strategy-text"
+          name="strategy-text"
+          placeholder="Enter your strategy here..."
+          class="strategy-textarea"
+          bind:value={strategyText}
+          disabled={loadingStrategy}
+        ></textarea>
+        <button type="submit" class="strategy-save-btn" disabled={savingStrategy || loadingStrategy}>
+          {savingStrategy ? 'Saving...' : 'Save'}
+        </button>
+        {#if strategyError}
+          <div class="strategy-error">{strategyError}</div>
+        {/if}
+      </form>
       <!-- Removed stat-item and Project Overview blocks that may be causing errors -->
       {:else if currentSelection.value === 'history'}
         <div class="top-bar">
@@ -374,21 +659,126 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
       {/if}
     </main>
   </div>
-  <Chat asset_id={currentSelection.type === 'asset' ? currentSelection.value : data.assets[0].id} />
+  <Chat asset_id={currentSelection?.type === 'asset' ? currentSelection?.value : (data?.assets?.[0]?.id || '')} />
 </div>
 
 <style>
+  .article-card {
+    background: var(--card-bg, #fff);
+    border-radius: 18px;
+    box-shadow: 0 2px 10px rgba(30,40,80,0.08), 0 1.5px 4px rgba(30,40,80,0.04);
+    padding: 2.2rem 2.4rem 2.1rem 2.4rem;
+    max-width: 800px;
+    margin: 2.5rem auto 2.5rem auto;
+    font-family: inherit;
+    color: var(--text-primary, #222);
+    transition: box-shadow 0.2s;
+  }
+
+  .article-section {
+    margin-bottom: 4.8rem;
+  }
+
+  .section-title-main {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--primary, #1976d2);
+    margin-top: 0.8rem;
+    margin-bottom: 2.1rem;
+    letter-spacing: -0.01em;
+    line-height: 1.13;
+    display: block;
+    text-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  /* Make all h3 headings in asset-markdown-box (insight/markdown sections) bold and spaced */
+  /* Simple, direct styling for insight content headings like 'Current Thesis' */
+  :global(.tab-content h3) {
+    font-weight: 800; /* BOLD */
+    margin-top: 2.5rem; /* SPACE ABOVE */
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+
+
+  .summary-content {
+    font-size: 1.15rem;
+    color: var(--text-secondary, #555);
+    margin-bottom: 2.2rem;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  .metadata-section {
+    border-top: 1px solid var(--border-color, #e0e6f0);
+    background-color: var(--card-bg-secondary, #f8f9fa);
+    padding: 1.5rem;
+    margin: 1.5rem -1.5rem -1.2rem; /* Extend to card edges */
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    font-size: 0.95rem;
+  }
+
+  .metadata-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0.8rem 1.5rem;
+    align-items: start;
+    margin-bottom: 1.7rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1.5px solid #e6eaf1;
+  }
+
+  .metadata-label {
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: var(--primary, #1976d2);
+    text-align: right;
+    letter-spacing: 0.03em;
+    padding: 0.2rem 0.5rem 0.2rem 0;
+    background: rgba(25,118,210,0.07);
+    border-radius: 7px;
+    box-shadow: 0 1px 3px rgba(25,118,210,0.03);
+    margin-right: 0.2rem;
+    display: inline-block;
+  }
+
+  .taxonomy-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.1rem;
+  }
+
+  .taxonomy-tag {
+    background-color: var(--tag-bg, #eef2f7);
+    color: var(--tag-text, #334155);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
   .scrollable-main {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
   }
+
   .app-container {
     display: grid;
     grid-template-columns: 1fr 25%;
     min-height: 100vh;
     background: var(--bg-color, white);
   }
+
   .dashboard-container {
     display: grid;
     grid-template-columns: 250px 1fr;
@@ -495,7 +885,6 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
     margin: 0;
     width: 100%;
   }
-
 
   .nav-links button {
     display: flex;
@@ -709,7 +1098,7 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
   }
 
   .history-icon.system::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef6c00'%3E%3Cpath d='M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7c-1.1 0-2 .9-2 2v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef6c00'%3E%3Cpath d='M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7c-1.1 0-2 .9-2 2v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2V19h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2V15h2c1.1 0 2-.9 2-2V9z'/%3E%3C/svg%3E");
   }
 
   .history-text {
@@ -1055,6 +1444,54 @@ import { linkifyIds } from '$lib/utils/linkifyIds';
 .markdown-root {
   color: var(--text-primary, var(--text-color, #444)) !important;
   transition: color 0.2s;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.5rem auto 0.5rem auto;
+  max-width: 1100px;
+}
+.tab-button {
+  all: unset;
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  border: 1.5px solid var(--border-color, #d0d5dd);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  background: var(--card-bg, #f5f5f5);
+  color: var(--text-primary, var(--text-color, #222));
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1.5px;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.tab-button.active {
+  background: var(--primary, var(--card-bg, #2196f3));
+  color: var(--button-text, white);
+  border-color: var(--primary, var(--card-bg, #2196f3));
+  z-index: 2;
+}
+.tab-button:hover:not(.active) {
+  background: var(--hover-bg, #e3eafc);
+  color: var(--primary, var(--text-primary, #2196f3));
+  border-color: var(--primary, var(--card-bg, #2196f3));
+}
+
+.wide-box {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0.7rem auto 1.5rem auto;
+  box-sizing: border-box;
+}
+@media (max-width: 1200px) {
+  .wide-box {
+    max-width: 99vw;
+    margin-left: 0.5vw;
+    margin-right: 0.5vw;
+  }
 }
 
 </style>
