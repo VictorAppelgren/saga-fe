@@ -21,3 +21,14 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Python environments (conda/venv)
+lib/
+pyvenv.cfg
+bin/
+include/
+share/
+**/python3.12/
+**/__pycache__/
+*.pyc
+*.pyo

@@ -1,9 +1,24 @@
 // src/lib/auth.ts
-export const USERS: Record<string, string> = {
-	admin: 'password123',
-	"william": "123",
-};
+const API_BASE = 'http://localhost:8000';
 
-export function authenticate(username: string, password: string): boolean {
-	return USERS[username] === password;
+export interface LoginResponse {
+  username: string;
+  accessible_topics: string[];
+}
+
+export async function authenticate(username: string, password: string): Promise<LoginResponse | null> {
+  try {
+    const response = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
 }

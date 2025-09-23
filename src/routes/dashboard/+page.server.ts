@@ -1,12 +1,17 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
+export const load: PageServerLoad = async ({ cookies }) => {
+	const userCookie = cookies.get('user');
+	
+	if (!userCookie) {
 		throw redirect(302, '/login');
 	}
 
-	return {
-		user: locals.user
-	};
+	try {
+		const user = JSON.parse(userCookie);
+		return { user };
+	} catch {
+		throw redirect(302, '/login');
+	}
 };

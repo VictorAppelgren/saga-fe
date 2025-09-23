@@ -1,7 +1,7 @@
 <!-- Chat.svelte -->
 <script lang="ts">
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
-  export let asset_id: string | null = null;
+  export let topic_id: string | null = null;
   import { onMount } from 'svelte';
 
   interface Message {
@@ -45,13 +45,17 @@
     loading = true;
 
     try {
-      // Prepare message history for backend (optional, can be extended)
+      // Prepare message history for backend
       const history = messages.map(m => ({
-        role: m.isUser ? 'user' : 'argos',
+        role: m.isUser ? 'user' : 'assistant',
         content: m.text
       }));
-      const body: any = { message: userInput, history };
-      if (asset_id) body.asset_id = asset_id;
+      
+      const body = { 
+        message: userInput, 
+        topic_id: topic_id,
+        history 
+      };
       const resp = await fetch(import.meta.env.VITE_API_BASE_URL + '/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

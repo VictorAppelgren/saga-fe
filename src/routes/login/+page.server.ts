@@ -8,16 +8,17 @@ export const actions: Actions = {
 		const username = formData.get('username')?.toString() || '';
 		const password = formData.get('password')?.toString() || '';
 
-		if (!authenticate(username, password)) {
+		const authResult = await authenticate(username, password);
+		if (!authResult) {
 			return fail(400, { error: 'Invalid credentials' });
 		}
 
-		// Store session in cookie (simplified for demo)
-		cookies.set('session', username, {
+		// Store user data in cookie
+		cookies.set('user', JSON.stringify(authResult), {
 			path: '/',
 			httpOnly: true,
-			secure: false, // CHANGE IN PRODUCTION
-			maxAge: 60 * 60 // 1 hour
+			secure: false,
+			maxAge: 60 * 60 * 8 // 8 hours
 		});
 
 		throw redirect(302, '/dashboard');
