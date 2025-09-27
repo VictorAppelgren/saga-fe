@@ -253,7 +253,7 @@ function handleTabLinkClick(event: MouseEvent) {
   <!-- Sidebar Navigation -->
   <nav class="sidebar">
     <div class="logo-container">
-      <img src="/argos-logo-black.png" alt="Argos Intelligence Logo" class="logo" />
+      <img src="/argos-logo-black.png" alt="Saga Intelligence Logo" class="logo" />
     </div>
     
     <div class="themes-section">
@@ -463,8 +463,26 @@ function handleTabLinkClick(event: MouseEvent) {
           <h1>Dashboard</h1>
         </div>
         <section class="card welcome-box welcome-theme">
-          <h2 class="welcome-title">Welcome to Argos</h2>
-          <p class="welcome-description">Argos is your unified platform for asset intelligence, research, and strategy management. Use the sidebar to explore assets, manage strategies, and review your project history. Get started by selecting an asset or strategy, or explore your history and settings from the navigation menu.</p>
+          <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
+          <p class="welcome-subtitle">We’re glad you’re here.</p>
+
+          <div class="welcome-section">
+            <p class="welcome-description">Saga is the platform for understanding the world better — the fully AI‑driven intelligence agency you need to make your decisions world‑class, nuanced, and robust.</p>
+          </div>
+
+          <div class="welcome-section">
+            <p class="welcome-description">Use the sidebar to explore assets, manage strategies, and review your project history. Get started by selecting a topic or strategy, or explore your history and settings from the navigation menu.</p>
+          </div>
+
+          <div class="welcome-section">
+            <p class="welcome-prompt">Hope you’re doing well today! What would you like to know more about today?</p>
+            <h3 class="examples-title">Example queries</h3>
+            <ul class="welcome-examples">
+              <li><em><strong>What are the outlook and current consensus on interest rates for the coming 6–12 months?</strong></em></li>
+              <li><em><strong>We’re seeing heavy investment into AI infrastructure — where is the capital flowing and what broad market effects can we expect?</strong></em></li>
+              <li><em><strong>Compare recent EU vs US energy policy shifts and their impact on utilities over the next year.</strong></em></li>
+            </ul>
+          </div>
         </section>
       {:else if currentSelection.value === 'settings'}
         <div class="top-bar">
@@ -1037,6 +1055,47 @@ function handleTabLinkClick(event: MouseEvent) {
     background: var(--card-bg, #f5f5f5);
     border-radius: 12px;
     padding: 1.5rem;
+  }
+
+  /* Welcome box styling */
+  .welcome-box {
+    background: var(--card-bg, #f9fafb);
+    border: 1px solid var(--border-color, #e5e7eb);
+  }
+  .welcome-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+  }
+  .welcome-subtitle {
+    margin: 0 0 1rem 0;
+    color: var(--text-muted, #6b7280);
+    font-weight: 500;
+  }
+  .welcome-section {
+    margin-top: 1rem;
+  }
+  .welcome-description {
+    margin: 0.25rem 0;
+    line-height: 1.6;
+  }
+  .welcome-prompt {
+    margin: 0.25rem 0 0.75rem 0;
+    font-weight: 600;
+  }
+  .examples-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #6b7280);
+  }
+  .welcome-examples {
+    margin: 0.5rem 0 0 1.25rem;
+    padding: 0;
+  }
+  .welcome-examples li {
+    margin: 0.35rem 0;
   }
 
   .card.wide {

@@ -1,9 +1,14 @@
-# Argos Intelligence Frontend
+# Saga Intelligence Frontend
 
-This is the frontend application for Argos Intelligence, built with SvelteKit and TypeScript.
+This is the frontend application for Saga Intelligence, built with SvelteKit and TypeScript.
 
 Victor:
 Use the conda env: argos8
+
+And start the API server with:
+```bash
+python api_main_v2.py
+```
 
 ## Prerequisites
 
