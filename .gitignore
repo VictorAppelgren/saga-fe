@@ -22,12 +22,12 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Python environments (conda/venv)
-lib/
+# Python environments (conda/venv) - only at root level
+/lib/
 pyvenv.cfg
-bin/
-include/
-share/
+/bin/
+/include/
+/share/
 **/python3.12/
 **/__pycache__/
 *.pyc

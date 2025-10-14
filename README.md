@@ -3,7 +3,7 @@
 This is the frontend application for Saga Intelligence, built with SvelteKit and TypeScript.
 
 Victor:
-Use the conda env: argos8
+Use the venv: .venv in the root directory of the backend.
 
 And start the API server with:
 ```bash
@@ -17,6 +17,7 @@ npm i -g pnpm
 ```
 
 ## Development
+Use the conda env argos8 (Victor) to run this, or create a new venv or conda env. 
 
 This project uses pnpm as its package manager. First, install dependencies:
 
@@ -30,5 +31,17 @@ Then start the development server:
 pnpm run dev
 ```
 
-go to http://localhost:5173/dashboard or 
-http://localhost:5173/login
+**For faster startup (force rebuild cache):**
+```bash
+pnpm run dev:fast
+```
+
+**If dev server is slow, clear cache:**
+```bash
+rm -rf node_modules/.vite .svelte-kit
+pnpm run dev
+```
+
+Go to:
+- http://localhost:5173/login
+- http://localhost:5173/dashboard

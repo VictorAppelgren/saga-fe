@@ -11,67 +11,82 @@
 
   // Remove linkifyInsightText - we'll use linkifyIds from utils
 
-  import { onMount, afterUpdate } from 'svelte';
-  import type { Theme, HistoryEntry } from '$lib/types/storage';
+  import type { Theme } from '$lib/types/storage';
   // Remove Asset import - using interests now
   import ThemeReview from '$lib/components/ThemeReview.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ThemeInfo from '$lib/components/ThemeInfo.svelte';
   import Chat from '$lib/components/Chat.svelte';
+  import StrategyModal from '$lib/components/StrategyModal.svelte';
+  import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail } from '$lib/api/strategies';
+  import { invalidateAll } from '$app/navigation';
 
-  // --- STRATEGY API ---
-  let strategyText = '';
-  let loadingStrategy = false;
-  let savingStrategy = false;
-  let strategyError = '';
+  // --- STRATEGY MODAL STATE ---
+  let showStrategyModal = false;
+  let modalMode: 'create' | 'edit' = 'create';
+  let editingStrategy: StrategyDetail | null = null;
 
-  async function fetchStrategy() {
-    if (currentSelection.type !== 'strategy' || !currentSelection.value) return;
-    loadingStrategy = true;
-    strategyError = '';
+  function openCreateStrategyModal() {
+    modalMode = 'create';
+    editingStrategy = null;
+    showStrategyModal = true;
+  }
+
+  async function openEditModal(strategy: StrategyDetail) {
+    modalMode = 'edit';
+    editingStrategy = strategy;
+    showStrategyModal = true;
+  }
+
+  async function handleStrategySave(formData: any) {
     try {
-      const res = await fetch(`${API_BASE}/strategy/${currentSelection.value}`);
-      if (!res.ok) throw new Error('Could not fetch strategy.');
-      const data = await res.json();
-      strategyText = data.strategy || '';
+      let savedStrategy;
+      if (modalMode === 'create') {
+        savedStrategy = await createStrategy({
+          username: data.user.username,
+          ...formData
+        });
+        showStrategyModal = false;
+        // After creating, select the new strategy
+        currentSelection = { type: 'strategy', value: savedStrategy.id };
+        // Refresh data from server
+        await invalidateAll();
+      } else if (editingStrategy) {
+        const strategyId = editingStrategy.id;
+        savedStrategy = await updateStrategy(strategyId, {
+          username: data.user.username,
+          strategy_text: formData.strategy_text,
+          position_text: formData.position_text,
+          target: formData.target
+        });
+        showStrategyModal = false;
+        // Stay on the same strategy after editing
+        currentSelection = { type: 'strategy', value: strategyId };
+        // Small delay to ensure backend has written the file
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // Refresh data from server
+        await invalidateAll();
+      }
     } catch (e) {
-      strategyError = 'Failed to load strategy.';
-      strategyText = '';
-    } finally {
-      loadingStrategy = false;
+      console.error('Failed to save strategy:', e);
+      alert('Failed to save strategy. Please try again.');
     }
   }
 
-  async function saveStrategy() {
-    if (!currentSelection.value) return;
-    savingStrategy = true;
-    strategyError = '';
-    try {
-      const res = await fetch(`${API_BASE}/strategy/${currentSelection.value}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: strategyText, research_domains: [] })
-      });
-      if (!res.ok) throw new Error('Could not save strategy.');
-      // Optionally show a success message
-    } catch (e) {
-      strategyError = 'Failed to save strategy.';
-    } finally {
-      savingStrategy = false;
+  async function handleDeleteStrategy(strategyId: string) {
+    if (confirm('Are you sure you want to delete this strategy? It will be moved to archive.')) {
+      try {
+        await deleteStrategyAPI(data.user.username, strategyId);
+        currentSelection = { type: 'nav', value: 'dashboard' };
+        window.location.reload();
+      } catch (e) {
+        console.error('Failed to delete strategy:', e);
+        alert('Failed to delete strategy. Please try again.');
+      }
     }
-  }
-
-  // Watch for strategy section open/change
-  $: if (currentSelection.type === 'strategy' && currentSelection.value) {
-    fetchStrategy();
   }
 
   export let data;
-// data.assets is now populated from the backend API for sidebar rendering.
-
-
-  let historyEntries: HistoryEntry[] = [];
-  let groupedHistory: Record<string, HistoryEntry[]> = {};
 
   // --- Tabbed Report/Article State ---
   type Tab = {
@@ -166,53 +181,8 @@ function handleTabLinkClick(event: MouseEvent) {
 
 
 
-  async function loadHistory() {
-    const response = await fetch('/api/history');
-    const data = await response.json();
-    historyEntries = data.entries || [];
-  }
 
-  function formatTimestamp(isoString: string): { date: string, time: string } {
-    const date = new Date(isoString);
-    const now = new Date();
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    let dateStr = '';
-    if (date.toDateString() === now.toDateString()) {
-      dateStr = 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      dateStr = 'Yesterday';
-    } else {
-      dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-
-    const timeStr = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'Europe/Stockholm'
-    });
-
-    return { date: dateStr, time: timeStr };
-  }
-
-  function groupHistoryByDate(entries: HistoryEntry[]): Record<string, HistoryEntry[]> {
-    return entries.reduce((groups, entry) => {
-      const { date } = formatTimestamp(entry.timestamp);
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(entry);
-      return groups;
-    }, {} as Record<string, HistoryEntry[]>);
-  }
-
-  onMount(async () => {
-    await loadHistory();
-  });
-
-  type Selection = { type: 'theme' | 'nav' | 'interest'; value: string };
+  type Selection = { type: 'theme' | 'nav' | 'interest' | 'strategy'; value: string };
 
   let currentSelection: Selection = { type: 'nav', value: 'dashboard' };
 
@@ -228,22 +198,11 @@ function handleTabLinkClick(event: MouseEvent) {
     currentSelection = { type: 'nav', value };
   }
 
-  $: themeForDisplay = null;
-
-  let selectedFilter = 'all';
-
-  function filterHistory(filter: string) {
-    selectedFilter = filter.toLowerCase();
+  function selectStrategy(strategy: Strategy): void {
+    currentSelection = { type: 'strategy', value: strategy.id };
   }
 
-  $: filteredHistory = Object.entries(groupedHistory).map(([date, entries]) => ({
-    date,
-    items: entries.filter(item =>
-      selectedFilter === 'all' ||
-      (selectedFilter === 'changes' && item.type === 'theme') ||
-      (selectedFilter === 'system' && item.type === 'system')
-    )
-  })).filter(group => group.items.length > 0);
+  $: themeForDisplay = null;
 </script>
 
 
@@ -256,37 +215,66 @@ function handleTabLinkClick(event: MouseEvent) {
       <img src="/argos-logo-black.png" alt="Saga Intelligence Logo" class="logo" />
     </div>
     
-    <div class="themes-section">
-       <ul class="themes-list">
-        {#if data && data.interests && Array.isArray(data.interests)}
-          {#each data.interests as interest}
-            <li class="interest-list-item">
-              <button class:active={currentSelection.type === 'interest' && currentSelection.value === interest.id}
-                      on:click={() => selectInterest(interest)}>
-                {interest.name}
-              </button>
-            </li>
-          {/each}
-        {/if}
-      </ul>
-      
+    <div class="scrollable-section">
+      <div class="themes-section">
+        <!-- STRATEGIES SECTION -->
+        <div class="section-header">
+          <h3 class="section-title">Strategies</h3>
+          <button class="add-button" on:click={openCreateStrategyModal} aria-label="Create new strategy" style="margin-right: 1.25rem;">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <ul class="themes-list">
+          {#if data?.strategies && data.strategies.length > 0}
+            {#each data.strategies as strategy}
+              <li class="strategy-list-item">
+                <button 
+                  class:active={currentSelection.type === 'strategy' && currentSelection.value === strategy.id}
+                  on:click={() => selectStrategy(strategy)}
+                >
+                  <div class="strategy-item">
+                    <span class="strategy-asset">{strategy.asset}</span>
+                    {#if strategy.has_analysis}
+                      <span class="analysis-badge" title="Has AI analysis">✓</span>
+                    {/if}
+                  </div>
+                </button>
+              </li>
+            {/each}
+          {:else}
+            <li class="empty-state">No strategies yet</li>
+          {/if}
+        </ul>
+        
+        <!-- DIVIDER -->
+        <div class="section-divider"></div>
+        
+        <!-- ASSETS/INTERESTS SECTION -->
+        <div class="section-header">
+          <h3 class="section-title">Assets</h3>
+          <div style="width: 24px; margin-right: 1.25rem;"></div>
+        </div>
+        
+        <ul class="themes-list">
+          {#if data && data.interests && Array.isArray(data.interests)}
+            {#each data.interests as interest}
+              <li class="interest-list-item">
+                <button class:active={currentSelection.type === 'interest' && currentSelection.value === interest.id}
+                        on:click={() => selectInterest(interest)}>
+                  {interest.name}
+                </button>
+              </li>
+            {/each}
+          {/if}
+        </ul>
+        
+      </div>
     </div>
 
-    <div class="sidebar-spacer"></div>
-
     <ul class="nav-links">
-      <li class:active={currentSelection.type === 'nav' && currentSelection.value === 'history'}>
-        <button
-          class="nav-button {currentSelection.type === 'nav' && currentSelection.value === 'history' ? 'active' : ''}"
-          on:click={() => selectNav('history')}
-          aria-label="Navigate to History"
-        >
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-          </svg>
-          History
-        </button>
-      </li>
       <li class:active={currentSelection.type === 'nav' && currentSelection.value === 'settings'}>
         <button
           class="nav-button {currentSelection.type === 'nav' && currentSelection.value === 'settings' ? 'active' : ''}"
@@ -381,82 +369,165 @@ function handleTabLinkClick(event: MouseEvent) {
         {/if}
       </section>
     {:else if currentSelection.type === 'strategy'}
-      <form class="strategy-form strategy-form-theme" on:submit|preventDefault={saveStrategy}>
-        <h2 class="strategy-heading">Strategy</h2>
-        <div class="strategy-description">
-          The strategy you define here is infused in all steps of your workflow. It sets the tone for your research, guides what market data to analyze, and is used when aggregating all research into a final report.
+      {#await getStrategy(data.user.username, currentSelection.value)}
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Loading strategy...</p>
         </div>
-        <textarea
-          id="strategy-text"
-          name="strategy-text"
-          placeholder="Enter your strategy here..."
-          class="strategy-textarea"
-          bind:value={strategyText}
-          disabled={loadingStrategy}
-        ></textarea>
-        <button type="submit" class="strategy-save-btn" disabled={savingStrategy || loadingStrategy}>
-          {savingStrategy ? 'Saving...' : 'Save'}
-        </button>
-        {#if strategyError}
-          <div class="strategy-error">{strategyError}</div>
-        {/if}
-      </form>
-      <!-- Removed stat-item and Project Overview blocks that may be causing errors -->
-      {:else if currentSelection.value === 'history'}
-        <div class="top-bar">
-          <h1>History</h1>
-          <div class="filter-buttons">
-            <button
-              class="filter-button {selectedFilter === 'all' ? 'active' : ''}"
-              on:click={() => filterHistory('all')}
-              aria-label="Show all history"
-            >
-              All
-            </button>
-            <button
-              class="filter-button {selectedFilter === 'changes' ? 'active' : ''}"
-              on:click={() => filterHistory('changes')}
-              aria-label="Show changes only"
-            >
-              Changes
-            </button>
-            <button
-              class="filter-button {selectedFilter === 'updates' ? 'active' : ''}"
-              on:click={() => filterHistory('updates')}
-              aria-label="Show updates only"
-            >
-              Updates
-            </button>
-            <button
-              class="filter-button {selectedFilter === 'system' ? 'active' : ''}"
-              on:click={() => filterHistory('system')}
-              aria-label="Show system events only"
-            >
-              System
-            </button>
+      {:then strategy}
+        <section class="card strategy-detail-box">
+          <div class="strategy-header">
+            <div>
+              <h2 class="strategy-title">{strategy.asset.primary}</h2>
+              <div class="strategy-meta">
+                <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
+                <span class="meta-item">Version: {strategy.version}</span>
+                <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <div class="strategy-actions">
+              <button class="btn-edit" on:click={() => openEditModal(strategy)}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                Edit
+              </button>
+              <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div class="history-container">
-          {#if historyEntries.length > 0}
-            {#each Object.entries(groupedHistory) as [date, entries] (date)}
-              <div class="history-group">
-                <h3>{date}</h3>
-                <div class="history-entries">
-                  {#each entries as entry (entry.timestamp)}
-                    <div class="history-entry">
-                      <span class="time">{formatTimestamp(entry.timestamp).time}</span>
-                      <span class="type">{entry.type}</span>
-                      <span class="title">{entry.title}</span>
-                      <span class="description">{entry.description}</span>
-                    </div>
+          
+          <!-- User Input Section -->
+          <div class="strategy-section">
+            <h3 class="section-heading">Strategy Thesis</h3>
+            <p class="section-content">{strategy.user_input.strategy_text}</p>
+          </div>
+          
+          {#if strategy.user_input.position_text}
+            <div class="strategy-section">
+              <h3 class="section-heading">Target Outlook</h3>
+              <p class="section-content">{strategy.user_input.position_text}</p>
+            </div>
+          {/if}
+          
+          {#if strategy.user_input.target}
+            <div class="strategy-section">
+              <h3 class="section-heading">Target</h3>
+              <p class="section-content">{strategy.user_input.target}</p>
+            </div>
+          {/if}
+          
+          <!-- Analysis Section (if exists) -->
+          {#if strategy.analysis.generated_at}
+            <!-- Executive Summary -->
+            {#if strategy.analysis.executive_summary}
+              <div class="executive-summary-section">
+                <h3 class="section-heading">Executive Summary</h3>
+                <div class="executive-summary-content" on:click={handleTabLinkClick}>
+                  {#each strategy.analysis.executive_summary.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
                   {/each}
                 </div>
               </div>
-            {/each}
+            {/if}
+            
+            <div class="analysis-section">
+              <div class="analysis-header">
+                <h3 class="section-heading">AI Analysis</h3>
+                <span class="analysis-timestamp">Generated: {new Date(strategy.analysis.generated_at).toLocaleString()}</span>
+              </div>
+              
+              <div class="analysis-subsection">
+                <h4 class="subsection-heading">Fundamental Analysis</h4>
+                <div class="section-content" on:click={handleTabLinkClick}>
+                  {#each strategy.analysis.fundamental.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
+                  {/each}
+                </div>
+              </div>
+              
+              <div class="analysis-subsection">
+                <h4 class="subsection-heading">Current Market View</h4>
+                <div class="section-content" on:click={handleTabLinkClick}>
+                  {#each strategy.analysis.current.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
+                  {/each}
+                </div>
+              </div>
+              
+              <div class="analysis-subsection">
+                <h4 class="subsection-heading">Key Risks</h4>
+                <div class="section-content" on:click={handleTabLinkClick}>
+                  {#each strategy.analysis.risks.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
+                  {/each}
+                </div>
+              </div>
+              
+              <div class="analysis-subsection">
+                <h4 class="subsection-heading">Market Drivers</h4>
+                <div class="section-content" on:click={handleTabLinkClick}>
+                  {#each strategy.analysis.drivers.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
+                  {/each}
+                </div>
+              </div>
+              
+              <!-- Evidence Lists -->
+              {#if strategy.analysis.supporting_evidence.length > 0 || strategy.analysis.contradicting_evidence.length > 0}
+                <div class="evidence-grid">
+                  {#if strategy.analysis.supporting_evidence.length > 0}
+                    <div class="evidence-column supporting">
+                      <h4 class="subsection-heading">Supporting Evidence</h4>
+                      <ul class="evidence-list">
+                        {#each strategy.analysis.supporting_evidence as evidence}
+                          <li>{evidence}</li>
+                        {/each}
+                      </ul>
+                    </div>
+                  {/if}
+                  
+                  {#if strategy.analysis.contradicting_evidence.length > 0}
+                    <div class="evidence-column contradicting">
+                      <h4 class="subsection-heading">Contradicting Evidence</h4>
+                      <ul class="evidence-list">
+                        {#each strategy.analysis.contradicting_evidence as evidence}
+                          <li>{evidence}</li>
+                        {/each}
+                      </ul>
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
           {:else}
-            <p>No history entries yet.</p>
+            <div class="no-analysis">
+              <p>No AI analysis generated yet</p>
+              <button class="btn-generate">
+                Generate Analysis (Coming Soon)
+              </button>
+            </div>
           {/if}
+        </section>
+      {:catch error}
+        <div class="error-container">
+          <p>Failed to load strategy</p>
+          <button class="btn-retry" on:click={() => window.location.reload()}>Retry</button>
+        </div>
+      {/await}
+    {:else if currentSelection.value === 'settings'}
+        <div class="top-bar">
+          <h1>Settings</h1>
+        </div>
+        <div class="content-section">
+          <div class="card">
+            <h3>User Settings</h3>
+            <p>Settings content will be displayed here.</p>
+          </div>
         </div>
       {:else if currentSelection.value === 'dashboard'}
         <div class="top-bar">
@@ -484,21 +555,24 @@ function handleTabLinkClick(event: MouseEvent) {
             </ul>
           </div>
         </section>
-      {:else if currentSelection.value === 'settings'}
-        <div class="top-bar">
-          <h1>Settings</h1>
-        </div>
+      {:else}
         <div class="content-section">
-          <div class="card">
-            <h3>User Settings</h3>
-            <p>Settings content will be displayed here.</p>
-          </div>
+          <p>Select a strategy or asset to view details.</p>
         </div>
       {/if}
     </main>
   </div>
   <Chat topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : (data?.interests?.[0]?.id || '')} />
 </div>
+
+{#if showStrategyModal}
+  <StrategyModal
+    mode={modalMode}
+    strategy={editingStrategy}
+    onSave={handleStrategySave}
+    onCancel={() => showStrategyModal = false}
+  />
+{/if}
 
 <style>
   .article-card {
@@ -681,6 +755,31 @@ function handleTabLinkClick(event: MouseEvent) {
     padding: 1.5rem 0 0 1.25rem;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .scrollable-section {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+  }
+  
+  .scrollable-section::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollable-section::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollable-section::-webkit-scrollbar-thumb {
+    background: var(--border-color, #e0e0e0);
+    border-radius: 3px;
+  }
+  
+  .scrollable-section::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted, #999);
   }
 
   .logo-container {
@@ -804,20 +903,14 @@ function handleTabLinkClick(event: MouseEvent) {
     justify-content: center;
     align-items: center;
   }
-
-  :global(.theme-section .theme-toggle) {
-    margin: 0 auto;
-  }
-
   .user-section {
-    margin-top: 1rem;
-    padding: 1rem 1.25rem 1rem 0;
-    border-top: 1px solid var(--border-color, #e0e0e0);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 1rem 1.5rem 1rem 0;
+    border-top: 1px solid var(--border-color, #e0e0e0);
   }
-
+  
   .user-info {
     display: flex;
     align-items: center;
@@ -860,136 +953,6 @@ function handleTabLinkClick(event: MouseEvent) {
     overflow-y: auto;
   }
 
-  .history-filters {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .filter-button {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 20px;
-    background: none;
-    color: var(--text-color, black);
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: all 0.2s;
-  }
-
-  .filter-button:hover {
-    background: var(--hover-bg, #eeeeee);
-  }
-
-  .filter-button.active {
-    background: var(--text-color, black);
-    color: var(--bg-color, white);
-    border-color: var(--text-color, black);
-  }
-
-  .history-container {
-    margin-top: 2rem;
-  }
-
-  .history-group {
-    margin-bottom: 2rem;
-  }
-
-  .date-header {
-    font-weight: 600;
-    color: var(--text-color, black);
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .history-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--card-bg, #f5f5f5);
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-  }
-
-  .time-stamp {
-    color: var(--text-muted, #666);
-    font-size: 0.875rem;
-    min-width: 48px;
-  }
-
-  .history-content {
-    display: flex;
-    gap: 1rem;
-    flex: 1;
-  }
-
-  .history-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    position: relative;
-  }
-
-  .history-icon::before {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-  }
-
-  .history-icon.update {
-    background: #E3F2FD;
-  }
-
-  .history-icon.update::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231976d2'%3E%3Cpath d='M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3v7.12zM12.5 8v4.25l3.5 2.08-.72 1.21L11 13V8h1.5z'/%3E%3C/svg%3E");
-  }
-
-  .history-icon.create {
-    background: #E8F5E9;
-  }
-
-  .history-icon.create::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232e7d32'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E");
-  }
-
-  .history-icon.delete {
-    background: #FFEBEE;
-  }
-
-  .history-icon.delete::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c62828'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E");
-  }
-
-  .history-icon.system {
-    background: #FFF3E0;
-  }
-
-  .history-icon.system::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef6c00'%3E%3Cpath d='M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7c-1.1 0-2 .9-2 2v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2V19h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2V15h2c1.1 0 2-.9 2-2V9z'/%3E%3C/svg%3E");
-  }
-
-  .history-text {
-    flex: 1;
-    font-size: 0.875rem;
-  }
-
-  .history-details {
-    color: var(--text-muted, #666);
-    font-size: 0.8125rem;
-    margin-top: 0.25rem;
-  }
-
-  .highlight {
-    font-weight: 500;
-  }
 
   .theme-header {
     display: flex;
@@ -1426,6 +1389,350 @@ function handleTabLinkClick(event: MouseEvent) {
     max-width: 99vw;
     margin-left: 0.5vw;
     margin-right: 0.5vw;
+  }
+}
+
+/* Strategy Sidebar Styles */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #666);
+  margin: 0;
+}
+
+.add-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary, #1976d2);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.add-button:hover {
+  background: #1565c0;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--border-color, #e0e0e0);
+  margin: 1.5rem 0;
+}
+
+.strategy-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.strategy-asset {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.strategy-target {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+}
+
+.analysis-badge {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.empty-state {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted, #666);
+  font-size: 0.875rem;
+  list-style: none;
+}
+
+/* Strategy Detail View Styles */
+.strategy-detail-box {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.strategy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color, #e0e0e0);
+}
+
+.strategy-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color, black);
+  margin: 0 0 0.5rem 0;
+}
+
+.strategy-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  font-size: 0.9rem;
+  color: var(--text-muted, #666);
+}
+
+.meta-item strong {
+  color: var(--text-color, black);
+  font-weight: 600;
+}
+
+.strategy-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-edit, .btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: var(--primary, #1976d2);
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #1565c0;
+}
+
+.btn-delete {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.btn-delete:hover {
+  background: #ffcdd2;
+}
+
+.strategy-section {
+  margin-bottom: 2rem;
+}
+
+.section-heading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-color, black);
+  margin: 0 0 0.75rem 0;
+}
+
+.section-content {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-color, black);
+  white-space: pre-wrap;
+}
+
+.executive-summary-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--hover-bg, #f8f9fa);
+  border-left: 4px solid var(--primary, #1976d2);
+  border-radius: 8px;
+}
+
+.executive-summary-content {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-color, black);
+  font-weight: 500;
+}
+
+:global(.dark) .executive-summary-section {
+  background: var(--card-bg, #2a2a2a);
+}
+
+.analysis-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border-color, #e0e0e0);
+}
+
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.analysis-timestamp {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+}
+
+.analysis-subsection {
+  margin-bottom: 2rem;
+}
+
+.subsection-heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color, black);
+  margin: 0 0 0.5rem 0;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.evidence-column {
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.evidence-column.supporting {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.evidence-column.contradicting {
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+}
+
+:global(.dark) .evidence-column.supporting {
+  background: #1b5e20;
+}
+
+:global(.dark) .evidence-column.contradicting {
+  background: #b71c1c;
+}
+
+.evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0 0;
+}
+
+.evidence-list li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.evidence-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.no-analysis {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted, #666);
+}
+
+.no-analysis p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-generate {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary, #1976d2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted, #666);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color, #e0e0e0);
+  border-top-color: var(--primary, #1976d2);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-retry {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary, #1976d2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-retry:hover {
+  background: #1565c0;
+}
+
+@media (max-width: 768px) {
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .strategy-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .strategy-actions {
+    width: 100%;
   }
 }
 
