@@ -2,6 +2,8 @@
 <script lang="ts">
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   export let topic_id: string | null = null;
+  export let strategy_id: string | null = null;
+  export let username: string | null = null;
   import { onMount } from 'svelte';
 
   interface Message {
@@ -45,17 +47,31 @@
     loading = true;
 
     try {
-      // Prepare message history for backend
+      // Prepare message history for backend (send ALL messages for maximum context)
       const history = messages.map(m => ({
         role: m.isUser ? 'user' : 'assistant',
         content: m.text
       }));
       
-      const body = { 
-        message: userInput, 
-        topic_id: topic_id,
-        history 
+      // Build request payload with optional context fields
+      const body: any = { 
+        message: userInput,
+        history
       };
+      
+      // Add topic context if available
+      if (topic_id) {
+        body.topic_id = topic_id;
+      }
+      
+      // Add strategy context if available (requires username)
+      if (strategy_id) {
+        body.strategy_id = strategy_id;
+        if (username) {
+          body.username = username;
+        }
+      }
+      
       const resp = await fetch(import.meta.env.VITE_API_BASE_URL + '/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -562,7 +562,11 @@ function handleTabLinkClick(event: MouseEvent) {
       {/if}
     </main>
   </div>
-  <Chat topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : (data?.interests?.[0]?.id || '')} />
+  <Chat 
+    topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
+    strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
+    username={data?.user?.username || null}
+  />
 </div>
 
 {#if showStrategyModal}
