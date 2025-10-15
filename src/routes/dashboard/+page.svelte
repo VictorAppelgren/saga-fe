@@ -18,6 +18,7 @@
   import ThemeInfo from '$lib/components/ThemeInfo.svelte';
   import Chat from '$lib/components/Chat.svelte';
   import StrategyModal from '$lib/components/StrategyModal.svelte';
+  import ArticleModal from '$lib/components/ArticleModal.svelte';
   import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail } from '$lib/api/strategies';
   import { invalidateAll } from '$app/navigation';
 
@@ -25,6 +26,10 @@
   let showStrategyModal = false;
   let modalMode: 'create' | 'edit' = 'create';
   let editingStrategy: StrategyDetail | null = null;
+
+  // --- ARTICLE MODAL STATE ---
+  let showArticleModal = false;
+  let selectedArticleId: string | null = null;
 
   function openCreateStrategyModal() {
     modalMode = 'create';
@@ -171,7 +176,15 @@ function handleTabLinkClick(event: MouseEvent) {
       if (articleId) {
         event.preventDefault();
         event.stopPropagation();
-        openTab('article', articleId, `Article ${articleId}`);
+        
+        // Strategy view: Open modal overlay
+        if (currentSelection.type === 'strategy') {
+          selectedArticleId = articleId;
+          showArticleModal = true;
+        } else {
+          // Asset view: Open tab (existing behavior)
+          openTab('article', articleId, `Article ${articleId}`);
+        }
         return;
       }
     }
@@ -575,6 +588,13 @@ function handleTabLinkClick(event: MouseEvent) {
     strategy={editingStrategy}
     onSave={handleStrategySave}
     onCancel={() => showStrategyModal = false}
+  />
+{/if}
+
+{#if showArticleModal && selectedArticleId}
+  <ArticleModal
+    articleId={selectedArticleId}
+    onClose={() => showArticleModal = false}
   />
 {/if}
 
