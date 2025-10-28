@@ -72,9 +72,14 @@
         }
       }
       
-      const resp = await fetch(import.meta.env.VITE_API_BASE_URL + '/chat', {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+      const API_KEY = import.meta.env.VITE_API_KEY || '';
+      const resp = await fetch(API_BASE + '/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY
+        },
         body: JSON.stringify(body)
       });
       if (!resp.ok) throw new Error('Server error: ' + resp.status);

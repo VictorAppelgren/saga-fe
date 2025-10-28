@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://0.0.0.0:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export interface Strategy {
   id: string;

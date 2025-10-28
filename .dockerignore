@@ -1,0 +1,6 @@
+# Exclude from Docker mount
+node_modules
+.svelte-kit
+build
+dist
+.DS_Store

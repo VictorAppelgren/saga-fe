@@ -1,6 +1,6 @@
 <script lang="ts">
   // Robust API base: use env if available, fallback to backend default, fallback to window.location.origin
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://0.0.0.0:8000';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
   // Simple markdown renderer: bold, headings, bullets, spacing
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';

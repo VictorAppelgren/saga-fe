@@ -8,7 +8,7 @@
   let loading = true;
   let error = false;
   
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://0.0.0.0:8000';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
   
   // Extract publisher name from domain
   function getPublisher(domain: string): string {

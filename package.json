@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "VITE_API_BASE_URL=http://0.0.0.0:8000 vite dev --host",
-		"dev:fast": "VITE_API_BASE_URL=http://0.0.0.0:8000 vite dev --host --force",
+		"dev": "vite dev --host",
+		"dev:fast": "vite dev --host --force",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
