@@ -1,5 +1,8 @@
 node_modules
 
+# pnpm
+.pnpm-store/
+
 # Output
 .output
 .vercel
