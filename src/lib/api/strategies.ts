@@ -1,5 +1,4 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 export interface Strategy {
   id: string;
@@ -52,7 +51,7 @@ export interface UpdateStrategyRequest {
 
 export async function listStrategies(username: string): Promise<Strategy[]> {
   const response = await fetch(`${API_BASE}/strategies?username=${username}`, {
-    headers: { 'X-API-Key': API_KEY }
+    credentials: 'include'
   });
   if (!response.ok) {
     throw new Error('Failed to fetch strategies');
@@ -63,7 +62,7 @@ export async function listStrategies(username: string): Promise<Strategy[]> {
 
 export async function getStrategy(username: string, strategyId: string): Promise<StrategyDetail> {
   const response = await fetch(`${API_BASE}/strategies/${strategyId}?username=${username}`, {
-    headers: { 'X-API-Key': API_KEY }
+    credentials: 'include'
   });
   if (!response.ok) {
     throw new Error('Failed to fetch strategy');
@@ -74,10 +73,8 @@ export async function getStrategy(username: string, strategyId: string): Promise
 export async function createStrategy(request: CreateStrategyRequest): Promise<StrategyDetail> {
   const response = await fetch(`${API_BASE}/strategies`, {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY
-    },
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(request)
   });
   if (!response.ok) {
@@ -92,10 +89,8 @@ export async function updateStrategy(
 ): Promise<StrategyDetail> {
   const response = await fetch(`${API_BASE}/strategies/${strategyId}`, {
     method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY
-    },
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(request)
   });
   if (!response.ok) {
@@ -107,7 +102,7 @@ export async function updateStrategy(
 export async function deleteStrategy(username: string, strategyId: string): Promise<void> {
   const response = await fetch(`${API_BASE}/strategies/${strategyId}?username=${username}`, {
     method: 'DELETE',
-    headers: { 'X-API-Key': API_KEY }
+    credentials: 'include'
   });
   if (!response.ok) {
     throw new Error('Failed to delete strategy');
