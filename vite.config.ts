@@ -7,6 +7,11 @@ export default defineConfig({
 	
 	// Performance optimizations
 	server: {
+		host: true,  // Listen on all network interfaces
+		hmr: {
+			// Use client port for HMR (fixes WebSocket in production)
+			clientPort: 80
+		},
 		fs: {
 			// Only allow serving files from the project root
 			strict: true
