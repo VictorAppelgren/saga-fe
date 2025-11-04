@@ -13,12 +13,13 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid credentials' });
 		}
 
-		// Store user data in cookie
+		// Backend sets session_token cookie for auth (via Set-Cookie header)
+		// Frontend sets user cookie for storing user data (username, topics)
 		cookies.set('user', JSON.stringify(authResult), {
 			path: '/',
 			httpOnly: true,
 			secure: false,
-			maxAge: 60 * 60 * 8 // 8 hours
+			maxAge: 60 * 60 * 24 // 24 hours (match session_token)
 		});
 
 		throw redirect(302, '/dashboard');
