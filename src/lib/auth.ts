@@ -17,6 +17,7 @@ const API_KEY = isServer
 export interface LoginResponse {
   username: string;
   accessible_topics: string[];
+  is_admin: boolean;
 }
 
 export async function authenticate(username: string, password: string): Promise<LoginResponse | null> {

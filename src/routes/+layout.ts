@@ -1,4 +1,7 @@
-// Simple layout - no data loading here
-export async function load() {
-  return { interests: [] };
+// Pass through server data (user from +layout.server.ts)
+export async function load({ data }: any) {
+  return {
+    ...data,
+    interests: []
+  };
 }
