@@ -143,8 +143,7 @@
 
 <div class="admin-container">
   <div class="header">
-    <h1>Admin Dashboard</h1>
-    <a href="/dashboard" class="back-link">← Back to App</a>
+    <h1>Dashboard</h1>
   </div>
   
   {#if loading}
@@ -224,16 +223,6 @@
     font-size: 2rem;
     font-weight: bold;
     color: #111827;
-  }
-  
-  .back-link {
-    color: #3b82f6;
-    text-decoration: none;
-    font-size: 0.875rem;
-  }
-  
-  .back-link:hover {
-    text-decoration: underline;
   }
   
   .loading {
