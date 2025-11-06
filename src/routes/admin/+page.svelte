@@ -49,10 +49,10 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: queriesTrend.dates,
+        labels: [...queriesTrend.dates],  // Clone array
         datasets: [{
           label: 'Queries Performed',
-          data: queriesTrend.queries,
+          data: [...queriesTrend.queries],  // Clone array
           borderColor: '#8b5cf6',
           backgroundColor: 'rgba(139, 92, 246, 0.1)',
           tension: 0.3,
@@ -76,10 +76,10 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: articlesTrend.dates,
+        labels: [...articlesTrend.dates],  // Clone array
         datasets: [{
           label: 'Articles Added',
-          data: articlesTrend.articles_added,
+          data: [...articlesTrend.articles_added],  // Clone array
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.3,
@@ -103,10 +103,10 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: graphTrend.dates,
+        labels: [...graphTrend.dates],  // Clone array
         datasets: [{
           label: 'Total Topics',
-          data: graphTrend.topics,
+          data: [...graphTrend.topics],  // Clone array
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           tension: 0.3,
@@ -130,10 +130,10 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: graphTrend.dates,
+        labels: [...graphTrend.dates],  // Clone array
         datasets: [{
           label: 'Total Articles in Graph',
-          data: graphTrend.articles,
+          data: [...graphTrend.articles],  // Clone array
           borderColor: '#f59e0b',
           backgroundColor: 'rgba(245, 158, 11, 0.1)',
           tension: 0.3,
