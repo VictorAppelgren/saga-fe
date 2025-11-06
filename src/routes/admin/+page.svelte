@@ -208,33 +208,48 @@
     </div>
     
     <!-- Trend Charts -->
-    <div class="chart-container">
-      <h2>📊 Queries Performed (Last 7 Days)</h2>
-      <div class="chart-wrapper">
-        <canvas id="queriesChart"></canvas>
+    {#if queriesTrend?.dates?.length > 1}
+      <div class="chart-container">
+        <h2>📊 Queries Performed (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="queriesChart"></canvas>
+        </div>
       </div>
-    </div>
-    
-    <div class="chart-container">
-      <h2>📈 Articles Added (Last 7 Days)</h2>
-      <div class="chart-wrapper">
-        <canvas id="articlesChart"></canvas>
+      
+      <div class="chart-container">
+        <h2>📈 Articles Added (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="articlesChart"></canvas>
+        </div>
       </div>
-    </div>
-    
-    <div class="chart-container">
-      <h2>🕸️ Total Topics Over Time (Last 7 Days)</h2>
-      <div class="chart-wrapper">
-        <canvas id="topicsChart"></canvas>
+      
+      <div class="chart-container">
+        <h2>🕸️ Total Topics Over Time (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="topicsChart"></canvas>
+        </div>
       </div>
-    </div>
-    
-    <div class="chart-container">
-      <h2>📚 Total Articles in Graph (Last 7 Days)</h2>
-      <div class="chart-wrapper">
-        <canvas id="graphArticlesChart"></canvas>
+      
+      <div class="chart-container">
+        <h2>📚 Total Articles in Graph (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="graphArticlesChart"></canvas>
+        </div>
       </div>
-    </div>
+    {:else}
+      <div class="info-message">
+        <h3>📊 Trend Charts</h3>
+        <p>Collecting historical data... Currently have {queriesTrend?.dates?.length || 0} day(s) of data.</p>
+        <p>Trend charts will appear after collecting data for multiple days.</p>
+        <p><strong>Today's Stats:</strong></p>
+        <ul>
+          <li>Queries: {queriesTrend?.queries?.[0] || 0}</li>
+          <li>Articles Added: {articlesTrend?.articles_added?.[0] || 0}</li>
+          <li>Total Topics: {graphTrend?.topics?.[0] || 0}</li>
+          <li>Total Articles: {graphTrend?.articles?.[0] || 0}</li>
+        </ul>
+      </div>
+    {/if}
     
     <!-- Logs -->
     <div class="logs-container">
@@ -322,5 +337,39 @@
     font-size: 0.85rem;
     margin: 0;
     line-height: 1.5;
+  }
+  
+  .info-message {
+    background: #f0f9ff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .info-message h3 {
+    font-size: 1.5rem;
+    color: #1e40af;
+    margin-bottom: 1rem;
+  }
+  
+  .info-message p {
+    color: #1e3a8a;
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-message ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    display: inline-block;
+    text-align: left;
+  }
+  
+  .info-message li {
+    color: #1e3a8a;
+    padding: 0.25rem 0;
+    font-weight: 500;
   }
 </style>
