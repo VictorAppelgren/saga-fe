@@ -238,6 +238,30 @@
       />
     </div>
     
+    <!-- Perspective Articles Per Topic -->
+    <div class="stats-grid">
+      <AdminCard 
+        title="⚠️ Risk Articles" 
+        value={summary?.graph_state?.avg_risk_articles_per_topic?.toFixed(1)} 
+        subtitle="avg per topic" 
+      />
+      <AdminCard 
+        title="✨ Opportunity Articles" 
+        value={summary?.graph_state?.avg_opportunity_articles_per_topic?.toFixed(1)} 
+        subtitle="avg per topic" 
+      />
+      <AdminCard 
+        title="📈 Trend Articles" 
+        value={summary?.graph_state?.avg_trend_articles_per_topic?.toFixed(1)} 
+        subtitle="avg per topic" 
+      />
+      <AdminCard 
+        title="⚡ Catalyst Articles" 
+        value={summary?.graph_state?.avg_catalyst_articles_per_topic?.toFixed(1)} 
+        subtitle="avg per topic" 
+      />
+    </div>
+    
     <!-- Trend Charts -->
     {#if queriesTrend?.dates?.length > 1}
       <div class="chart-container">
