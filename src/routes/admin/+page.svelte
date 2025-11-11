@@ -5,6 +5,7 @@
   
   let summary: any = $state(null);
   let articlesTrend: any = $state(null);
+  let analysisTrend: any = $state(null);
   let queriesTrend: any = $state(null);
   let graphTrend: any = $state(null);
   let logs: any = $state(null);
@@ -13,9 +14,10 @@
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, queriesRes, graphRes, logsRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, queriesRes, graphRes, logsRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
+        fetch('/api/admin/trends/analysis?days=7'),
         fetch('/api/admin/trends/queries?days=7'),
         fetch('/api/admin/trends/graph?days=7'),
         fetch('/api/admin/logs/today?lines=20')
@@ -23,6 +25,7 @@
       
       summary = await summaryRes.json();
       articlesTrend = await articlesRes.json();
+      analysisTrend = await analysisRes.json();
       queriesTrend = await queriesRes.json();
       graphTrend = await graphRes.json();
       logs = await logsRes.json();
@@ -33,6 +36,7 @@
       setTimeout(() => {
         renderQueriesChart();
         renderArticlesChart();
+        renderRewritesChart();
         renderTopicsChart();
         renderGraphArticlesChart();
       }, 100);
@@ -82,6 +86,33 @@
           data: [...articlesTrend.articles_added],  // Clone array
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+  
+  function renderRewritesChart() {
+    const ctx = document.getElementById('rewritesChart') as HTMLCanvasElement;
+    if (!ctx || !analysisTrend) return;
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [...analysisTrend.dates],  // Clone array
+        datasets: [{
+          label: 'Rewrites Succeeded',
+          data: [...analysisTrend.rewrite_succeeded],  // Clone array
+          borderColor: '#ec4899',
+          backgroundColor: 'rgba(236, 72, 153, 0.1)',
           tension: 0.3,
           fill: true
         }]
@@ -220,6 +251,13 @@
         <h2>📈 Articles Added (Last 7 Days)</h2>
         <div class="chart-wrapper">
           <canvas id="articlesChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h2>✍️ Rewrites Succeeded (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="rewritesChart"></canvas>
         </div>
       </div>
       
