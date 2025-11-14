@@ -262,6 +262,26 @@
       />
     </div>
     
+    <!-- Capacity Management -->
+    <h2>🔧 Article Capacity Management</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="📉 Articles Downgraded" 
+        value={summary?.today?.maintenance?.articles_downgraded || 0} 
+        subtitle="today (tier 3→2 or 2→1)" 
+      />
+      <AdminCard 
+        title="📦 Articles Archived" 
+        value={summary?.today?.maintenance?.articles_archived || 0} 
+        subtitle="today (downgraded to tier 0)" 
+      />
+      <AdminCard 
+        title="📄 Raw Articles Stored" 
+        value={summary?.storage?.total_raw_articles || 0} 
+        subtitle="JSON files in cold storage" 
+      />
+    </div>
+    
     <!-- Trend Charts -->
     {#if queriesTrend?.dates?.length > 1}
       <div class="chart-container">
