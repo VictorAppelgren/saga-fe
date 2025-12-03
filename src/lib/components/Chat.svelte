@@ -30,7 +30,11 @@
   let errorMsg = '';
 
   async function handleSubmit() {
-    if (!inputText.trim() || loading) return;
+    console.log('🔵 handleSubmit called, inputText:', inputText, 'loading:', loading);
+    if (!inputText.trim() || loading) {
+      console.log('⚠️ Skipping submit - empty or loading');
+      return;
+    }
     errorMsg = '';
 
     // Add user message
@@ -41,11 +45,13 @@
       timestamp: new Date()
     };
     messages = [...messages, userMessage];
+    console.log('✅ User message added, total messages:', messages.length);
     scrollToBottom();
 
     const userInput = inputText;
     inputText = '';
     loading = true;
+    console.log('📤 Sending to backend:', userInput);
 
     try {
       // Prepare message history for backend (send ALL messages for maximum context)
@@ -115,9 +121,13 @@
     }
   }
 
+  // Track last processed trigger to avoid duplicates
+  let lastProcessedTrigger: string | null = null;
+  
   // Watch for triggerMessage changes from dashboard
-  $: if (triggerMessage) {
+  $: if (triggerMessage && triggerMessage !== lastProcessedTrigger) {
     console.log('💬 Chat received trigger message:', triggerMessage);
+    lastProcessedTrigger = triggerMessage;
     
     // Add message to conversation
     const userMessage: Message = {
