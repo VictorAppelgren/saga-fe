@@ -114,34 +114,24 @@
     }
   }
 
-  // Listen for custom event from dashboard questions
-  onMount(() => {
-    const handleChatMessage = (event: CustomEvent) => {
-      if (event.detail?.message && event.detail?.autoSend) {
-        // Add message directly to conversation and send
-        const userMessage: Message = {
-          id: crypto.randomUUID(),
-          text: event.detail.message,
-          isUser: true,
-          timestamp: new Date()
-        };
-        messages = [...messages, userMessage];
-        scrollToBottom();
-        
-        // Send to backend
-        sendMessage(event.detail.message);
-      } else if (event.detail?.message) {
-        // Just fill input without sending
-        inputText = event.detail.message;
-      }
-    };
+  // Public method that can be called from parent component (dashboard)
+  export function sendMessageFromDashboard(messageText: string) {
+    console.log('💬 Chat.sendMessageFromDashboard called with:', messageText);
     
-    window.addEventListener('send-chat-message', handleChatMessage as EventListener);
-    
-    return () => {
-      window.removeEventListener('send-chat-message', handleChatMessage as EventListener);
+    // Add message to conversation
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      text: messageText,
+      isUser: true,
+      timestamp: new Date()
     };
-  });
+    messages = [...messages, userMessage];
+    console.log('📝 Message added to conversation, total messages:', messages.length);
+    scrollToBottom();
+    
+    // Send to backend
+    sendMessage(messageText);
+  }
 
   // Separate function to send message to backend
   async function sendMessage(messageText: string) {

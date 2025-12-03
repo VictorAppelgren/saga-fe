@@ -40,6 +40,7 @@
   }
   let dashboardQuestions: DashboardQuestion[] = [];
   let loadingQuestions = true;
+  let chatComponent: any; // Reference to Chat component
 
   function openCreateStrategyModal() {
     modalMode = 'create';
@@ -151,22 +152,28 @@
 
   // Start chat with a question
   async function startChatWithQuestion(question: DashboardQuestion) {
+    console.log('🎯 Question clicked:', question);
+    
     // 1. Select the strategy
     currentSelection = { type: 'strategy', value: question.strategyId };
+    console.log('✅ Strategy selected:', question.strategyId);
     
     // 2. Wait a moment for the UI to update
     await new Promise(resolve => setTimeout(resolve, 200));
     
     // 3. Scroll to chat and focus
-    const chatSection = document.querySelector('.chat-panel');
+    const chatSection = document.querySelector('.chat-container');
     if (chatSection) {
       chatSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     
-    // 4. Trigger chat by dispatching event with autoSend flag
-    window.dispatchEvent(new CustomEvent('send-chat-message', { 
-      detail: { message: question.text, autoSend: true } 
-    }));
+    // 4. Call chat component directly to send message
+    console.log('📤 Calling chat component with message:', question.text);
+    if (chatComponent && chatComponent.sendMessageFromDashboard) {
+      chatComponent.sendMessageFromDashboard(question.text);
+    } else {
+      console.error('❌ Chat component not available or method not found');
+    }
   }
 
   // Load questions on mount
@@ -306,7 +313,7 @@ function handleTabLinkClick(event: MouseEvent) {
   <!-- Sidebar Navigation -->
   <nav class="sidebar">
     <div class="logo-container">
-      <img src="/saga-logo.png" alt="Saga Intelligence Logo" class="logo" />
+      <img src="/saga-labs.avif" alt="Saga Intelligence Logo" class="logo" />
     </div>
     
     <div class="scrollable-section">
@@ -661,6 +668,7 @@ function handleTabLinkClick(event: MouseEvent) {
     </main>
   </div>
   <Chat 
+    bind:this={chatComponent}
     topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
     strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
     username={data?.user?.username || null}
