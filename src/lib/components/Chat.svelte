@@ -113,6 +113,22 @@
       handleSubmit();
     }
   }
+
+  // Listen for custom event from dashboard questions
+  onMount(() => {
+    const handleChatMessage = (event: CustomEvent) => {
+      if (event.detail?.message) {
+        inputText = event.detail.message;
+        handleSubmit();
+      }
+    };
+    
+    window.addEventListener('send-chat-message', handleChatMessage as EventListener);
+    
+    return () => {
+      window.removeEventListener('send-chat-message', handleChatMessage as EventListener);
+    };
+  });
 </script>
 
 <div class="chat-container">

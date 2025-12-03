@@ -33,7 +33,12 @@
   let selectedArticleId: string | null = null;
 
   // --- DASHBOARD QUESTIONS STATE ---
-  let dashboardQuestions: string[] = [];
+  interface DashboardQuestion {
+    text: string;
+    strategyId: string;
+    strategyAsset: string;
+  }
+  let dashboardQuestions: DashboardQuestion[] = [];
   let loadingQuestions = true;
 
   function openCreateStrategyModal() {
@@ -115,7 +120,7 @@
       console.log('📋 Found strategies:', strategies.length);
 
       // Extract questions from all strategies
-      const questions: string[] = [];
+      const questions: DashboardQuestion[] = [];
       for (const strategyItem of strategies) {
         try {
           console.log('🔍 Loading strategy:', strategyItem.id);
@@ -124,7 +129,11 @@
           console.log('📄 Strategy data:', strategy);
           console.log('💡 Dashboard question:', strategy.dashboard_question);
           if (strategy.dashboard_question) {
-            questions.push(strategy.dashboard_question);
+            questions.push({
+              text: strategy.dashboard_question,
+              strategyId: strategyItem.id,
+              strategyAsset: strategy.asset.primary
+            });
           }
         } catch (e) {
           console.error('Failed to load strategy details:', e);
@@ -141,15 +150,23 @@
   }
 
   // Start chat with a question
-  function startChatWithQuestion(question: string) {
-    // Add question to chat messages and trigger send
-    const chatComponent = document.querySelector('chat-component');
-    if (chatComponent) {
-      // Trigger chat with pre-filled question
-      // This will be handled by the Chat component
+  async function startChatWithQuestion(question: DashboardQuestion) {
+    // 1. Select the strategy
+    currentSelection = { type: 'strategy', value: question.strategyId };
+    
+    // 2. Wait a moment for the UI to update
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // 3. Scroll to chat and focus
+    const chatSection = document.querySelector('.chat-panel');
+    if (chatSection) {
+      chatSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    // For now, just log it - you'll need to implement chat trigger
-    console.log('Starting chat with question:', question);
+    
+    // 4. Trigger chat by dispatching a custom event with the question
+    window.dispatchEvent(new CustomEvent('send-chat-message', { 
+      detail: { message: question.text } 
+    }));
   }
 
   // Load questions on mount
@@ -616,30 +633,26 @@ function handleTabLinkClick(event: MouseEvent) {
         </div>
         <section class="card welcome-box welcome-theme">
           <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
-          <p class="welcome-subtitle">Monitor risks. Spot opportunities. Stay ahead.</p>
-
-          {#if loadingQuestions}
-            <div class="welcome-section">
-              <p class="welcome-description">Loading your strategy insights...</p>
-            </div>
-          {:else if dashboardQuestions.length > 0}
-            <div class="welcome-section">
-              <p class="welcome-prompt">Based on your strategies:</p>
-              <div class="question-cards">
-                {#each dashboardQuestions as question}
-                  <button class="question-card" on:click={() => startChatWithQuestion(question)}>
-                    <span class="question-icon">💡</span>
-                    <span class="question-text">{question}</span>
-                  </button>
-                {/each}
-              </div>
-            </div>
-          {:else}
-            <div class="welcome-section">
-              <p class="welcome-description">Create a strategy to get personalized risk insights and questions.</p>
-            </div>
-          {/if}
+          <p class="welcome-subtitle">Your AI-powered strategy command center. Monitor market risks in real-time, identify emerging opportunities, and make informed decisions based on comprehensive analysis of your trading strategies.</p>
         </section>
+
+        {#if !loadingQuestions && dashboardQuestions.length > 0}
+          <section class="card insights-box">
+            <h3 class="insights-title">💡 Strategy Insights</h3>
+            <p class="insights-description">Based on your active strategies, here are some critical questions to consider:</p>
+            <div class="questions-grid">
+              {#each dashboardQuestions as question}
+                <button class="question-card" on:click={() => startChatWithQuestion(question)}>
+                  <span class="question-icon">💭</span>
+                  <div class="question-content">
+                    <span class="question-text">{question.text}</span>
+                    <span class="strategy-badge">{question.strategyAsset}</span>
+                  </div>
+                </button>
+              {/each}
+            </div>
+          </section>
+        {/if}
       {:else}
         <div class="content-section">
           <p>Select a strategy or asset to view details.</p>
@@ -1929,6 +1942,90 @@ function handleTabLinkClick(event: MouseEvent) {
   background: #1565c0;
 }
 
+/* Insights Box Styling */
+.insights-box {
+  margin: 1.5rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+}
+
+.insights-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.insights-description {
+  opacity: 0.95;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.question-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: white;
+}
+
+.question-card:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.question-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.question-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.question-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: white;
+}
+
+.strategy-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.welcome-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-secondary, #666);
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .evidence-grid {
     grid-template-columns: 1fr;
@@ -1941,6 +2038,10 @@ function handleTabLinkClick(event: MouseEvent) {
   
   .strategy-actions {
     width: 100%;
+  }
+
+  .questions-grid {
+    grid-template-columns: 1fr;
   }
 }
 
