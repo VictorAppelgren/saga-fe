@@ -50,7 +50,7 @@ export interface UpdateStrategyRequest {
 }
 
 export async function listStrategies(username: string): Promise<Strategy[]> {
-  const response = await fetch(`${API_BASE}/strategies?username=${username}`, {
+  const response = await fetch(`${API_BASE}/users/${username}/strategies`, {
     credentials: 'include'
   });
   if (!response.ok) {
@@ -61,7 +61,7 @@ export async function listStrategies(username: string): Promise<Strategy[]> {
 }
 
 export async function getStrategy(username: string, strategyId: string): Promise<StrategyDetail> {
-  const response = await fetch(`${API_BASE}/strategies/${strategyId}?username=${username}`, {
+  const response = await fetch(`${API_BASE}/users/${username}/strategies/${strategyId}`, {
     credentials: 'include'
   });
   if (!response.ok) {
@@ -71,11 +71,19 @@ export async function getStrategy(username: string, strategyId: string): Promise
 }
 
 export async function createStrategy(request: CreateStrategyRequest): Promise<StrategyDetail> {
-  const response = await fetch(`${API_BASE}/strategies`, {
+  const { username, ...strategyData } = request;
+  const response = await fetch(`${API_BASE}/users/${username}/strategies`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify(request)
+    body: JSON.stringify({
+      asset: { primary: strategyData.asset_primary },
+      user_input: {
+        strategy_text: strategyData.strategy_text,
+        position_text: strategyData.position_text,
+        target: strategyData.target
+      }
+    })
   });
   if (!response.ok) {
     throw new Error('Failed to create strategy');
@@ -87,11 +95,12 @@ export async function updateStrategy(
   strategyId: string,
   request: UpdateStrategyRequest
 ): Promise<StrategyDetail> {
-  const response = await fetch(`${API_BASE}/strategies/${strategyId}`, {
+  const { username, ...updates } = request;
+  const response = await fetch(`${API_BASE}/users/${username}/strategies/${strategyId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify(request)
+    body: JSON.stringify(updates)
   });
   if (!response.ok) {
     throw new Error('Failed to update strategy');
@@ -100,7 +109,7 @@ export async function updateStrategy(
 }
 
 export async function deleteStrategy(username: string, strategyId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/strategies/${strategyId}?username=${username}`, {
+  const response = await fetch(`${API_BASE}/users/${username}/strategies/${strategyId}`, {
     method: 'DELETE',
     credentials: 'include'
   });

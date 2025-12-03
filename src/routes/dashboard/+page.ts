@@ -14,7 +14,7 @@ export const load: PageLoad = async ({ fetch, data }) => {
       // Fetch both interests and strategies in parallel
       const [interestsRes, strategiesRes] = await Promise.all([
         fetch(`${API_BASE}/interests?username=${data.user.username}`, { headers }),
-        fetch(`${API_BASE}/strategies?username=${data.user.username}`, { headers })
+        fetch(`${API_BASE}/users/${data.user.username}/strategies`, { headers })
       ]);
       
       const interests = interestsRes.ok ? (await interestsRes.json()).interests || [] : [];

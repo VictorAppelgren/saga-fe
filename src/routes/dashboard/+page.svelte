@@ -102,18 +102,27 @@
   async function loadDashboardQuestions() {
     try {
       const username = data?.user?.username;
-      if (!username) return;
+      console.log('🔍 Loading dashboard questions for user:', username);
+      if (!username) {
+        console.log('❌ No username found');
+        loadingQuestions = false;
+        return;
+      }
 
       const response = await fetch(`${API_BASE}/users/${username}/strategies`);
       const result = await response.json();
       const strategies = result.strategies || [];
+      console.log('📋 Found strategies:', strategies.length);
 
       // Extract questions from all strategies
       const questions: string[] = [];
       for (const strategyItem of strategies) {
         try {
+          console.log('🔍 Loading strategy:', strategyItem.id);
           const detailResponse = await fetch(`${API_BASE}/users/${username}/strategies/${strategyItem.id}`);
           const strategy = await detailResponse.json();
+          console.log('📄 Strategy data:', strategy);
+          console.log('💡 Dashboard question:', strategy.dashboard_question);
           if (strategy.dashboard_question) {
             questions.push(strategy.dashboard_question);
           }
@@ -122,6 +131,7 @@
         }
       }
 
+      console.log('✅ Total questions found:', questions.length, questions);
       dashboardQuestions = questions.slice(0, 3); // Max 3 questions
       loadingQuestions = false;
     } catch (error) {
@@ -496,13 +506,13 @@ function handleTabLinkClick(event: MouseEvent) {
           {/if}
           
           <!-- Analysis Section (if exists) -->
-          {#if strategy.analysis.generated_at}
+          {#if strategy.latest_analysis?.analyzed_at}
             <!-- Executive Summary -->
-            {#if strategy.analysis.executive_summary}
+            {#if strategy.latest_analysis.final_analysis?.executive_summary}
               <div class="executive-summary-section">
                 <h3 class="section-heading">Executive Summary</h3>
                 <div class="executive-summary-content" on:click={handleTabLinkClick}>
-                  {#each strategy.analysis.executive_summary.split('\n') as line}
+                  {#each strategy.latest_analysis.final_analysis.executive_summary.split('\n') as line}
                     {@html linkifyIds(simpleMarkdown(line))}
                   {/each}
                 </div>
@@ -512,71 +522,68 @@ function handleTabLinkClick(event: MouseEvent) {
             <div class="analysis-section">
               <div class="analysis-header">
                 <h3 class="section-heading">AI Analysis</h3>
-                <span class="analysis-timestamp">Generated: {new Date(strategy.analysis.generated_at).toLocaleString()}</span>
+                <span class="analysis-timestamp">Generated: {new Date(strategy.latest_analysis.analyzed_at).toLocaleString()}</span>
               </div>
               
-              <div class="analysis-subsection">
-                <h4 class="subsection-heading">Fundamental Analysis</h4>
-                <div class="section-content" on:click={handleTabLinkClick}>
-                  {#each strategy.analysis.fundamental.split('\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
-              
-              <div class="analysis-subsection">
-                <h4 class="subsection-heading">Current Market View</h4>
-                <div class="section-content" on:click={handleTabLinkClick}>
-                  {#each strategy.analysis.current.split('\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
-              
-              <div class="analysis-subsection">
-                <h4 class="subsection-heading">Key Risks</h4>
-                <div class="section-content" on:click={handleTabLinkClick}>
-                  {#each strategy.analysis.risks.split('\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
-              
-              <div class="analysis-subsection">
-                <h4 class="subsection-heading">Market Drivers</h4>
-                <div class="section-content" on:click={handleTabLinkClick}>
-                  {#each strategy.analysis.drivers.split('\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
-              
-              <!-- Evidence Lists -->
-              {#if strategy.analysis.supporting_evidence.length > 0 || strategy.analysis.contradicting_evidence.length > 0}
-                <div class="evidence-grid">
-                  {#if strategy.analysis.supporting_evidence.length > 0}
-                    <div class="evidence-column supporting">
-                      <h4 class="subsection-heading">Supporting Evidence</h4>
-                      <ul class="evidence-list">
-                        {#each strategy.analysis.supporting_evidence as evidence}
-                          <li>{evidence}</li>
-                        {/each}
-                      </ul>
-                    </div>
-                  {/if}
-                  
-                  {#if strategy.analysis.contradicting_evidence.length > 0}
-                    <div class="evidence-column contradicting">
-                      <h4 class="subsection-heading">Contradicting Evidence</h4>
-                      <ul class="evidence-list">
-                        {#each strategy.analysis.contradicting_evidence as evidence}
-                          <li>{evidence}</li>
-                        {/each}
-                      </ul>
-                    </div>
-                  {/if}
+              <!-- Position Analysis -->
+              {#if strategy.latest_analysis.final_analysis?.position_analysis}
+                <div class="analysis-subsection">
+                  <h4 class="subsection-heading">Position Analysis</h4>
+                  <div class="section-content" on:click={handleTabLinkClick}>
+                    {#each strategy.latest_analysis.final_analysis.position_analysis.split('\n') as line}
+                      {@html linkifyIds(simpleMarkdown(line))}
+                    {/each}
+                  </div>
                 </div>
               {/if}
+              
+              <!-- Risk Analysis -->
+              {#if strategy.latest_analysis.final_analysis?.risk_analysis}
+                <div class="analysis-subsection">
+                  <h4 class="subsection-heading">Risk Analysis</h4>
+                  <div class="section-content" on:click={handleTabLinkClick}>
+                    {#each strategy.latest_analysis.final_analysis.risk_analysis.split('\n') as line}
+                      {@html linkifyIds(simpleMarkdown(line))}
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+              
+              <!-- Opportunity Analysis -->
+              {#if strategy.latest_analysis.final_analysis?.opportunity_analysis}
+                <div class="analysis-subsection">
+                  <h4 class="subsection-heading">Opportunity Analysis</h4>
+                  <div class="section-content" on:click={handleTabLinkClick}>
+                    {#each strategy.latest_analysis.final_analysis.opportunity_analysis.split('\n') as line}
+                      {@html linkifyIds(simpleMarkdown(line))}
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+              
+              <!-- Recommendation -->
+              {#if strategy.latest_analysis.final_analysis?.recommendation}
+                <div class="analysis-subsection">
+                  <h4 class="subsection-heading">Recommendation</h4>
+                  <div class="section-content" on:click={handleTabLinkClick}>
+                    {#each strategy.latest_analysis.final_analysis.recommendation.split('\n') as line}
+                      {@html linkifyIds(simpleMarkdown(line))}
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+              
+              <!-- Risk & Opportunity Levels -->
+              <div class="analysis-summary">
+                <div class="summary-item">
+                  <span class="summary-label">Risk Level:</span>
+                  <span class="summary-value risk-{strategy.latest_analysis.risk_level}">{strategy.latest_analysis.risk_level?.toUpperCase()}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Opportunity Level:</span>
+                  <span class="summary-value opp-{strategy.latest_analysis.opportunity_level}">{strategy.latest_analysis.opportunity_level?.toUpperCase()}</span>
+                </div>
+              </div>
             </div>
           {:else}
             <div class="no-analysis">
@@ -1801,6 +1808,63 @@ function handleTabLinkClick(event: MouseEvent) {
   left: 0;
   font-weight: bold;
   font-size: 1.2rem;
+}
+
+.analysis-summary {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: var(--surface-variant, #f5f5f5);
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: var(--text-muted, #666);
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.summary-value.risk-low,
+.summary-value.opp-low {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.summary-value.risk-medium,
+.summary-value.opp-medium {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.summary-value.risk-high,
+.summary-value.opp-high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.summary-value.risk-critical {
+  background: #d32f2f;
+  color: white;
+}
+
+.summary-value.opp-exceptional {
+  background: #1b5e20;
+  color: white;
 }
 
 .no-analysis {
