@@ -117,9 +117,22 @@
   // Listen for custom event from dashboard questions
   onMount(() => {
     const handleChatMessage = (event: CustomEvent) => {
-      if (event.detail?.message) {
+      if (event.detail?.message && event.detail?.autoSend) {
+        // Add message directly to conversation and send
+        const userMessage: Message = {
+          id: crypto.randomUUID(),
+          text: event.detail.message,
+          isUser: true,
+          timestamp: new Date()
+        };
+        messages = [...messages, userMessage];
+        scrollToBottom();
+        
+        // Send to backend
+        sendMessage(event.detail.message);
+      } else if (event.detail?.message) {
+        // Just fill input without sending
         inputText = event.detail.message;
-        handleSubmit();
       }
     };
     
@@ -129,6 +142,70 @@
       window.removeEventListener('send-chat-message', handleChatMessage as EventListener);
     };
   });
+
+  // Separate function to send message to backend
+  async function sendMessage(messageText: string) {
+    loading = true;
+    errorMsg = '';
+
+    try {
+      // Prepare message history for backend
+      const history = messages.map(m => ({
+        role: m.isUser ? 'user' : 'assistant',
+        content: m.text
+      }));
+      
+      // Build request payload
+      const body: any = { 
+        message: messageText,
+        history
+      };
+      
+      if (topic_id) {
+        body.topic_id = topic_id;
+      }
+      
+      if (strategy_id) {
+        body.strategy_id = strategy_id;
+        if (username) {
+          body.username = username;
+        }
+      }
+      
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+      const API_KEY = import.meta.env.VITE_API_KEY || '';
+      const resp = await fetch(API_BASE + '/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY
+        },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) throw new Error('Server error: ' + resp.status);
+      const data = await resp.json();
+      const botMessage: Message = {
+        id: crypto.randomUUID(),
+        text: data.response,
+        isUser: false,
+        timestamp: new Date()
+      };
+      messages = [...messages, botMessage];
+      scrollToBottom();
+    } catch (err: any) {
+      errorMsg = err.message || 'Unknown error';
+      const botMessage: Message = {
+        id: crypto.randomUUID(),
+        text: '[Error] ' + errorMsg,
+        isUser: false,
+        timestamp: new Date()
+      };
+      messages = [...messages, botMessage];
+      scrollToBottom();
+    } finally {
+      loading = false;
+    }
+  }
 </script>
 
 <div class="chat-container">

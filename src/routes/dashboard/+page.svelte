@@ -155,7 +155,7 @@
     currentSelection = { type: 'strategy', value: question.strategyId };
     
     // 2. Wait a moment for the UI to update
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // 3. Scroll to chat and focus
     const chatSection = document.querySelector('.chat-panel');
@@ -163,9 +163,9 @@
       chatSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     
-    // 4. Trigger chat by dispatching a custom event with the question
+    // 4. Trigger chat by dispatching event with autoSend flag
     window.dispatchEvent(new CustomEvent('send-chat-message', { 
-      detail: { message: question.text } 
+      detail: { message: question.text, autoSend: true } 
     }));
   }
 
@@ -306,7 +306,7 @@ function handleTabLinkClick(event: MouseEvent) {
   <!-- Sidebar Navigation -->
   <nav class="sidebar">
     <div class="logo-container">
-      <img src="/argos-logo-black.png" alt="Saga Intelligence Logo" class="logo" />
+      <img src="/saga-logo.png" alt="Saga Intelligence Logo" class="logo" />
     </div>
     
     <div class="scrollable-section">
@@ -1945,8 +1945,8 @@ function handleTabLinkClick(event: MouseEvent) {
 /* Insights Box Styling */
 .insights-box {
   margin: 1.5rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
   padding: 2rem;
 }
 
@@ -1954,11 +1954,11 @@ function handleTabLinkClick(event: MouseEvent) {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: white;
+  color: var(--primary, #1976d2);
 }
 
 .insights-description {
-  opacity: 0.95;
+  color: var(--text-secondary, #666);
   margin-bottom: 1.5rem;
   font-size: 1rem;
   line-height: 1.5;
@@ -1971,9 +1971,8 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .question-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--surface-variant, #f5f5f5);
+  border: 1px solid var(--border-color, #e0e0e0);
   border-radius: 12px;
   padding: 1.25rem;
   text-align: left;
@@ -1982,13 +1981,14 @@ function handleTabLinkClick(event: MouseEvent) {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  color: white;
+  color: var(--text-primary, #222);
 }
 
 .question-card:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--hover-bg, #e8e8e8);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary, #1976d2);
 }
 
 .question-icon {
@@ -2006,17 +2006,33 @@ function handleTabLinkClick(event: MouseEvent) {
 .question-text {
   font-size: 1rem;
   line-height: 1.5;
-  color: white;
+  color: var(--text-primary, #222);
 }
 
 .strategy-badge {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--primary-light, #e3f2fd);
+  color: var(--primary, #1976d2);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 500;
   align-self: flex-start;
+}
+
+:global(.dark) .question-card {
+  background: var(--surface-variant, #2a2a2a);
+  border-color: var(--border-color, #444);
+}
+
+:global(.dark) .question-card:hover {
+  background: var(--hover-bg, #333);
+  border-color: var(--primary, #64b5f6);
+}
+
+:global(.dark) .strategy-badge {
+  background: rgba(100, 181, 246, 0.2);
+  color: var(--primary, #64b5f6);
 }
 
 .welcome-subtitle {
