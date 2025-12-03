@@ -620,7 +620,7 @@ function handleTabLinkClick(event: MouseEvent) {
               <p class="welcome-prompt">Based on your strategies:</p>
               <div class="question-cards">
                 {#each dashboardQuestions as question}
-                  <button class="question-card" onclick={() => startChatWithQuestion(question)}>
+                  <button class="question-card" on:click={() => startChatWithQuestion(question)}>
                     <span class="question-icon">💡</span>
                     <span class="question-text">{question}</span>
                   </button>
