@@ -4,6 +4,7 @@
   export let topic_id: string | null = null;
   export let strategy_id: string | null = null;
   export let username: string | null = null;
+  export let triggerMessage: string | null = null; // Message to auto-send from dashboard
   import { onMount } from 'svelte';
 
   interface Message {
@@ -114,14 +115,14 @@
     }
   }
 
-  // Public method that can be called from parent component (dashboard)
-  export function sendMessageFromDashboard(messageText: string) {
-    console.log('💬 Chat.sendMessageFromDashboard called with:', messageText);
+  // Watch for triggerMessage changes from dashboard
+  $: if (triggerMessage) {
+    console.log('💬 Chat received trigger message:', triggerMessage);
     
     // Add message to conversation
     const userMessage: Message = {
       id: crypto.randomUUID(),
-      text: messageText,
+      text: triggerMessage,
       isUser: true,
       timestamp: new Date()
     };
@@ -130,7 +131,7 @@
     scrollToBottom();
     
     // Send to backend
-    sendMessage(messageText);
+    sendMessage(triggerMessage);
   }
 
   // Separate function to send message to backend

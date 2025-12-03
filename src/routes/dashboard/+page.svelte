@@ -40,7 +40,7 @@
   }
   let dashboardQuestions: DashboardQuestion[] = [];
   let loadingQuestions = true;
-  let chatComponent: any; // Reference to Chat component
+  let chatTriggerMessage: string | null = null; // Message to trigger in chat
 
   function openCreateStrategyModal() {
     modalMode = 'create';
@@ -167,13 +167,12 @@
       chatSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     
-    // 4. Call chat component directly to send message
-    console.log('📤 Calling chat component with message:', question.text);
-    if (chatComponent && chatComponent.sendMessageFromDashboard) {
-      chatComponent.sendMessageFromDashboard(question.text);
-    } else {
-      console.error('❌ Chat component not available or method not found');
-    }
+    // 4. Trigger message in chat by updating prop
+    console.log('📤 Triggering chat with message:', question.text);
+    // Reset first to ensure reactive statement fires even if same message
+    chatTriggerMessage = null;
+    await new Promise(resolve => setTimeout(resolve, 10));
+    chatTriggerMessage = question.text;
   }
 
   // Load questions on mount
@@ -668,10 +667,10 @@ function handleTabLinkClick(event: MouseEvent) {
     </main>
   </div>
   <Chat 
-    bind:this={chatComponent}
     topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
     strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
     username={data?.user?.username || null}
+    triggerMessage={chatTriggerMessage}
   />
 </div>
 
