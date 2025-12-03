@@ -3,6 +3,7 @@
   const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
   // Simple markdown renderer: bold, headings, bullets, spacing
+  import { onMount } from 'svelte';
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   import { linkifyIds } from '$lib/utils/linkifyIds';
   import { getArticle } from '../api/articles';
@@ -30,6 +31,10 @@
   // --- ARTICLE MODAL STATE ---
   let showArticleModal = false;
   let selectedArticleId: string | null = null;
+
+  // --- DASHBOARD QUESTIONS STATE ---
+  let dashboardQuestions: string[] = [];
+  let loadingQuestions = true;
 
   function openCreateStrategyModal() {
     modalMode = 'create';
@@ -92,6 +97,55 @@
   }
 
   export let data;
+
+  // Load dashboard questions from user strategies
+  async function loadDashboardQuestions() {
+    try {
+      const username = data?.user?.username;
+      if (!username) return;
+
+      const response = await fetch(`${API_BASE}/users/${username}/strategies`);
+      const result = await response.json();
+      const strategies = result.strategies || [];
+
+      // Extract questions from all strategies
+      const questions: string[] = [];
+      for (const strategyItem of strategies) {
+        try {
+          const detailResponse = await fetch(`${API_BASE}/users/${username}/strategies/${strategyItem.id}`);
+          const strategy = await detailResponse.json();
+          if (strategy.dashboard_question) {
+            questions.push(strategy.dashboard_question);
+          }
+        } catch (e) {
+          console.error('Failed to load strategy details:', e);
+        }
+      }
+
+      dashboardQuestions = questions.slice(0, 3); // Max 3 questions
+      loadingQuestions = false;
+    } catch (error) {
+      console.error('Failed to load dashboard questions:', error);
+      loadingQuestions = false;
+    }
+  }
+
+  // Start chat with a question
+  function startChatWithQuestion(question: string) {
+    // Add question to chat messages and trigger send
+    const chatComponent = document.querySelector('chat-component');
+    if (chatComponent) {
+      // Trigger chat with pre-filled question
+      // This will be handled by the Chat component
+    }
+    // For now, just log it - you'll need to implement chat trigger
+    console.log('Starting chat with question:', question);
+  }
+
+  // Load questions on mount
+  onMount(() => {
+    loadDashboardQuestions();
+  });
 
   // --- Tabbed Report/Article State ---
   type Tab = {
@@ -555,25 +609,29 @@ function handleTabLinkClick(event: MouseEvent) {
         </div>
         <section class="card welcome-box welcome-theme">
           <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
-          <p class="welcome-subtitle">We’re glad you’re here.</p>
+          <p class="welcome-subtitle">Monitor risks. Spot opportunities. Stay ahead.</p>
 
-          <div class="welcome-section">
-            <p class="welcome-description">Saga is the platform for understanding the world better — the fully AI‑driven intelligence agency you need to make your decisions world‑class, nuanced, and robust.</p>
-          </div>
-
-          <div class="welcome-section">
-            <p class="welcome-description">Use the sidebar to explore assets, manage strategies, and review your project history. Get started by selecting a topic or strategy, or explore your history and settings from the navigation menu.</p>
-          </div>
-
-          <div class="welcome-section">
-            <p class="welcome-prompt">Hope you’re doing well today! What would you like to know more about today?</p>
-            <h3 class="examples-title">Example queries</h3>
-            <ul class="welcome-examples">
-              <li><em><strong>What are the outlook and current consensus on interest rates for the coming 6–12 months?</strong></em></li>
-              <li><em><strong>We’re seeing heavy investment into AI infrastructure — where is the capital flowing and what broad market effects can we expect?</strong></em></li>
-              <li><em><strong>Compare recent EU vs US energy policy shifts and their impact on utilities over the next year.</strong></em></li>
-            </ul>
-          </div>
+          {#if loadingQuestions}
+            <div class="welcome-section">
+              <p class="welcome-description">Loading your strategy insights...</p>
+            </div>
+          {:else if dashboardQuestions.length > 0}
+            <div class="welcome-section">
+              <p class="welcome-prompt">Based on your strategies:</p>
+              <div class="question-cards">
+                {#each dashboardQuestions as question}
+                  <button class="question-card" onclick={() => startChatWithQuestion(question)}>
+                    <span class="question-icon">💡</span>
+                    <span class="question-text">{question}</span>
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {:else}
+            <div class="welcome-section">
+              <p class="welcome-description">Create a strategy to get personalized risk insights and questions.</p>
+            </div>
+          {/if}
         </section>
       {:else}
         <div class="content-section">
@@ -1104,6 +1162,47 @@ function handleTabLinkClick(event: MouseEvent) {
   }
   .welcome-examples li {
     margin: 0.35rem 0;
+  }
+
+  /* Question cards styling */
+  .question-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .question-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--card-bg, #ffffff);
+    border: 2px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+  }
+
+  .question-card:hover {
+    border-color: var(--primary, #3b82f6);
+    background: var(--hover-bg, #f9fafb);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .question-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .question-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary, #111827);
+    line-height: 1.4;
   }
 
   .card.wide {
