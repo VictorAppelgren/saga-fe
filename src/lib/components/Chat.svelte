@@ -18,6 +18,15 @@
   let inputText = '';
   let chatContainer: HTMLElement;
 
+  // Generate unique ID (fallback for browsers without crypto.randomUUID)
+  function generateId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // Fallback: generate random ID
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
   function scrollToBottom() {
     setTimeout(() => {
       if (chatContainer) {
@@ -35,11 +44,10 @@
       console.log('⚠️ Skipping submit - empty or loading');
       return;
     }
-    errorMsg = '';
 
     // Add user message
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       text: inputText,
       isUser: true,
       timestamp: new Date()
@@ -50,68 +58,9 @@
 
     const userInput = inputText;
     inputText = '';
-    loading = true;
-    console.log('📤 Sending to backend:', userInput);
-
-    try {
-      // Prepare message history for backend (send ALL messages for maximum context)
-      const history = messages.map(m => ({
-        role: m.isUser ? 'user' : 'assistant',
-        content: m.text
-      }));
-      
-      // Build request payload with optional context fields
-      const body: any = { 
-        message: userInput,
-        history
-      };
-      
-      // Add topic context if available
-      if (topic_id) {
-        body.topic_id = topic_id;
-      }
-      
-      // Add strategy context if available (requires username)
-      if (strategy_id) {
-        body.strategy_id = strategy_id;
-        if (username) {
-          body.username = username;
-        }
-      }
-      
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-      const API_KEY = import.meta.env.VITE_API_KEY || '';
-      const resp = await fetch(API_BASE + '/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-API-Key': API_KEY
-        },
-        body: JSON.stringify(body)
-      });
-      if (!resp.ok) throw new Error('Server error: ' + resp.status);
-      const data = await resp.json();
-      const botMessage: Message = {
-        id: crypto.randomUUID(),
-        text: data.response,
-        isUser: false,
-        timestamp: new Date()
-      };
-      messages = [...messages, botMessage];
-      scrollToBottom();
-    } catch (err: any) {
-      errorMsg = err.message || 'Unknown error';
-      const botMessage: Message = {
-        id: crypto.randomUUID(),
-        text: '[Error] ' + errorMsg,
-        isUser: false,
-        timestamp: new Date()
-      };
-      messages = [...messages, botMessage];
-      scrollToBottom();
-    } finally {
-      loading = false;
-    }
+    
+    // Use the shared sendMessage function
+    await sendMessage(userInput);
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -131,7 +80,7 @@
     
     // Add message to conversation
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       text: triggerMessage,
       isUser: true,
       timestamp: new Date()
@@ -146,6 +95,7 @@
 
   // Separate function to send message to backend
   async function sendMessage(messageText: string) {
+    console.log('📤 sendMessage called with:', messageText);
     loading = true;
     errorMsg = '';
 
@@ -175,6 +125,8 @@
       
       const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
       const API_KEY = import.meta.env.VITE_API_KEY || '';
+      console.log('🌐 Sending to:', API_BASE + '/chat', 'with body:', body);
+      
       const resp = await fetch(API_BASE + '/chat', {
         method: 'POST',
         headers: { 
@@ -183,20 +135,27 @@
         },
         body: JSON.stringify(body)
       });
+      
+      console.log('📨 Response status:', resp.status);
       if (!resp.ok) throw new Error('Server error: ' + resp.status);
+      
       const data = await resp.json();
+      console.log('✅ Response data:', data);
+      
       const botMessage: Message = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         text: data.response,
         isUser: false,
         timestamp: new Date()
       };
       messages = [...messages, botMessage];
+      console.log('🤖 Bot message added, total messages:', messages.length);
       scrollToBottom();
     } catch (err: any) {
+      console.error('❌ Error in sendMessage:', err);
       errorMsg = err.message || 'Unknown error';
       const botMessage: Message = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         text: '[Error] ' + errorMsg,
         isUser: false,
         timestamp: new Date()
@@ -205,6 +164,7 @@
       scrollToBottom();
     } finally {
       loading = false;
+      console.log('✅ sendMessage complete, loading:', loading);
     }
   }
 </script>
