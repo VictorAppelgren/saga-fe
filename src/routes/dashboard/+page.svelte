@@ -307,12 +307,14 @@ function handleTabLinkClick(event: MouseEvent) {
 
 
 
-<div class="app-container">
+  <div class="app-container">
   <div class="dashboard-container">
   <!-- Sidebar Navigation -->
   <nav class="sidebar">
-    <div class="logo-container">
-      <img src="/saga-labs.avif" alt="Saga Intelligence Logo" class="logo" />
+    <div class="logo-container" style="background-color: var(--sidebar-background-color)">
+      <a href="/dashboard" aria-label="Go to main dashboard">
+        <img src="/saga-labs.avif" alt="Saga Intelligence Logo" class="logo" />
+      </a>
     </div>
     
     <div class="scrollable-section">
@@ -666,12 +668,23 @@ function handleTabLinkClick(event: MouseEvent) {
       {/if}
     </main>
   </div>
-  <Chat 
-    topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
-    strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
-    username={data?.user?.username || null}
-    triggerMessage={chatTriggerMessage}
-  />
+  
+  {#if currentSelection?.type === 'interest' || currentSelection?.type === 'strategy'}
+    <Chat 
+      topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
+      strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
+      username={data?.user?.username || null}
+      triggerMessage={chatTriggerMessage}
+    />
+  {:else}
+    <div class="chat-placeholder">
+      <div class="chat-placeholder-content">
+        <h3>💬 Start a Conversation</h3>
+        <p>Choose a <strong>strategy</strong> or <strong>topic</strong> from the sidebar to begin chatting.</p>
+        <p class="placeholder-hint">Each strategy and topic has its own dedicated conversation history that persists across sessions.</p>
+      </div>
+    </div>
+  {/if}
 </div>
 
 {#if showStrategyModal}
@@ -905,6 +918,7 @@ function handleTabLinkClick(event: MouseEvent) {
     padding: 0 3rem 0 0;
     margin-bottom: 2rem;
     text-align: center;
+    background: var(--surface-color, #ffffff);
   }
 
   .logo {
@@ -2066,6 +2080,40 @@ function handleTabLinkClick(event: MouseEvent) {
   .questions-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Chat Placeholder */
+.chat-placeholder {
+  width: 400px;
+  background: var(--surface-color, #ffffff);
+  border-left: 1px solid var(--border-color, #e0e0e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.chat-placeholder-content {
+  text-align: center;
+  max-width: 300px;
+}
+
+.chat-placeholder-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: var(--text-color, #000000);
+}
+
+.chat-placeholder-content p {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary, #666666);
+  line-height: 1.5;
+}
+
+.placeholder-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted, #999999);
+  font-style: italic;
 }
 
 </style>

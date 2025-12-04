@@ -6,6 +6,7 @@
   let summary: any = $state(null);
   let articlesTrend: any = $state(null);
   let analysisTrend: any = $state(null);
+  let strategyAnalysisTrend: any = $state(null);
   let queriesTrend: any = $state(null);
   let logs: any = $state(null);
   let loading = $state(true);
@@ -13,10 +14,11 @@
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, analysisRes, queriesRes, logsRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
         fetch('/api/admin/trends/analysis?days=7'),
+        fetch('/api/admin/trends/strategy-analysis?days=7'),
         fetch('/api/admin/trends/queries?days=7'),
         fetch('/api/admin/logs/today?lines=20')
       ]);
@@ -24,6 +26,7 @@
       summary = await summaryRes.json();
       articlesTrend = await articlesRes.json();
       analysisTrend = await analysisRes.json();
+      strategyAnalysisTrend = await strategyAnalysisRes.json();
       queriesTrend = await queriesRes.json();
       logs = await logsRes.json();
       
@@ -34,6 +37,7 @@
         renderQueriesChart();
         renderArticlesChart();
         renderAnalysisChart();
+        renderStrategyAnalysisChart();
       }, 100);
     } catch (error) {
       console.error('Failed to load admin data:', error);
@@ -102,12 +106,39 @@
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: [...analysisTrend.dates],  // Clone array
+        labels: [...analysisTrend.dates],
         datasets: [{
           label: 'Analysis Completed',
-          data: [...analysisTrend.completed],  // Clone array
+          data: [...analysisTrend.completed],
           borderColor: '#ec4899',
           backgroundColor: 'rgba(236, 72, 153, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+  
+  function renderStrategyAnalysisChart() {
+    const ctx = document.getElementById('strategyAnalysisChart') as HTMLCanvasElement;
+    if (!ctx || !strategyAnalysisTrend) return;
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [...strategyAnalysisTrend.dates],
+        datasets: [{
+          label: 'Strategy Analysis',
+          data: [...strategyAnalysisTrend.completed],
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
           tension: 0.3,
           fill: true
         }]
@@ -184,6 +215,21 @@
         title="Sections Written" 
         value={summary?.analysis?.sections || 0} 
         subtitle="content generated" 
+      />
+    </div>
+    
+    <!-- Strategy Analysis (Custom User Strategies) -->
+    <h2>💼 Strategy Analysis</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Triggered" 
+        value={summary?.strategy_analysis?.triggered || 0} 
+        subtitle="user strategies" 
+      />
+      <AdminCard 
+        title="Completed" 
+        value={summary?.strategy_analysis?.completed || 0} 
+        subtitle="analyses done" 
       />
     </div>
     
@@ -277,6 +323,13 @@
         <h2>🤖 Analysis Completed (Last 7 Days)</h2>
         <div class="chart-wrapper">
           <canvas id="analysisChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <h2>💼 Strategy Analysis (Last 7 Days)</h2>
+        <div class="chart-wrapper">
+          <canvas id="strategyAnalysisChart"></canvas>
         </div>
       </div>
     {:else}

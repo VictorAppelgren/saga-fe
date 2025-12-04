@@ -17,6 +17,7 @@
   let messages: Message[] = [];
   let inputText = '';
   let chatContainer: HTMLElement;
+  let currentChatKey: string | null = null;
 
   // Generate unique ID (fallback for browsers without crypto.randomUUID)
   function generateId(): string {
@@ -53,6 +54,7 @@
       timestamp: new Date()
     };
     messages = [...messages, userMessage];
+    saveChat();
     console.log('✅ User message added, total messages:', messages.length);
     scrollToBottom();
 
@@ -73,6 +75,56 @@
   // Track last processed trigger to avoid duplicates
   let lastProcessedTrigger: string | null = null;
   
+  // Generate chat key based on context
+  function getChatKey(): string | null {
+    if (strategy_id) return `chat_strategy_${strategy_id}`;
+    if (topic_id) return `chat_topic_${topic_id}`;
+    return null;
+  }
+  
+  // Save messages to localStorage
+  function saveChat() {
+    const key = getChatKey();
+    if (key) {
+      localStorage.setItem(key, JSON.stringify(messages));
+    }
+  }
+  
+  // Load messages from localStorage
+  function loadChat() {
+    const key = getChatKey();
+    if (key) {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          messages = JSON.parse(saved);
+          scrollToBottom();
+        } catch (e) {
+          console.error('Failed to load chat history:', e);
+          messages = [];
+        }
+      } else {
+        messages = [];
+      }
+    } else {
+      messages = [];
+    }
+  }
+  
+  // Watch for context changes and reload chat
+  $: {
+    const newKey = getChatKey();
+    if (newKey !== currentChatKey) {
+      currentChatKey = newKey;
+      loadChat();
+    }
+  }
+  
+  // Load chat on mount
+  onMount(() => {
+    loadChat();
+  });
+  
   // Watch for triggerMessage changes from dashboard
   $: if (triggerMessage && triggerMessage !== lastProcessedTrigger) {
     console.log('💬 Chat received trigger message:', triggerMessage);
@@ -86,6 +138,7 @@
       timestamp: new Date()
     };
     messages = [...messages, userMessage];
+    saveChat();
     console.log('📝 Message added to conversation, total messages:', messages.length);
     scrollToBottom();
     
@@ -149,6 +202,7 @@
         timestamp: new Date()
       };
       messages = [...messages, botMessage];
+      saveChat();
       console.log('🤖 Bot message added, total messages:', messages.length);
       scrollToBottom();
     } catch (err: any) {
@@ -161,6 +215,7 @@
         timestamp: new Date()
       };
       messages = [...messages, botMessage];
+      saveChat();
       scrollToBottom();
     } finally {
       loading = false;
