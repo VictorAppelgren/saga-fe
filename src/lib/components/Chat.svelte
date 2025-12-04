@@ -18,6 +18,7 @@
   let inputText = '';
   let chatContainer: HTMLElement;
   let currentChatKey: string | null = null;
+  let isInitialized = false;
 
   // Generate unique ID (fallback for browsers without crypto.randomUUID)
   function generateId(): string {
@@ -82,48 +83,91 @@
     return null;
   }
   
-  // Save messages to localStorage
+  // Save messages to localStorage with proper Date serialization
   function saveChat() {
     const key = getChatKey();
-    if (key) {
-      localStorage.setItem(key, JSON.stringify(messages));
+    if (!key) return;
+    
+    try {
+      // Serialize messages with ISO timestamp strings (Date objects don't serialize)
+      const serializable = messages.map(m => ({
+        id: m.id,
+        text: m.text,
+        isUser: m.isUser,
+        timestamp: m.timestamp.toISOString()
+      }));
+      
+      localStorage.setItem(key, JSON.stringify(serializable));
+      console.log(`💾 Saved ${messages.length} messages to ${key}`);
+    } catch (e) {
+      console.error('❌ Failed to save chat history:', e);
+      // Continue gracefully - don't break the app
     }
   }
   
-  // Load messages from localStorage
+  // Load messages from localStorage with proper Date deserialization
   function loadChat() {
     const key = getChatKey();
-    if (key) {
+    if (!key) {
+      messages = [];
+      console.log('📭 No chat key - clearing messages');
+      return;
+    }
+    
+    try {
       const saved = localStorage.getItem(key);
       if (saved) {
-        try {
-          messages = JSON.parse(saved);
-          scrollToBottom();
-        } catch (e) {
-          console.error('Failed to load chat history:', e);
-          messages = [];
-        }
+        const parsed = JSON.parse(saved);
+        // Deserialize with proper Date objects
+        messages = parsed.map((m: any) => ({
+          id: m.id,
+          text: m.text,
+          isUser: m.isUser,
+          timestamp: new Date(m.timestamp)
+        }));
+        console.log(`📂 Loaded ${messages.length} messages from ${key}`);
+        scrollToBottom();
       } else {
         messages = [];
+        console.log(`📭 No saved messages for ${key}`);
       }
-    } else {
+    } catch (e) {
+      console.error('❌ Failed to load chat history:', e);
       messages = [];
     }
   }
   
-  // Watch for context changes and reload chat
-  $: {
+  // Clear chat history for current context
+  function clearChat() {
+    const key = getChatKey();
+    if (key && confirm('Clear this conversation? This cannot be undone.')) {
+      try {
+        localStorage.removeItem(key);
+        messages = [];
+        console.log(`🗑️ Cleared chat: ${key}`);
+      } catch (e) {
+        console.error('❌ Failed to clear chat:', e);
+      }
+    }
+  }
+  
+  // Initialize on mount
+  onMount(() => {
+    currentChatKey = getChatKey();
+    loadChat();
+    isInitialized = true;
+    console.log(`🚀 Chat mounted with key: ${currentChatKey}`);
+  });
+  
+  // Watch for context changes and reload chat (only after initialization)
+  $: if (isInitialized) {
     const newKey = getChatKey();
     if (newKey !== currentChatKey) {
+      console.log(`🔄 Context changed: ${currentChatKey} → ${newKey}`);
       currentChatKey = newKey;
       loadChat();
     }
   }
-  
-  // Load chat on mount
-  onMount(() => {
-    loadChat();
-  });
   
   // Watch for triggerMessage changes from dashboard
   $: if (triggerMessage && triggerMessage !== lastProcessedTrigger) {
@@ -227,6 +271,11 @@
 <div class="chat-container">
   <div class="chat-header">
     <h2>Dialogue</h2>
+    {#if messages.length > 0}
+      <button class="clear-chat-btn" on:click={clearChat} title="Clear conversation">
+        🗑️
+      </button>
+    {/if}
   </div>
   
   <div class="messages" bind:this={chatContainer}>
@@ -275,6 +324,9 @@
   .chat-header {
     padding: 1rem;
     border-bottom: 1px solid var(--border-color, #e0e0e0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .chat-header h2 {
@@ -282,6 +334,26 @@
     font-size: 1.25rem;
     font-weight: 500;
     color: var(--text-color, black);
+  }
+
+  .clear-chat-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    opacity: 0.6;
+  }
+
+  .clear-chat-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+  }
+
+  :global(.dark) .clear-chat-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .messages {
