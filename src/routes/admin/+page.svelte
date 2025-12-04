@@ -167,6 +167,26 @@
       />
     </div>
     
+    <!-- Agent Analysis - MOVED UP FOR VISIBILITY -->
+    <h2>🤖 Agent Analysis</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Triggered" 
+        value={summary?.analysis?.triggered || 0} 
+        subtitle="analysis started" 
+      />
+      <AdminCard 
+        title="Completed" 
+        value={summary?.analysis?.completed || 0} 
+        subtitle="analysis finished" 
+      />
+      <AdminCard 
+        title="Sections Written" 
+        value={summary?.analysis?.sections || 0} 
+        subtitle="content generated" 
+      />
+    </div>
+    
     <!-- Graph State Cards -->
     <h2>🕸️ Graph State</h2>
     <div class="stats-grid">
@@ -234,26 +254,6 @@
         title="Deleted" 
         value={summary?.topics?.deleted || 0} 
         subtitle="removed" 
-      />
-    </div>
-    
-    <!-- Agent Analysis -->
-    <h2>🤖 Agent Analysis</h2>
-    <div class="stats-grid">
-      <AdminCard 
-        title="Triggered" 
-        value={summary?.analysis?.triggered || 0} 
-        subtitle="analysis started" 
-      />
-      <AdminCard 
-        title="Completed" 
-        value={summary?.analysis?.completed || 0} 
-        subtitle="analysis finished" 
-      />
-      <AdminCard 
-        title="Sections Written" 
-        value={summary?.analysis?.sections || 0} 
-        subtitle="content generated" 
       />
     </div>
     
