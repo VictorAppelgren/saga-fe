@@ -425,7 +425,15 @@ function handleTabLinkClick(event: MouseEvent) {
       <ThemeReview theme={themeForDisplay} />
     {:else if currentSelection.type === 'interest'}
       <section class="card asset-info-box asset-info-theme wide-box">
-        <h2 class="asset-dashboard-title">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <button class="back-button" on:click={() => currentSelection = { type: null, value: null }} title="Back to Dashboard">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Back
+          </button>
+          <h2 class="asset-dashboard-title" style="margin: 0;">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
+        </div>
         <div class="info-row"><span class="info-label">Type:</span> <span class="info-value">Research Topic</span></div>
       </section>
       <!-- Tab bar and tab content area remain below for asset view -->
@@ -486,7 +494,13 @@ function handleTabLinkClick(event: MouseEvent) {
       {:then strategy}
         <section class="card strategy-detail-box">
           <div class="strategy-header">
-            <div>
+            <button class="back-button" on:click={() => currentSelection = { type: null, value: null }} title="Back to Dashboard">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+              </svg>
+              Back
+            </button>
+            <div style="flex: 1;">
               <h2 class="strategy-title">{strategy.asset.primary}</h2>
               <div class="strategy-meta">
                 <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
@@ -670,12 +684,14 @@ function handleTabLinkClick(event: MouseEvent) {
   </div>
   
   {#if currentSelection?.type === 'interest' || currentSelection?.type === 'strategy'}
-    <Chat 
-      topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
-      strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
-      username={data?.user?.username || null}
-      triggerMessage={chatTriggerMessage}
-    />
+    {#key currentSelection?.value}
+      <Chat 
+        topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
+        strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
+        username={data?.user?.username || null}
+        triggerMessage={chatTriggerMessage}
+      />
+    {/key}
   {:else}
     <div class="chat-placeholder">
       <div class="chat-placeholder-content">
@@ -1695,6 +1711,26 @@ function handleTabLinkClick(event: MouseEvent) {
 .strategy-actions {
   display: flex;
   gap: 0.75rem;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface-color, #f5f5f5);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  color: var(--text-color, #000);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: var(--border-color, #e0e0e0);
+  transform: translateX(-2px);
 }
 
 .btn-edit, .btn-delete {
