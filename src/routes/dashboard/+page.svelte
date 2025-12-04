@@ -2084,13 +2084,15 @@ function handleTabLinkClick(event: MouseEvent) {
 
 /* Chat Placeholder */
 .chat-placeholder {
-  width: 400px;
+  width: 320px;
+  max-width: 100%;
   background: var(--surface-color, #ffffff);
   border-left: 1px solid var(--border-color, #e0e0e0);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
+  flex-shrink: 0;
 }
 
 .chat-placeholder-content {
