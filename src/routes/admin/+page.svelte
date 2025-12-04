@@ -7,19 +7,17 @@
   let articlesTrend: any = $state(null);
   let analysisTrend: any = $state(null);
   let queriesTrend: any = $state(null);
-  let graphTrend: any = $state(null);
   let logs: any = $state(null);
   let loading = $state(true);
   
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, analysisRes, queriesRes, graphRes, logsRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, queriesRes, logsRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
         fetch('/api/admin/trends/analysis?days=7'),
         fetch('/api/admin/trends/queries?days=7'),
-        fetch('/api/admin/trends/graph?days=7'),
         fetch('/api/admin/logs/today?lines=20')
       ]);
       
@@ -27,7 +25,6 @@
       articlesTrend = await articlesRes.json();
       analysisTrend = await analysisRes.json();
       queriesTrend = await queriesRes.json();
-      graphTrend = await graphRes.json();
       logs = await logsRes.json();
       
       loading = false;
@@ -36,9 +33,7 @@
       setTimeout(() => {
         renderQueriesChart();
         renderArticlesChart();
-        renderRewritesChart();
-        renderTopicsChart();
-        renderGraphArticlesChart();
+        renderAnalysisChart();
       }, 100);
     } catch (error) {
       console.error('Failed to load admin data:', error);
@@ -83,7 +78,7 @@
         labels: [...articlesTrend.dates],  // Clone array
         datasets: [{
           label: 'Articles Added',
-          data: [...articlesTrend.articles_added],  // Clone array
+          data: [...articlesTrend.added],  // Clone array
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.3,
@@ -100,8 +95,8 @@
     });
   }
   
-  function renderRewritesChart() {
-    const ctx = document.getElementById('rewritesChart') as HTMLCanvasElement;
+  function renderAnalysisChart() {
+    const ctx = document.getElementById('analysisChart') as HTMLCanvasElement;
     if (!ctx || !analysisTrend) return;
     
     new Chart(ctx, {
@@ -109,8 +104,8 @@
       data: {
         labels: [...analysisTrend.dates],  // Clone array
         datasets: [{
-          label: 'Rewrites Succeeded',
-          data: [...analysisTrend.rewrite_succeeded],  // Clone array
+          label: 'Analysis Completed',
+          data: [...analysisTrend.completed],  // Clone array
           borderColor: '#ec4899',
           backgroundColor: 'rgba(236, 72, 153, 0.1)',
           tension: 0.3,
@@ -127,59 +122,6 @@
     });
   }
   
-  function renderTopicsChart() {
-    const ctx = document.getElementById('topicsChart') as HTMLCanvasElement;
-    if (!ctx || !graphTrend) return;
-    
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [...graphTrend.dates],  // Clone array
-        datasets: [{
-          label: 'Total Topics',
-          data: [...graphTrend.topics],  // Clone array
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        }
-      }
-    });
-  }
-  
-  function renderGraphArticlesChart() {
-    const ctx = document.getElementById('graphArticlesChart') as HTMLCanvasElement;
-    if (!ctx || !graphTrend) return;
-    
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [...graphTrend.dates],  // Clone array
-        datasets: [{
-          label: 'Total Articles in Graph',
-          data: [...graphTrend.articles],  // Clone array
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        }
-      }
-    });
-  }
 </script>
 
 <div class="admin-container">
@@ -191,30 +133,42 @@
     <div class="loading">Loading...</div>
   {:else}
     <!-- Pipeline Flow Cards -->
+    <h2>📊 Today's Pipeline</h2>
     <div class="stats-grid">
       <AdminCard 
         title="Queries" 
-        value={summary?.today?.ingestion?.queries} 
+        value={summary?.pipeline?.queries} 
         subtitle="today" 
       />
       <AdminCard 
-        title="Articles Added" 
-        value={summary?.today?.ingestion?.articles_added} 
-        subtitle="today" 
+        title="Fetched" 
+        value={summary?.pipeline?.fetched} 
+        subtitle="from API" 
       />
       <AdminCard 
-        title="Rewrites" 
-        value={summary?.today?.analysis?.rewrite_succeeded} 
-        subtitle="today" 
+        title="Processed" 
+        value={summary?.pipeline?.processed} 
+        subtitle="entered pipeline" 
+      />
+      <AdminCard 
+        title="Added" 
+        value={summary?.pipeline?.added} 
+        subtitle="to graph" 
+      />
+      <AdminCard 
+        title="Rejected" 
+        value={summary?.pipeline?.rejected} 
+        subtitle="filtered out" 
       />
       <AdminCard 
         title="Errors" 
-        value={summary?.today?.system?.errors} 
+        value={summary?.errors} 
         subtitle="today" 
       />
     </div>
     
     <!-- Graph State Cards -->
+    <h2>🕸️ Graph State</h2>
     <div class="stats-grid">
       <AdminCard 
         title="Topics" 
@@ -232,53 +186,74 @@
         subtitle="total" 
       />
       <AdminCard 
-        title="Orphans" 
-        value={summary?.graph_state?.orphans?.articles} 
-        subtitle="articles" 
-      />
-    </div>
-    
-    <!-- Perspective Articles Per Topic -->
-    <div class="stats-grid">
-      <AdminCard 
-        title="⚠️ Risk Articles" 
-        value={summary?.graph_state?.avg_risk_articles_per_topic?.toFixed(1)} 
-        subtitle="avg per topic" 
-      />
-      <AdminCard 
-        title="✨ Opportunity Articles" 
-        value={summary?.graph_state?.avg_opportunity_articles_per_topic?.toFixed(1)} 
-        subtitle="avg per topic" 
-      />
-      <AdminCard 
-        title="📈 Trend Articles" 
-        value={summary?.graph_state?.avg_trend_articles_per_topic?.toFixed(1)} 
-        subtitle="avg per topic" 
-      />
-      <AdminCard 
-        title="⚡ Catalyst Articles" 
-        value={summary?.graph_state?.avg_catalyst_articles_per_topic?.toFixed(1)} 
-        subtitle="avg per topic" 
+        title="Avg Articles/Topic" 
+        value={summary?.graph_state?.avg_articles_per_topic?.toFixed(1)} 
+        subtitle="capacity monitoring" 
       />
     </div>
     
     <!-- Capacity Management -->
-    <h2>🔧 Article Capacity Management</h2>
+    <h2>🔧 Capacity Management</h2>
     <div class="stats-grid">
       <AdminCard 
-        title="📉 Articles Downgraded" 
-        value={summary?.today?.maintenance?.articles_downgraded || 0} 
-        subtitle="today (tier 3→2 or 2→1)" 
+        title="Downgraded" 
+        value={summary?.capacity?.downgraded || 0} 
+        subtitle="priority reduced" 
       />
       <AdminCard 
-        title="📦 Articles Archived" 
-        value={summary?.today?.maintenance?.articles_archived || 0} 
-        subtitle="today (downgraded to tier 0)" 
+        title="Archived" 
+        value={summary?.capacity?.archived || 0} 
+        subtitle="moved to tier 0" 
       />
       <AdminCard 
-        title="📄 Raw Articles Stored" 
-        value={summary?.storage?.total_raw_articles || 0} 
-        subtitle="JSON files in cold storage" 
+        title="Rejected (Capacity)" 
+        value={summary?.capacity?.rejected_capacity || 0} 
+        subtitle="capacity full" 
+      />
+      <AdminCard 
+        title="Duplicates Skipped" 
+        value={summary?.capacity?.duplicates_skipped || 0} 
+        subtitle="already exists" 
+      />
+    </div>
+    
+    <!-- Topic Activity -->
+    <h2>🏷️ Topic Activity</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Created" 
+        value={summary?.topics?.created || 0} 
+        subtitle="new topics" 
+      />
+      <AdminCard 
+        title="Rejected" 
+        value={summary?.topics?.rejected || 0} 
+        subtitle="failed gates" 
+      />
+      <AdminCard 
+        title="Deleted" 
+        value={summary?.topics?.deleted || 0} 
+        subtitle="removed" 
+      />
+    </div>
+    
+    <!-- Agent Analysis -->
+    <h2>🤖 Agent Analysis</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Triggered" 
+        value={summary?.analysis?.triggered || 0} 
+        subtitle="analysis started" 
+      />
+      <AdminCard 
+        title="Completed" 
+        value={summary?.analysis?.completed || 0} 
+        subtitle="analysis finished" 
+      />
+      <AdminCard 
+        title="Sections Written" 
+        value={summary?.analysis?.sections || 0} 
+        subtitle="content generated" 
       />
     </div>
     
@@ -299,23 +274,9 @@
       </div>
       
       <div class="chart-container">
-        <h2>✍️ Rewrites Succeeded (Last 7 Days)</h2>
+        <h2>🤖 Analysis Completed (Last 7 Days)</h2>
         <div class="chart-wrapper">
-          <canvas id="rewritesChart"></canvas>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <h2>🕸️ Total Topics Over Time (Last 7 Days)</h2>
-        <div class="chart-wrapper">
-          <canvas id="topicsChart"></canvas>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <h2>📚 Total Articles in Graph (Last 7 Days)</h2>
-        <div class="chart-wrapper">
-          <canvas id="graphArticlesChart"></canvas>
+          <canvas id="analysisChart"></canvas>
         </div>
       </div>
     {:else}
@@ -326,17 +287,16 @@
         <p><strong>Today's Stats:</strong></p>
         <ul>
           <li>Queries: {queriesTrend?.queries?.[0] || 0}</li>
-          <li>Articles Added: {articlesTrend?.articles_added?.[0] || 0}</li>
-          <li>Total Topics: {graphTrend?.topics?.[0] || 0}</li>
-          <li>Total Articles: {graphTrend?.articles?.[0] || 0}</li>
+          <li>Articles Added: {articlesTrend?.added?.[0] || 0}</li>
+          <li>Analysis Completed: {analysisTrend?.completed?.[0] || 0}</li>
         </ul>
       </div>
     {/if}
     
     <!-- Logs -->
     <div class="logs-container">
-      <h2>📋 Recent Logs ({logs?.lines?.length || 0} lines)</h2>
-      <pre>{logs?.lines?.join('\n') || 'No logs available'}</pre>
+      <h2>📋 Recent Events ({logs?.message_count || 0} messages)</h2>
+      <pre>{logs?.messages?.join('\n') || 'No logs available'}</pre>
     </div>
   {/if}
 </div>
