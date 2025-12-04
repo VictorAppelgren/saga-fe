@@ -493,21 +493,13 @@ function handleTabLinkClick(event: MouseEvent) {
         </div>
       {:then strategy}
         <section class="card strategy-detail-box">
-          <div class="strategy-header">
+          <div class="strategy-header-buttons">
             <button class="back-button" on:click={() => currentSelection = { type: null, value: null }} title="Back to Dashboard">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
               </svg>
               Back
             </button>
-            <div style="flex: 1;">
-              <h2 class="strategy-title">{strategy.asset.primary}</h2>
-              <div class="strategy-meta">
-                <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
-                <span class="meta-item">Version: {strategy.version}</span>
-                <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
-              </div>
-            </div>
             <div class="strategy-actions">
               <button class="btn-edit" on:click={() => openEditModal(strategy)}>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -521,6 +513,15 @@ function handleTabLinkClick(event: MouseEvent) {
                 </svg>
                 Delete
               </button>
+            </div>
+          </div>
+          
+          <div class="strategy-header">
+            <h2 class="strategy-title">{strategy.asset.primary}</h2>
+            <div class="strategy-meta">
+              <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
+              <span class="meta-item">Version: {strategy.version}</span>
+              <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
             </div>
           </div>
           
@@ -1676,10 +1677,16 @@ function handleTabLinkClick(event: MouseEvent) {
   padding: 2rem;
 }
 
-.strategy-header {
+.strategy-header-buttons {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.strategy-header {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 2px solid var(--border-color, #e0e0e0);
