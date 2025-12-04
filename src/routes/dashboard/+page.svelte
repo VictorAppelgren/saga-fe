@@ -426,7 +426,7 @@ function handleTabLinkClick(event: MouseEvent) {
     {:else if currentSelection.type === 'interest'}
       <section class="card asset-info-box asset-info-theme wide-box">
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-          <button class="back-button" on:click={() => currentSelection = { type: null, value: null }} title="Back to Dashboard">
+          <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
             </svg>
@@ -494,7 +494,7 @@ function handleTabLinkClick(event: MouseEvent) {
       {:then strategy}
         <section class="card strategy-detail-box">
           <div class="strategy-header-buttons">
-            <button class="back-button" on:click={() => currentSelection = { type: null, value: null }} title="Back to Dashboard">
+            <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
               </svg>
