@@ -47,13 +47,14 @@
       }
       
       const result = await response.json();
-      alert(result.message);
       
-      // Force strategy detail to re-fetch
+      // Refresh the page data first
+      await invalidateAll();
+      
+      // Then force strategy detail to re-fetch
       strategyRefreshKey++;
       
-      // Refresh the page data
-      await invalidateAll();
+      alert(result.message);
     } catch (error) {
       console.error('Error toggling default status:', error);
       alert('Failed to update default status');
