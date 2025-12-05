@@ -530,8 +530,19 @@ function handleTabLinkClick(event: MouseEvent) {
               </svg>
               Back
             </button>
-            {#if !strategy.is_default}
-              <div class="strategy-actions">
+            <div class="strategy-actions">
+              {#if data.user?.is_admin}
+                <label style="cursor: pointer; user-select: none; margin-right: 8px; font-size: 0.9rem; font-weight: normal;">
+                  <input 
+                    type="checkbox" 
+                    checked={strategy.is_default || false}
+                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+                    style="margin-right: 4px;"
+                  />
+                  Make Default
+                </label>
+              {/if}
+              {#if !strategy.is_default}
                 <button class="btn-edit" on:click={() => openEditModal(strategy)}>
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -544,8 +555,8 @@ function handleTabLinkClick(event: MouseEvent) {
                   </svg>
                   Delete
                 </button>
-              </div>
-            {/if}
+              {/if}
+            </div>
           </div>
           
           <div class="strategy-header">
@@ -553,17 +564,6 @@ function handleTabLinkClick(event: MouseEvent) {
               {strategy.asset.primary}
               {#if strategy.is_default}
                 <span class="default-badge-large" title="Example Strategy (Read-Only)">📌</span>
-              {/if}
-              {#if data.user?.is_admin}
-                <label style="cursor: pointer; user-select: none; margin-left: 12px; font-size: 0.9rem; font-weight: normal;">
-                  <input 
-                    type="checkbox" 
-                    checked={strategy.is_default || false}
-                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
-                    style="margin-right: 4px;"
-                  />
-                  Make Default
-                </label>
               {/if}
             </h2>
             <div class="strategy-meta">
