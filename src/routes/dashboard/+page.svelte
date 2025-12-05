@@ -31,7 +31,8 @@
   // --- TOGGLE DEFAULT STATUS ---
   async function toggleDefaultStatus(strategyId: string, currentStatus: boolean) {
     try {
-      const response = await fetch(`${API_BASE}/users/${data.user.username}/strategies/${strategyId}/set-default?is_default=${!currentStatus}`, {
+      const newStatus = !currentStatus;
+      const response = await fetch(`${API_BASE}/users/${data.user.username}/strategies/${strategyId}/set-default/${newStatus}`, {
         method: 'POST',
         credentials: 'include'
       });
