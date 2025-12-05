@@ -28,6 +28,31 @@
   let modalMode: 'create' | 'edit' = 'create';
   let editingStrategy: StrategyDetail | null = null;
 
+  // --- TOGGLE DEFAULT STATUS ---
+  async function toggleDefaultStatus(strategyId: string, currentStatus: boolean) {
+    try {
+      const response = await fetch(`${API_BASE}/users/${data.user.username}/strategies/${strategyId}/set-default?is_default=${!currentStatus}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.detail || 'Failed to update default status');
+        return;
+      }
+      
+      const result = await response.json();
+      alert(result.message);
+      
+      // Refresh the page data
+      await invalidateAll();
+    } catch (error) {
+      console.error('Error toggling default status:', error);
+      alert('Failed to update default status');
+    }
+  }
+
   // --- ARTICLE MODAL STATE ---
   let showArticleModal = false;
   let selectedArticleId: string | null = null;
@@ -531,6 +556,18 @@ function handleTabLinkClick(event: MouseEvent) {
               <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
               <span class="meta-item">Version: {strategy.version}</span>
               <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
+              
+              {#if data.user.username === 'victor'}
+                <label class="meta-item" style="cursor: pointer; user-select: none;">
+                  <input 
+                    type="checkbox" 
+                    checked={strategy.is_default}
+                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default)}
+                    style="margin-right: 4px;"
+                  />
+                  <strong>Make Default Example</strong>
+                </label>
+              {/if}
             </div>
           </div>
           
