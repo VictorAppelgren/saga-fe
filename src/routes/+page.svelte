@@ -2,15 +2,15 @@
 	import { Network, Brain, TrendingUp, Shield, Globe, Zap, Target, Eye, Menu, X, ChevronRight } from 'lucide-svelte';
 	
 	let mobileMenuOpen = $state(false);
-	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
+	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples' | 'compliance'>('home');
 	
-	function setTab(tab: 'home' | 'technology' | 'investors' | 'examples') {
+	function setTab(tab: 'home' | 'technology' | 'investors' | 'examples' | 'compliance') {
 		activeTab = tab;
 		mobileMenuOpen = false;
 		console.log('Tab changed to:', tab);
 		
-		// Scroll to the content section for tech/investors/examples
-		if (tab === 'technology' || tab === 'investors' || tab === 'examples') {
+		// Scroll to the content section for tech/investors/examples/compliance
+		if (tab === 'technology' || tab === 'investors' || tab === 'examples' || tab === 'compliance') {
 			setTimeout(() => {
 				const section = document.querySelector(`[data-tab="${tab}"]`);
 				if (section) {
@@ -57,6 +57,12 @@
 					>
 						Examples
 					</button>
+					<button 
+						onclick={() => setTab('compliance')} 
+						class="text-gray-700 hover:text-black transition font-medium {activeTab === 'compliance' ? 'text-black font-semibold' : ''}"
+					>
+						Compliance <span class="text-xs text-gray-500">(Coming Soon)</span>
+					</button>
 					<a href="/login" class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-semibold">Login</a>
 				</div>
 				
@@ -77,6 +83,7 @@
 					<button onclick={() => setTab('technology')} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition">Technology</button>
 					<button onclick={() => setTab('investors')} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition">For Investors</button>
 					<button onclick={() => setTab('examples')} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition">Examples</button>
+					<button onclick={() => setTab('compliance')} class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition">Compliance (Coming Soon)</button>
 					<a href="/login" class="block px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-center font-semibold">Login</a>
 				</div>
 			{/if}
@@ -95,36 +102,34 @@
 			style="background-image: radial-gradient(circle at 1px 1px, black 1px, transparent 0); background-size: 40px 40px;"
 		></div>
 
-		<div class="relative max-w-6xl mx-auto px-6 py-20 text-center">
+		<div class="relative max-w-6xl mx-auto px-6 py-12 text-center">
 			<!-- Icon Badge -->
-			<div class="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full mb-8">
+			<div class="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full mb-4">
 				<Network class="w-4 h-4" />
 				<span class="text-sm font-semibold">Intelligence Infrastructure</span>
 			</div>
 
-			<h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">
+			<h1 class="text-5xl md:text-6xl font-bold mb-4 leading-tight tracking-tight">
 				Saga — The Unfair Advantage
 			</h1>
 
-			<p class="text-2xl md:text-3xl mb-6 text-gray-900 font-semibold leading-relaxed max-w-4xl mx-auto">
+			<p class="text-xl md:text-2xl mb-6 text-gray-900 font-semibold max-w-4xl mx-auto">
 				Strategic Due Diligence. Continuous Risk Intelligence.
 			</p>
 
-			<p class="text-xl md:text-2xl mb-6 text-gray-700 leading-relaxed max-w-4xl mx-auto">
-				The risks you can't see are the ones that hurt you — <br/>
-				not because you're not smart enough, but because there's too much to see.
-			</p>
-
-			<p class="text-xl md:text-2xl mb-6 text-gray-900 font-semibold leading-relaxed max-w-4xl mx-auto">
-				Saga scales human intuition beyond human limits.<br/>
-				Thousands of AI agents mapping the world continuously — <br/>
-				so you see chain reactions others miss.
-			</p>
-
-			<p class="text-xl md:text-2xl mb-10 text-gray-900 font-semibold leading-relaxed max-w-4xl mx-auto">
-				We don't replace your judgment. We amplify it.<br/>
-				You see more. You understand more. You're prepared for more.
-			</p>
+			<div class="text-lg md:text-xl leading-relaxed max-w-4xl mx-auto mb-8 space-y-4">
+				<p class="text-gray-700">
+					The risks you can't see are the ones that hurt you — not because you're not smart enough, but because there's too much to see.
+				</p>
+				
+				<p class="font-semibold text-gray-900">
+					Saga scales human intuition beyond human limits. Thousands of AI agents mapping the world continuously — so you see chain reactions others miss.
+				</p>
+				
+				<p class="font-semibold text-gray-900">
+					We don't replace your judgment. We amplify it. You see more. You understand more. You're prepared for more.
+				</p>
+			</div>
 
 			<div class="flex gap-4 justify-center flex-wrap">
 				<a
@@ -143,7 +148,7 @@
 			</div>
 
 			<!-- Hero Image - Integrated -->
-			<div class="mt-10 relative max-w-4xl mx-auto">
+			<div class="mt-8 relative max-w-4xl mx-auto">
 				<div class="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-200" style="height: 300px;">
 					<img 
 						src="/images/pexels-tara-winstead-8386440.jpg" 
@@ -438,9 +443,16 @@
 						<p class="text-sm text-gray-500 italic mt-1">Coming Soon</p>
 					</div>
 				</div>
-				<p class="text-lg text-gray-700">
+				<p class="text-lg text-gray-700 mb-4">
 					Prove you understood the risks. Every chain reaction documented. Every scenario analyzed. The audit trail that demonstrates due diligence.
 				</p>
+				<button 
+					onclick={() => setTab('compliance')}
+					class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2 transition"
+				>
+					See our Compliance roadmap
+					<ChevronRight class="w-4 h-4" />
+				</button>
 			</div>
 		</div>
 	</section>
@@ -1373,6 +1385,167 @@
 					See what risks might be forming in your positions.
 				</p>
 			</div>
+		</div>
+	</section>
+	{/if}
+
+	<!-- COMPLIANCE TAB CONTENT -->
+	{#if activeTab === 'compliance'}
+	<section data-tab="compliance" class="max-w-6xl mx-auto px-6 py-24">
+		<div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-800 rounded-full mb-6 mx-auto">
+			<Shield class="w-4 h-4" />
+			<span class="text-sm font-semibold">Coming 2025</span>
+		</div>
+		
+		<h2 class="text-5xl font-bold mb-6 text-center">Compliance Intelligence</h2>
+		<p class="text-2xl text-center mb-16 text-gray-700 max-w-4xl mx-auto">
+			Understanding Is the Foundation of Compliance
+		</p>
+
+		<!-- Core Message -->
+		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 mb-16 border border-gray-200">
+			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
+				<p>
+					Regulators and LPs increasingly ask one question: <strong>"Did you understand the risks?"</strong>
+				</p>
+				<p>
+					The era of "we didn't see it coming" as an acceptable answer is ending. Fiduciary duty now requires demonstrable due diligence. Compliance requires proof of understanding.
+				</p>
+			</div>
+		</div>
+
+		<!-- The Saga Approach -->
+		<div class="mb-16">
+			<h3 class="text-4xl font-bold mb-8 text-center">The Saga Approach: Compliance Through Understanding</h3>
+			
+			<div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-12 border border-gray-200">
+				<p class="text-2xl font-semibold text-center mb-8">
+					What if compliance was a byproduct of genuinely understanding your risks?
+				</p>
+				
+				<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
+					<p>When every chain reaction is mapped...</p>
+					<p>When every scenario is simulated...</p>
+					<p>When every risk is documented as it's identified...</p>
+					
+					<p class="font-bold text-2xl text-center pt-6">
+						You don't just have compliance.<br/>
+						You have PROOF that you did the work.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- How It Works -->
+		<div class="mb-16">
+			<h3 class="text-4xl font-bold mb-8 text-center">How It Works</h3>
+			
+			<div class="grid md:grid-cols-3 gap-8">
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<h4 class="text-2xl font-bold mb-4">Continuous Documentation</h4>
+					<p class="text-lg text-gray-700">
+						Every risk Saga surfaces is timestamped and logged. Every chain reaction mapped. Every scenario simulated. An automatic audit trail of your risk awareness.
+					</p>
+				</div>
+				
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<h4 class="text-2xl font-bold mb-4">Due Diligence Packages</h4>
+					<p class="text-lg text-gray-700">
+						Before major investments: comprehensive risk mapping. After: documentation of what you knew, when you knew it. Ready for LP questions, regulatory inquiries, board presentations.
+					</p>
+				</div>
+				
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<h4 class="text-2xl font-bold mb-4">Demonstrable Process</h4>
+					<p class="text-lg text-gray-700">
+						Not just "we have a risk management process." But: "Here are the specific risks we identified, the chain reactions we mapped, the scenarios we simulated, and the actions we took."
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- The Regulatory Tailwind -->
+		<div class="mb-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+			<h3 class="text-4xl font-bold mb-8 text-center">The Regulatory Tailwind</h3>
+			
+			<div class="text-xl leading-relaxed space-y-4 max-w-4xl mx-auto">
+				<p><strong>Post-2008:</strong> Increased focus on risk management documentation</p>
+				<p><strong>Post-SVB:</strong> Scrutiny on whether institutions understood concentration risks</p>
+				<p><strong>Ongoing:</strong> ESG disclosure requirements demanding demonstrated understanding</p>
+				
+				<p class="font-semibold text-2xl text-center pt-6">
+					The trend is clear: regulators want proof of understanding, not just process.
+				</p>
+				<p class="text-center text-gray-700">
+					Saga provides that proof — as a natural byproduct of genuine risk intelligence.
+				</p>
+			</div>
+		</div>
+
+		<!-- For Now: Built-In Benefits -->
+		<div class="mb-16">
+			<h3 class="text-4xl font-bold mb-8 text-center">For Now: Compliance Benefits Built-In</h3>
+			
+			<div class="bg-white rounded-xl p-10 border border-gray-200">
+				<p class="text-xl mb-8 text-center">
+					Even without the dedicated compliance module, Saga customers benefit from automatic documentation:
+				</p>
+				
+				<div class="grid md:grid-cols-2 gap-6 mb-8">
+					<div class="flex items-start gap-3">
+						<div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+							<span class="text-white text-sm font-bold">✓</span>
+						</div>
+						<p class="text-lg">Every risk surfaced is logged with timestamp</p>
+					</div>
+					<div class="flex items-start gap-3">
+						<div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+							<span class="text-white text-sm font-bold">✓</span>
+						</div>
+						<p class="text-lg">Chain reaction analysis is preserved</p>
+					</div>
+					<div class="flex items-start gap-3">
+						<div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+							<span class="text-white text-sm font-bold">✓</span>
+						</div>
+						<p class="text-lg">Scenario simulations are recorded</p>
+					</div>
+					<div class="flex items-start gap-3">
+						<div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+							<span class="text-white text-sm font-bold">✓</span>
+						</div>
+						<p class="text-lg">Actions and alerts are tracked</p>
+					</div>
+				</div>
+				
+				<div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-8 border border-gray-200">
+					<p class="text-xl text-center font-semibold mb-4">
+						When the compliance module launches, this data becomes structured reporting.
+					</p>
+					<p class="text-lg text-center text-gray-700">
+						The understanding comes first. The compliance documentation follows naturally.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- CTA -->
+		<div class="text-center py-16 bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl border border-gray-200">
+			<h3 class="text-3xl font-bold mb-6">Want Early Access to the Compliance Module?</h3>
+			<p class="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+				Join the waitlist to be notified when compliance intelligence launches in 2025.
+			</p>
+			<div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+				<a
+					href="/login"
+					class="px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+				>
+					Join the Waitlist
+				</a>
+			</div>
+			<p class="text-lg text-gray-600">
+				Questions about our compliance roadmap? <a href="mailto:info@saga-labs.com" class="underline font-semibold hover:text-black transition">info@saga-labs.com</a>
+			</p>
 		</div>
 	</section>
 	{/if}
