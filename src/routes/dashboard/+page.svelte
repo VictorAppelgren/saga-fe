@@ -539,15 +539,13 @@ function handleTabLinkClick(event: MouseEvent) {
             </button>
             <div class="strategy-actions">
               {#if data.user?.is_admin}
-                <label style="cursor: pointer; user-select: none; margin-right: 8px; font-size: 0.9rem; font-weight: normal;">
-                  <input 
-                    type="checkbox" 
-                    checked={strategy.is_default || false}
-                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
-                    style="margin-right: 4px;"
-                  />
-                  Make Default
-                </label>
+                <button 
+                  class="btn-default" 
+                  on:click={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+                  style="margin-right: 8px;"
+                >
+                  {strategy.is_default ? 'Remove Default' : 'Make Default'}
+                </button>
               {/if}
               {#if !strategy.is_default}
                 <button class="btn-edit" on:click={() => openEditModal(strategy)}>
