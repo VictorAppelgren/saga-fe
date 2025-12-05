@@ -339,7 +339,9 @@ function handleTabLinkClick(event: MouseEvent) {
                 >
                   <div class="strategy-item">
                     <span class="strategy-asset">{strategy.asset}</span>
-                    {#if strategy.has_analysis}
+                    {#if strategy.is_default}
+                      <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
+                    {:else if strategy.has_analysis}
                       <span class="analysis-badge" title="Has AI analysis">✓</span>
                     {/if}
                   </div>
@@ -500,24 +502,31 @@ function handleTabLinkClick(event: MouseEvent) {
               </svg>
               Back
             </button>
-            <div class="strategy-actions">
-              <button class="btn-edit" on:click={() => openEditModal(strategy)}>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                </svg>
-                Edit
-              </button>
-              <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                </svg>
-                Delete
-              </button>
-            </div>
+            {#if !strategy.is_default}
+              <div class="strategy-actions">
+                <button class="btn-edit" on:click={() => openEditModal(strategy)}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                  Edit
+                </button>
+                <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            {/if}
           </div>
           
           <div class="strategy-header">
-            <h2 class="strategy-title">{strategy.asset.primary}</h2>
+            <h2 class="strategy-title">
+              {strategy.asset.primary}
+              {#if strategy.is_default}
+                <span class="default-badge-large" title="Example Strategy (Read-Only)">Example Strategy</span>
+              {/if}
+            </h2>
             <div class="strategy-meta">
               <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
               <span class="meta-item">Version: {strategy.version}</span>

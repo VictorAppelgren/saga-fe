@@ -9,8 +9,12 @@
 		mobileMenuOpen = false;
 		console.log('Tab changed to:', tab);
 		
+		// Scroll to top for home
+		if (tab === 'home') {
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
 		// Scroll to the content section for tech/investors/examples/compliance
-		if (tab === 'technology' || tab === 'investors' || tab === 'examples' || tab === 'compliance') {
+		else if (tab === 'technology' || tab === 'investors' || tab === 'examples' || tab === 'compliance') {
 			setTimeout(() => {
 				const section = document.querySelector(`[data-tab="${tab}"]`);
 				if (section) {
@@ -122,13 +126,15 @@
 					The risks you can't see are the ones that hurt you — not because you're not smart enough, but because there's too much to see.
 				</p>
 				
-				<p class="font-semibold text-gray-900">
-					Saga scales human intuition beyond human limits. Thousands of AI agents mapping the world continuously — so you see chain reactions others miss.
-				</p>
-				
-				<p class="font-semibold text-gray-900">
-					We don't replace your judgment. We amplify it. You see more. You understand more. You're prepared for more.
-				</p>
+				<div class="border-l-4 border-blue-600 bg-gradient-to-r from-blue-50/50 to-transparent pl-6 pr-4 py-4 space-y-3">
+					<p class="font-semibold text-gray-900">
+						Saga scales human intuition beyond human limits. Thousands of AI agents mapping the world continuously — so you see chain reactions others miss.
+					</p>
+					
+					<p class="font-semibold text-gray-900">
+						We don't replace your judgment. We amplify it. You see more. You understand more. You're prepared for more.
+					</p>
+				</div>
 			</div>
 
 			<div class="flex gap-4 justify-center flex-wrap">

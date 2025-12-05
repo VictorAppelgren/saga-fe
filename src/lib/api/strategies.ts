@@ -6,6 +6,7 @@ export interface Strategy {
   target: string;
   updated_at: string;
   has_analysis: boolean;
+  is_default: boolean;
 }
 
 export interface StrategyDetail {
@@ -13,6 +14,7 @@ export interface StrategyDetail {
   created_at: string;
   updated_at: string;
   version: number;
+  is_default: boolean;
   asset: {
     primary: string;
     related: string[];
