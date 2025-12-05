@@ -364,12 +364,14 @@ function handleTabLinkClick(event: MouseEvent) {
                   on:click={() => selectStrategy(strategy)}
                 >
                   <div class="strategy-item">
-                    <span class="strategy-asset">{strategy.asset}</span>
-                    {#if strategy.is_default}
-                      <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
-                    {:else if strategy.has_analysis}
-                      <span class="analysis-badge" title="Has AI analysis">✓</span>
-                    {/if}
+                    <span class="strategy-asset">
+                      {strategy.asset}
+                      {#if strategy.is_default}
+                        <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
+                      {:else if strategy.has_analysis}
+                        <span class="analysis-badge" title="Has AI analysis">✓</span>
+                      {/if}
+                    </span>
                   </div>
                 </button>
               </li>
@@ -550,25 +552,24 @@ function handleTabLinkClick(event: MouseEvent) {
             <h2 class="strategy-title">
               {strategy.asset.primary}
               {#if strategy.is_default}
-                <span class="default-badge-large" title="Example Strategy (Read-Only)">Example Strategy</span>
+                <span class="default-badge-large" title="Example Strategy (Read-Only)">📌</span>
+              {/if}
+              {#if data.user?.is_admin}
+                <label style="cursor: pointer; user-select: none; margin-left: 12px; font-size: 0.9rem; font-weight: normal;">
+                  <input 
+                    type="checkbox" 
+                    checked={strategy.is_default || false}
+                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+                    style="margin-right: 4px;"
+                  />
+                  Make Default
+                </label>
               {/if}
             </h2>
             <div class="strategy-meta">
               <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
               <span class="meta-item">Version: {strategy.version}</span>
               <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
-              
-              {#if data.user?.is_admin}
-                <label class="meta-item" style="cursor: pointer; user-select: none;">
-                  <input 
-                    type="checkbox" 
-                    checked={strategy.is_default}
-                    on:change={() => toggleDefaultStatus(strategy.id, strategy.is_default)}
-                    style="margin-right: 4px;"
-                  />
-                  <strong>Make Default Example</strong>
-                </label>
-              {/if}
             </div>
           </div>
           
