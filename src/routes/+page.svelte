@@ -111,11 +111,18 @@
 			</p>
 
 			<p class="text-xl md:text-2xl mb-6 text-gray-700 leading-relaxed max-w-4xl mx-auto">
-				Proprietary AI infrastructure that delivers unprecedented depth AND width of market understanding — powered by graph databases, multi-agent systems, and simulation engines that map the world in ways no one else can.
+				The risks you can't see are the ones that hurt you — <br/>
+				not because you're not smart enough, but because there's too much to see.
+			</p>
+
+			<p class="text-xl md:text-2xl mb-6 text-gray-900 font-semibold leading-relaxed max-w-4xl mx-auto">
+				Saga scales human intuition beyond human limits.<br/>
+				Thousands of AI agents mapping the world continuously — <br/>
+				so you see chain reactions others miss.
 			</p>
 
 			<p class="text-xl md:text-2xl mb-10 text-gray-900 font-semibold leading-relaxed max-w-4xl mx-auto">
-				We don't replace human intuition. We strengthen it.<br/>
+				We don't replace your judgment. We amplify it.<br/>
 				You see more. You understand more. You're prepared for more.
 			</p>
 
@@ -156,19 +163,37 @@
 	<section class="max-w-6xl mx-auto px-6 py-20">
 		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200 shadow-sm">
 			<h2 class="text-4xl md:text-5xl font-bold mb-10 text-center">
-				The Problem We Solve
+				The Scale Problem No Human Can Solve
 			</h2>
-			<p class="text-3xl font-bold text-center mb-12">
-				The Risks You Can't See Are the Ones That Hurt You
-			</p>
 			
-			<div class="text-xl leading-relaxed space-y-6 mb-12">
+			<div class="text-xl leading-relaxed space-y-6 mb-12 max-w-4xl mx-auto">
 				<p>
-					A policy shift in Chile quietly threatens your lithium exposure. A labor dispute in Finland cascades into your European paper positions. A drought in Taiwan is building toward a semiconductor shock that will hit your holdings in six weeks.
+					The best investment professionals spend decades building mental models of how the world connects. That's their edge — pattern recognition, intuition built from experience, knowing what matters.
 				</p>
-				<p class="font-semibold">
-					These aren't random surprises. They're chain reactions — visible if you have the infrastructure to see them.
+				<p class="font-semibold text-2xl">
+					But even the best mental model has limits.
 				</p>
+				<p>
+					Too many sources to read. Too many entities to track. Too many chains of events cascading simultaneously. Too many angles to hold in one head.
+				</p>
+				<p class="font-semibold text-2xl">
+					You're not failing because you're not smart enough.<br/>
+					You're failing because no human can watch everything.
+				</p>
+			</div>
+
+			<div class="bg-white rounded-xl p-10 mb-12 border border-gray-200">
+				<p class="text-2xl font-bold text-center mb-8">
+					The Risks You Can't See Are the Ones That Hurt You
+				</p>
+				<div class="text-xl leading-relaxed space-y-6">
+					<p>
+						A policy shift in Chile quietly threatens your lithium exposure. A labor dispute in Finland cascades into your European paper positions. A drought in Taiwan is building toward a semiconductor shock that will hit your holdings in six weeks.
+					</p>
+					<p class="font-semibold">
+						These aren't random surprises. They're chain reactions — visible if you have the infrastructure to see them.
+					</p>
+				</div>
 			</div>
 
 			<div class="bg-white rounded-xl p-8 mb-8 border border-gray-200">
@@ -179,16 +204,18 @@
 			</div>
 
 			<div class="bg-black text-white rounded-xl p-8 mb-8">
-				<h3 class="text-2xl font-bold mb-4">Seeing chain reactions across global systems requires something new:</h3>
-				<div class="space-y-2 text-lg">
-					<p>→ Graph databases mapping 50 million+ entity relationships.</p>
-					<p>→ Multi-agent AI systems analyzing causality in parallel.</p>
-					<p>→ Simulation engines projecting how risks cascade forward.</p>
-					<p>→ Proprietary methods developed through frontier AI research.</p>
+				<h3 class="text-2xl font-bold mb-4">This is the scale problem. Saga solves it.</h3>
+				<div class="space-y-3 text-lg">
+					<p class="font-semibold">Thousands of AI agents doing what one expert does — but across the entire world, continuously.</p>
+					<p>→ Every source. Every entity. Every chain reaction.</p>
+					<p>→ Mapped, analyzed, simulated, surfaced.</p>
 				</div>
 			</div>
 
-			<p class="text-2xl font-bold text-center">
+			<p class="text-2xl font-bold text-center mb-4">
+				Your mental model, amplified beyond human limits.
+			</p>
+			<p class="text-xl text-center text-gray-700">
 				We built it. No one else has.
 			</p>
 		</div>
@@ -219,7 +246,10 @@
 				<p class="text-lg leading-relaxed text-gray-700 mb-4">
 					The level of completeness that was impossible before AI could map the world at scale.
 				</p>
-				<p class="text-xl font-bold">Go in with eyes wide open.</p>
+				<p class="text-xl font-bold mb-4">Go in with eyes wide open.</p>
+				<p class="text-lg leading-relaxed text-gray-700">
+					And because every angle is mapped and documented, you have the audit trail that proves you did the work.
+				</p>
 			</div>
 
 			<!-- Continuous Portfolio & Risk Monitoring -->
@@ -237,36 +267,9 @@
 				<p class="text-lg leading-relaxed text-gray-700 mb-4">
 					Risks surfaced before they materialize. Opportunities revealed as dislocations form.
 				</p>
-				<p class="text-xl font-bold">Stay robust. Stay prepared. Always.</p>
-			</div>
-		</div>
-	</section>
-
-	<!-- The Fortress Philosophy -->
-	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200">
-		<h2 class="text-4xl font-bold mb-6 text-center">
-			The Fortress Philosophy
-		</h2>
-		<p class="text-2xl text-center mb-12 text-gray-600">
-			The Fortress Approach to Investment Intelligence
-		</p>
-
-		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-10 border border-gray-200">
-			<div class="text-xl leading-relaxed space-y-6">
-				<p>
-					JP Morgan became the largest bank in history by obsessing over survival. Their fortress balance sheet philosophy means they KNOW they can weather what breaks their competitors.
-				</p>
-				<p class="font-semibold text-2xl">
-					That's what Saga builds for your portfolio.
-				</p>
-				<p>
-					Not just risk alerts. Not just market news. A fundamental shift in how prepared you are.
-				</p>
-				<p>
-					When you understand chain reactions others can't see, you're positioned while they're scrambling. When black swans hit, you're better off — because you were already more robust than the rest.
-				</p>
-				<p class="font-bold text-2xl">
-					This is the unfair advantage that compounds.
+				<p class="text-xl font-bold mb-4">Stay robust. Stay prepared. Always.</p>
+				<p class="text-lg leading-relaxed text-gray-700">
+					Your AI agents never sleep. They watch what you can't.
 				</p>
 			</div>
 		</div>
@@ -275,31 +278,36 @@
 	<!-- Human + AI -->
 	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200">
 		<h2 class="text-4xl font-bold mb-6 text-center">
-			Human + AI
+			AI Scales Human Intuition. It Doesn't Replace It.
 		</h2>
-		<p class="text-2xl text-center mb-12 text-gray-600">
-			AI Strengthens Human Intuition. It Doesn't Replace It.
-		</p>
 
 		<div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-10 border border-gray-200">
-			<div class="text-xl leading-relaxed space-y-6">
+			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
 				<p>
 					The best decisions still require human judgment — pattern recognition born from experience, intuition honed over decades, the ability to weigh what can't be quantified.
 				</p>
-				<p class="font-semibold">
-					But human intuition has limits.
+				<p class="font-semibold text-2xl">
+					Your mental model of the world is your edge.<br/>
+					Saga makes it bigger.
 				</p>
-				<p>
-					You can't read 10,000 sources daily. You can't map 50 million entity relationships in your head. You can't simulate how a policy change cascades through six connected systems.
+				
+				<div class="bg-white rounded-xl p-8 my-8 border border-gray-200">
+					<div class="space-y-4">
+						<p class="font-semibold">You can't read 10,000 sources daily. <span class="text-blue-600">Our agents can.</span></p>
+						<p class="font-semibold">You can't map 50 million entity relationships. <span class="text-purple-600">Our graph does.</span></p>
+						<p class="font-semibold">You can't simulate how six policy changes cascade. <span class="text-green-600">Our engines do.</span></p>
+					</div>
+				</div>
+
+				<p class="font-semibold text-xl">
+					Saga handles the scale problem — the sheer volume of information no human can process.
 				</p>
-				<p class="font-semibold">
-					Saga handles what humans can't — the scale, the speed, the connections.
-				</p>
-				<p class="font-semibold">
+				<p class="font-semibold text-xl">
 					You handle what AI can't — the judgment, the wisdom, the final call.
 				</p>
-				<p class="font-bold text-2xl">
-					Together: decisions that neither could make alone.
+				<p class="font-bold text-2xl text-center mt-8">
+					Together: decisions that neither could make alone.<br/>
+					A mental model that spans the entire world.
 				</p>
 			</div>
 		</div>
@@ -340,8 +348,12 @@
 			</div>
 		</div>
 
-		<div class="bg-black text-white rounded-xl p-8 mb-10 text-center">
-			<p class="text-2xl font-bold mb-4">No one has built this for financial markets, corporate strategy, and risk.</p>
+		<div class="bg-black text-white rounded-xl p-8 mb-10">
+			<p class="text-2xl font-bold mb-4 text-center">No one has built this for financial markets, corporate strategy, and risk.</p>
+			<div class="text-lg space-y-3 mt-6 max-w-3xl mx-auto">
+				<p>The tools exist for cyber threats. For defense intelligence. For government.</p>
+				<p class="font-semibold text-xl">But the $100 trillion in institutional capital making investment decisions?<br/>They're still flying blind on chain reactions.</p>
+			</div>
 		</div>
 
 		<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
@@ -415,6 +427,115 @@
 					See how decisions cascade through interconnected systems before you commit. Understand the risk landscape at a depth that transforms how you allocate.
 				</p>
 			</div>
+
+			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
+				<div class="flex items-start gap-4 mb-4">
+					<div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+						<Shield class="w-6 h-6 text-orange-600" />
+					</div>
+					<div>
+						<h3 class="text-2xl font-bold">Compliance & Fiduciary Teams</h3>
+						<p class="text-sm text-gray-500 italic mt-1">Coming Soon</p>
+					</div>
+				</div>
+				<p class="text-lg text-gray-700">
+					Prove you understood the risks. Every chain reaction documented. Every scenario analyzed. The audit trail that demonstrates due diligence.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- The Agentic Intelligence Layer -->
+	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200">
+		<h2 class="text-4xl font-bold mb-6 text-center">
+			The Agentic Intelligence Layer
+		</h2>
+		<p class="text-2xl text-center mb-16 text-gray-600">
+			How Thousands of AI Agents Scale Your Understanding
+		</p>
+
+		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200 mb-12">
+			<div class="text-xl leading-relaxed space-y-4 mb-12 max-w-4xl mx-auto text-center">
+				<p class="font-semibold">Traditional AI: One model trying to do everything.</p>
+				<p class="font-bold text-2xl">Saga: A coordinated network of specialized agents, each doing what it does best.</p>
+			</div>
+
+			<div class="grid md:grid-cols-2 gap-8">
+				<!-- Reading Agents -->
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<div class="flex items-start gap-4 mb-4">
+						<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+							<Globe class="w-6 h-6 text-blue-600" />
+						</div>
+						<h3 class="text-2xl font-bold">Reading Agents</h3>
+					</div>
+					<p class="text-lg text-gray-700 mb-3">
+						Continuously processing 10,000+ sources in real-time. News, filings, trade data, policy announcements, earnings calls.
+					</p>
+					<p class="text-lg font-semibold text-gray-900">
+						The width of understanding no human team can match.
+					</p>
+				</div>
+
+				<!-- Mapping Agents -->
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<div class="flex items-start gap-4 mb-4">
+						<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+							<Network class="w-6 h-6 text-purple-600" />
+						</div>
+						<h3 class="text-2xl font-bold">Mapping Agents</h3>
+					</div>
+					<p class="text-lg text-gray-700 mb-3">
+						Connecting entities into a living knowledge graph. 50 million+ relationships: companies → suppliers → geographies → policies → your positions.
+					</p>
+					<p class="text-lg font-semibold text-gray-900">
+						Chain reactions become visible.
+					</p>
+				</div>
+
+				<!-- Analysis Agents -->
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<div class="flex items-start gap-4 mb-4">
+						<div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+							<Brain class="w-6 h-6 text-pink-600" />
+						</div>
+						<h3 class="text-2xl font-bold">Analysis Agents</h3>
+					</div>
+					<p class="text-lg text-gray-700 mb-3">
+						Causal inference. Pattern recognition. Anomaly detection. Specialized reasoning applied to YOUR specific exposures.
+					</p>
+					<p class="text-lg font-semibold text-gray-900">
+						The depth of understanding shaped to your portfolio.
+					</p>
+				</div>
+
+				<!-- Simulation Agents -->
+				<div class="bg-white rounded-xl p-8 border border-gray-200">
+					<div class="flex items-start gap-4 mb-4">
+						<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+							<TrendingUp class="w-6 h-6 text-green-600" />
+						</div>
+						<h3 class="text-2xl font-bold">Simulation Agents</h3>
+					</div>
+					<p class="text-lg text-gray-700 mb-3">
+						Projecting how current events cascade forward. Stress-testing scenarios that haven't happened yet.
+					</p>
+					<p class="text-lg font-semibold text-gray-900">
+						The forward-looking edge that sees what's building.
+					</p>
+				</div>
+			</div>
+
+			<div class="mt-12 bg-black text-white rounded-xl p-8">
+				<h4 class="text-2xl font-bold mb-4 text-center">Orchestration Layer</h4>
+				<p class="text-lg text-center">
+					Coordinating all agents into coherent intelligence. Not chaos — a symphony of specialized expertise. Working for you, 24/7, across the entire world.
+				</p>
+			</div>
+
+			<p class="text-2xl font-bold text-center mt-10">
+				This is what "scaling human intuition" actually means.
+			</p>
 		</div>
 	</section>
 
@@ -439,20 +560,37 @@
 	<!-- TECHNOLOGY TAB CONTENT -->
 	{#if activeTab === 'technology'}
 	<section data-tab="technology" class="max-w-6xl mx-auto px-6 py-24">
-		<h2 class="text-5xl font-bold mb-6 text-center">The Infrastructure Behind the Unfair Advantage</h2>
-		<p class="text-2xl text-center mb-8 text-gray-600 max-w-4xl mx-auto">
-			Three converging technology shifts made this possible.
+		<h2 class="text-5xl font-bold mb-6 text-center">The Infrastructure That Scales Human Understanding</h2>
+		
+		<div class="text-xl text-center mb-12 text-gray-700 max-w-4xl mx-auto space-y-4">
+			<p>
+				The best investment minds spend decades building mental models of how the world connects. But no human can hold 50 million relationships, read 10,000 sources daily, or simulate cascading scenarios continuously.
+			</p>
+			<p class="font-semibold text-2xl">
+				We built infrastructure that can.
+			</p>
+		</div>
+		
+		<p class="text-2xl font-bold text-center mb-8">
+			Graph databases. Multi-agent AI. Simulation engines.
 		</p>
-		<p class="text-xl text-center mb-16 text-gray-600 max-w-4xl mx-auto">
-			We combined them into proprietary infrastructure that no one else has built.
+		<p class="text-xl text-center mb-16 text-gray-600">
+			Unified into one system that amplifies human intuition beyond human limits.
 		</p>
 		<p class="text-2xl font-bold text-center mb-16">
-			Graph databases. Multi-agent AI. Simulation engines. Unified into one system that maps how the world actually works.
+			This is how you scale understanding.
 		</p>
 
 		<!-- Why Traditional Tools Fail -->
 		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
 			<h3 class="text-4xl font-bold mb-6 text-center">Why Bloomberg, Risk Systems, and Generic AI Leave You Exposed</h3>
+			
+			<p class="text-xl text-center mb-10 text-gray-700 max-w-3xl mx-auto">
+				These tools weren't built for the scale problem. They assume humans can connect the dots manually. They assume historical patterns predict future risks. They assume generic AI can substitute for specialized intelligence.
+			</p>
+			<p class="text-xl text-center mb-12 font-semibold">
+				Those assumptions are why portfolios keep getting blindsided.
+			</p>
 			
 			<div class="space-y-8">
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
@@ -483,9 +621,9 @@
 		</div>
 
 		<!-- The Four Pillars -->
-		<h3 class="text-4xl font-bold mb-12 text-center">The Four Pillars</h3>
+		<h3 class="text-4xl font-bold mb-12 text-center">The Four Pillars of Scaled Intelligence</h3>
 		<p class="text-xl text-center mb-16 text-gray-600">
-			How Saga Sees What Others Miss
+			How thousands of AI agents extend your mental model
 		</p>
 
 		<!-- The Four Pillars -->
@@ -511,6 +649,11 @@
 					<p class="font-semibold">
 						This is the width of understanding.
 					</p>
+					<div class="mt-4 pt-4 border-t border-blue-200">
+						<p class="text-base text-gray-600">
+							One expert can read maybe 50 sources deeply per day. Our agents read 10,000+ and never sleep. <span class="font-semibold text-blue-700">That's what scaling width means.</span>
+						</p>
+					</div>
 				</div>
 			</div>
 
@@ -535,6 +678,11 @@
 					<p class="font-semibold">
 						This is the depth of understanding.
 					</p>
+					<div class="mt-4 pt-4 border-t border-pink-200">
+						<p class="text-base text-gray-600">
+							One analyst can deeply understand maybe 3 sectors. Our agents maintain deep expertise across hundreds simultaneously. <span class="font-semibold text-pink-700">That's what scaling depth means.</span>
+						</p>
+					</div>
 				</div>
 			</div>
 
@@ -559,6 +707,11 @@
 					<p class="font-semibold">
 						This is how chain reactions become visible.
 					</p>
+					<div class="mt-4 pt-4 border-t border-purple-200">
+						<p class="text-base text-gray-600">
+							Your mental model might hold a few hundred key relationships. Our graph holds 50 million+ and growing. <span class="font-semibold text-purple-700">That's what scaling connection means.</span>
+						</p>
+					</div>
 				</div>
 			</div>
 
@@ -583,6 +736,11 @@
 					<p class="font-semibold">
 						This is the forward-looking edge.
 					</p>
+					<div class="mt-4 pt-4 border-t border-green-200">
+						<p class="text-base text-gray-600">
+							You might mentally simulate 2-3 scenarios. Our engines run thousands continuously. <span class="font-semibold text-green-700">That's what scaling foresight means.</span>
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -614,17 +772,6 @@
 			</p>
 		</div>
 
-		<!-- Architecture Diagram Placeholder -->
-		<div class="mt-16 p-12 bg-gray-50 rounded-2xl border border-gray-200 text-center">
-			<h3 class="text-2xl font-bold mb-4">The Saga Architecture</h3>
-			<div class="space-y-4 text-lg text-gray-700">
-				<p><strong>Data Layer:</strong> 10,000+ sources → Real-time ingestion → Knowledge graph storage</p>
-				<p><strong>Intelligence Layer:</strong> Multi-agent AI network → Causal analysis → Risk assessment</p>
-				<p><strong>Simulation Layer:</strong> Scenario modeling → Impact projection → Portfolio mapping</p>
-				<p><strong>Interface Layer:</strong> Alerts → Reports → Interactive exploration</p>
-			</div>
-		</div>
-
 		<!-- CTA -->
 		<div class="mt-16 text-center">
 			<h3 class="text-3xl font-bold mb-6">See It In Action</h3>
@@ -647,45 +794,41 @@
 		<!-- Hero -->
 		<h2 class="text-5xl font-bold mb-6 text-center">The Category-Defining Opportunity</h2>
 		<p class="text-2xl text-center mb-8 text-gray-600 max-w-4xl mx-auto font-semibold">
-			Agentic AI infrastructure for financial intelligence
+			Infrastructure that scales human intelligence for financial markets
 		</p>
-		<p class="text-xl text-center mb-16 text-gray-600 max-w-4xl mx-auto">
-			The category that Recorded Future built for cyber. The category that Palantir dominates in defense. No one has built it for finance. We are.
-		</p>
-
-		<!-- The Opportunity -->
-		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
-			<h3 class="text-4xl font-bold mb-6 text-center">The Opportunity</h3>
-			
-			<div class="text-xl leading-relaxed space-y-6 mb-10">
-				<p class="text-2xl font-bold text-center">
-					Recorded Future: Cyber intelligence → $2.7B exit<br/>
-					Palantir: Defense intelligence → $400B+ market cap<br/>
-					Financial markets: No equivalent. Yet.
-				</p>
-			</div>
-
-			<div class="bg-black text-white rounded-xl p-10">
-				<div class="text-xl space-y-4">
-					<p>→ <strong>$100T+</strong> in institutional capital flying blind on chain reactions</p>
-					<p>→ <strong>Bloomberg</strong> shows news in silos. <strong>Risk systems</strong> look backward. <strong>Generic AI</strong> has no architecture.</p>
-					<p>→ The risks that destroy portfolios are the <strong>connections no one mapped</strong>.</p>
-				</div>
-			</div>
+		
+		<div class="text-xl text-center mb-16 text-gray-700 max-w-4xl mx-auto space-y-4">
+			<p>
+				Recorded Future built a $2.7B business scaling threat intelligence for cyber.<br/>
+				Palantir is worth $400B+ scaling intelligence for defense.
+			</p>
+			<p class="font-semibold text-2xl">
+				No one has built this for the $100T+ in institutional capital making investment decisions with human-scale mental models.
+			</p>
+			<p class="font-bold text-2xl">
+				That's the opportunity. We're building it.
+			</p>
 		</div>
 
 		<!-- The IP -->
 		<div class="mb-24 bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-12 border border-gray-200">
-			<h3 class="text-4xl font-bold mb-6 text-center">The IP: Proprietary Research + GenAI + Graph</h3>
+			<h3 class="text-4xl font-bold mb-6 text-center">The IP: Why We Win</h3>
 			
-			<div class="text-xl leading-relaxed space-y-6 mb-10">
+			<div class="text-xl leading-relaxed space-y-6 mb-10 max-w-4xl mx-auto">
 				<p class="text-2xl font-bold text-center">
-					The secret: Years of research on structuring, mapping, and connecting financial information.
+					The Core Insight:
 				</p>
 				<p class="text-center text-gray-700">
-					Now powered by GenAI agents + graph databases. Tailored to each user's specific portfolio.
+					Investment professionals have powerful mental models — but those models can't scale beyond human limits.
+				</p>
+				<p class="text-center font-semibold text-2xl">
+					Saga is infrastructure that scales human understanding.
 				</p>
 			</div>
+			
+			<p class="text-xl text-center mb-10 font-semibold">
+				Three layers of proprietary IP make this possible:
+			</p>
 
 			<div class="grid md:grid-cols-3 gap-6">
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
@@ -755,7 +898,7 @@
 						<h4 class="text-xl font-bold">Working Platform</h4>
 					</div>
 					<p class="text-lg text-gray-700">
-						Fully operational platform processing real-time intelligence 24/7
+						Fully operational. 4-6 models running 24/7. Thousands of AI agents processing global intelligence continuously.
 					</p>
 				</div>
 
@@ -767,7 +910,7 @@
 						<h4 class="text-xl font-bold">Proprietary Infrastructure</h4>
 					</div>
 					<p class="text-lg text-gray-700">
-						Graph database, multi-agent system, simulation engines
+						Graph database with 50M+ entities. Multi-agent coordination layer. Simulation engines. Years of IP, not months.
 					</p>
 				</div>
 
@@ -791,38 +934,86 @@
 						<h4 class="text-xl font-bold">Customer Engagement</h4>
 					</div>
 					<p class="text-lg text-gray-700">
-						Pilots with hedge funds, family offices, and corporate strategy teams. Strong pull from commodities traders and multi-sector PMs.
+						Active pilots with: Hedge funds (commodities, multi-sector), Family offices ($500M+ AUM), Corporate strategy teams (Fortune 500). Strong pull. Repeat engagement. Moving toward contracts.
 					</p>
 				</div>
 			</div>
 
 			<div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 border border-gray-200">
-				<h4 class="text-2xl font-bold mb-4 text-center">What's Next</h4>
+				<h4 class="text-2xl font-bold mb-4 text-center">What's Next (12 Months)</h4>
 				<div class="text-lg text-gray-700 space-y-2">
-					<p>→ Convert pilots to paying customers</p>
-					<p>→ Build documented case studies with quantified value</p>
-					<p>→ Expand data ingestion (trade data, regulatory filings, alternative data)</p>
-					<p>→ Scale agent network and simulation capabilities</p>
+					<p>→ Convert pilots to $500K+ ARR</p>
+					<p>→ Document 3-5 case studies with quantified ROI</p>
+					<p>→ Expand data ingestion (trade data, satellite, alternative data)</p>
+					<p>→ Scale agent network to 100,000+ monitored relationships per customer</p>
+					<p>→ Begin compliance module development</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- Why We Win -->
+		<!-- The Moat That Deepens Daily -->
 		<div class="mb-24">
-			<h3 class="text-4xl font-bold mb-6 text-center">Why We Win</h3>
+			<h3 class="text-4xl font-bold mb-6 text-center">The Moat That Deepens Daily</h3>
+			<p class="text-xl text-center mb-10 text-gray-600 max-w-3xl mx-auto">
+				Network effects that compound, infrastructure advantages that can't be replicated, and timing that creates a winner-take-most dynamic
+			</p>
 			
-			<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-10 border border-gray-200">
-				<div class="text-xl space-y-6">
-					<p>
-						<strong>1. Years of IP</strong> — Agent coordination layer + graph architecture built from frontier research. Not replicable in months.
-					</p>
-					<p>
-						<strong>2. Structural moat</strong> — Bloomberg's relational architecture can't pivot. Generic AI has no financial architecture. Starting from scratch = years behind.
-					</p>
-					<p>
-						<strong>3. Network effects</strong> — More data → better resolution → smarter patterns → deeper moat. Compounds daily.
+			<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+				<div class="mb-10">
+					<h4 class="text-2xl font-bold mb-6">Network Effects That Compound:</h4>
+					<div class="bg-white rounded-xl p-8 border border-gray-200 space-y-3 text-lg">
+						<p>→ Every day of data = <strong>Better entity resolution</strong></p>
+						<p>→ Better resolution = <strong>Smarter pattern recognition</strong></p>
+						<p>→ Smarter patterns = <strong>Earlier warnings</strong></p>
+						<p>→ Earlier warnings = <strong>More customer value</strong></p>
+						<p>→ More customers = <strong>More portfolio coverage</strong></p>
+						<p>→ More coverage = <strong>Richer graph</strong></p>
+						<p>→ Richer graph = <strong>Wider moat</strong></p>
+					</div>
+					<p class="text-xl font-semibold mt-6 text-center">
+						The flywheel spins faster every day. Competitors start from zero.
 					</p>
 				</div>
+
+				<div class="mb-10">
+					<h4 class="text-2xl font-bold mb-6">The Infrastructure Advantage:</h4>
+					<div class="space-y-4 text-lg">
+						<p>
+							<strong>50M+ entities mapped</strong> — Competitors start at zero. Building this takes years, not months.
+						</p>
+						<p>
+							<strong>Years of causal modeling research</strong> — Academic foundation that can't be replicated by throwing engineers at the problem.
+						</p>
+						<p>
+							<strong>Multi-agent orchestration layer</strong> — Proprietary architecture. Not available in any framework or library.
+						</p>
+						<p>
+							<strong>Domain-specific training</strong> — Financial causality patterns learned from years of data. Generic LLMs don't have this.
+						</p>
+					</div>
+				</div>
+
+				<div>
+					<h4 class="text-2xl font-bold mb-6">The Timing Advantage:</h4>
+					<div class="space-y-4 text-lg">
+						<p>
+							<strong>First mover in agentic AI for financial intelligence</strong> — Category is forming now. We're defining it.
+						</p>
+						<p>
+							<strong>Building while others are pitching</strong> — Working platform. Real customers. Data flywheel spinning.
+						</p>
+						<p>
+							<strong>Bloomberg can't pivot</strong> — Their relational architecture is their prison. Rebuilding = abandoning their moat.
+						</p>
+						<p>
+							<strong>Generic AI has no architecture</strong> — ChatGPT can't map 50M entities or simulate cascading scenarios. Wrong tool.
+						</p>
+					</div>
+				</div>
+
+				<p class="text-2xl font-bold text-center mt-10">
+					This isn't a feature. It's infrastructure-level IP that deepens every day.
+				</p>
 			</div>
 		</div>
 
@@ -837,24 +1028,20 @@
 				<div class="bg-white rounded-xl p-10 border border-gray-200">
 					<div class="text-xl leading-relaxed space-y-6">
 						<p>
-							<strong>Academic leadership</strong> in applied generative AI for finance
+							<strong>Academic Foundation:</strong> Published research on graph databases and LLMs for market causality mapping. Years of work on information structuring for financial systems. This isn't applied AI — it's frontier research turned into product.
 						</p>
 						<p>
-							<strong>Published research</strong> on graph databases and LLMs for market causality
+							<strong>Technical Depth:</strong> Multi-agent AI architectures. Graph database design. Simulation engine development. Real-time data pipeline engineering. The technical leadership to build infrastructure, not just applications.
 						</p>
 						<p>
-							<strong>Technical depth</strong> at the frontier of what's possible
+							<strong>Financial Domain Expertise:</strong> Understanding of portfolio construction, risk management, mandate constraints. We know what traders and PMs actually need — because we've worked with them. Not technologists guessing at finance problems.
 						</p>
 						<p>
-							<strong>Domain expertise</strong> in portfolio construction and institutional workflows
+							<strong>Builder Mentality:</strong> Working platform. Processing real intelligence. Engaging customers. Not a pitch deck — a functioning system proving value today.
 						</p>
 					</div>
 				</div>
 			</div>
-
-			<p class="text-2xl text-center mt-10 font-bold">
-				The combination of AI research depth and financial domain expertise that makes this possible.
-			</p>
 		</div>
 
 		<!-- The Ask -->
@@ -878,16 +1065,92 @@
 			</div>
 		</div>
 
-		<!-- The Vision -->
+		<!-- The Endgame -->
 		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
-			<h3 class="text-4xl font-bold mb-8 text-center">The Vision</h3>
+			<h3 class="text-4xl font-bold mb-8 text-center">The Endgame: Intelligence Infrastructure for Capital</h3>
 			
-			<p class="text-3xl text-center font-bold mb-6">
-				The nervous system for institutional capital.
-			</p>
-			<p class="text-2xl text-center text-gray-700 max-w-4xl mx-auto">
-				The foundational layer every significant investment decision runs through — because the cost of being blindsided is too high and the edge of seeing first is too valuable.
-			</p>
+			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto mb-10">
+				<p class="text-2xl font-bold text-center">
+					Today: Saga helps portfolios see chain reactions before they materialize
+				</p>
+				<p class="text-2xl font-bold text-center">
+					Tomorrow: Every investment decision — from $10M venture bets to $10B M&A — starts with Saga's intelligence layer
+				</p>
+			</div>
+
+			<div class="bg-white rounded-xl p-10 border border-gray-200 mb-10">
+				<h4 class="text-2xl font-bold mb-6 text-center">The World Is Too Complex for Human-Scale Mental Models</h4>
+				<div class="grid md:grid-cols-2 gap-6 text-lg">
+					<div class="space-y-3">
+						<p>→ <strong>50,000+</strong> publicly traded companies</p>
+						<p>→ <strong>Millions</strong> of private entities</p>
+						<p>→ <strong>Infinite</strong> supply chain permutations</p>
+					</div>
+					<div class="space-y-3">
+						<p>→ Cascading policy changes across <strong>195 countries</strong></p>
+						<p>→ Real-time events affecting <strong>everything simultaneously</strong></p>
+						<p>→ Connections forming <strong>faster than humans can map</strong></p>
+					</div>
+				</div>
+				<p class="text-xl font-semibold text-center mt-8">
+					No human team can map this. No traditional system was built for it.
+				</p>
+			</div>
+
+			<div class="space-y-6 text-xl mb-10">
+				<p class="font-bold text-2xl text-center">
+					Saga becomes the intelligence layer that institutional capital runs on:
+				</p>
+				<div class="bg-white rounded-xl p-8 border border-gray-200 space-y-4">
+					<p><strong>Hedge funds:</strong> Continuous risk monitoring across global portfolios</p>
+					<p><strong>Private equity:</strong> Due diligence that sees what sell-side missed</p>
+					<p><strong>Corporate strategy:</strong> M&A intelligence that maps competitive landscapes</p>
+					<p><strong>Family offices:</strong> Wealth preservation through early warning systems</p>
+					<p><strong>Compliance teams:</strong> Audit trails that prove fiduciary duty</p>
+				</div>
+			</div>
+
+			<div class="bg-black text-white rounded-xl p-10 mb-10">
+				<p class="text-2xl font-bold text-center mb-6">
+					Not a tool. Not a dashboard. Infrastructure.
+				</p>
+				<p class="text-xl text-center">
+					The nervous system for how capital understands the world.
+				</p>
+			</div>
+
+			<div class="text-xl space-y-6">
+				<p class="font-bold text-2xl text-center mb-6">Just like:</p>
+				<div class="grid md:grid-cols-3 gap-6">
+					<div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+						<p class="font-bold text-lg mb-2">Bloomberg</p>
+						<p class="text-base">Became the <strong>data layer</strong><br/>(terminals everywhere)</p>
+					</div>
+					<div class="bg-purple-50 rounded-xl p-6 border border-purple-200">
+						<p class="font-bold text-lg mb-2">Palantir</p>
+						<p class="text-base">Became the <strong>intelligence layer</strong> for defense<br/>($400B market cap)</p>
+					</div>
+					<div class="bg-pink-50 rounded-xl p-6 border border-pink-200">
+						<p class="font-bold text-lg mb-2">Recorded Future</p>
+						<p class="text-base">Became the <strong>threat layer</strong> for cyber<br/>($2.7B exit)</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="mt-10 space-y-4">
+				<p class="text-3xl font-bold text-center">
+					Saga becomes the intelligence layer for capital allocation.
+				</p>
+				<p class="text-2xl text-center text-gray-700">
+					That's the category we're defining.
+				</p>
+				<p class="text-2xl text-center text-gray-700">
+					That's the $100T+ market with no current leader.
+				</p>
+				<p class="text-2xl font-bold text-center">
+					That's what we're building.
+				</p>
+			</div>
 		</div>
 
 		<!-- Final CTA -->
@@ -921,107 +1184,28 @@
 				<a href="mailto:info@saga-labs.com" class="underline font-semibold hover:text-black transition">info@saga-labs.com</a>
 			</p>
 		</div>
-	<section id="security" class="max-w-6xl mx-auto px-6 py-24">
-		<h2 class="text-5xl font-bold mb-4 text-center">Enterprise-Grade From Day One</h2>
-		<p class="text-xl text-center mb-16 text-gray-600">Your data and your edge stay protected.</p>
-
-		<div class="grid md:grid-cols-3 gap-8">
-			<div class="p-8 bg-gray-50 rounded-2xl border border-gray-200">
-				<div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mb-6">
-					<Shield class="w-8 h-8 text-white" />
-				</div>
-				<h3 class="text-2xl font-bold mb-3">Complete Encryption</h3>
-				<p class="text-lg text-gray-700">
-					All data encrypted in transit and at rest. No exceptions. No compromises.
-				</p>
-			</div>
-
-			<div class="p-8 bg-gray-50 rounded-2xl border border-gray-200">
-				<div class="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center mb-6">
-					<Shield class="w-8 h-8 text-white" />
-				</div>
-				<h3 class="text-2xl font-bold mb-3">Isolated Environments</h3>
-				<p class="text-lg text-gray-700">
-					Your data stays yours. No sharing across clients. No reuse. No model training on customer
-					information. Your portfolio intelligence remains your competitive advantage.
-				</p>
-			</div>
-
-			<div class="p-8 bg-gray-50 rounded-2xl border border-gray-200">
-				<div class="w-14 h-14 bg-pink-600 rounded-xl flex items-center justify-center mb-6">
-					<Shield class="w-8 h-8 text-white" />
-				</div>
-				<h3 class="text-2xl font-bold mb-3">Compliance Path</h3>
-				<p class="text-lg text-gray-700">
-					SOC 2 Type II certification in progress. Built to align with GDPR and ISO 27001 frameworks
-					from the start. Designed for institutional requirements.
-				</p>
-			</div>
-		</div>
-	</section>
-
-	<!-- Final CTA Section -->
-	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200 text-center">
-		<h2 class="text-4xl font-bold mb-8">The Risks You Don't See Are the Ones That Hurt You</h2>
-		<div class="text-xl leading-relaxed space-y-6 mb-12 max-w-4xl mx-auto">
-			<p>
-				Right now, somewhere in the world, events are converging that will threaten your portfolio. A
-				policy shift. A supply chain stress. A geopolitical development. The connections are forming.
-				The risk is building.
-			</p>
-			<p>
-				Traditional tools won't show you until it's too late. Your competitors using Saga will see it
-				first.
-			</p>
-			<p>
-				This is the unfair advantage. The funds that have it will compound their edge — better risk
-				management, earlier warnings, fewer surprises, opportunities captured from dislocations others
-				miss.
-			</p>
-			<p class="font-semibold">
-				The funds that don't will keep reacting to headlines and wondering what they didn't see.
-			</p>
-		</div>
-
-		<div class="flex flex-col sm:flex-row gap-4 justify-center">
-			<a
-				href="/login"
-				class="px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
-			>
-				Request Early Access
-			</a>
-			<a
-				href="/dashboard"
-				class="px-8 py-4 border-2 border-black text-black text-lg font-semibold hover:bg-gray-50 transition rounded-lg"
-			>
-				See the Platform
-			</a>
-		</div>
-		<p class="text-lg">30-minute demo. Your portfolio exposures. The risks you might be missing.</p>
-		<p class="text-lg mt-4">
-			Talk to Our Team — <a href="mailto:info@saga-labs.com" class="underline font-semibold"
-				>info@saga-labs.com</a
-			>
-		</p>
-	</section>
 	</section>
 	{/if}
 
 	<!-- EXAMPLES TAB CONTENT -->
 	{#if activeTab === 'examples'}
 	<section data-tab="examples" class="max-w-6xl mx-auto px-6 py-24">
-		<h2 class="text-5xl font-bold mb-6 text-center">Examples</h2>
-		<p class="text-xl text-center mb-16 text-gray-600 max-w-4xl mx-auto">
-			How Saga works in practice — real scenarios and use cases
-		</p>
-
-		<!-- Unified Examples Section -->
 		<h2 class="text-5xl font-bold mb-6 text-center">Chain Reactions Made Visible</h2>
-		<p class="text-2xl text-center mb-8 text-gray-600 max-w-4xl mx-auto">
-			Your positions define what we watch. Our infrastructure reveals what's threatening them.
+		<p class="text-2xl text-center mb-8 text-gray-700 max-w-4xl mx-auto">
+			Real scenarios where human-scale monitoring failed — and AI-scale intelligence caught the risk in time
 		</p>
-		<p class="text-xl text-center mb-16 text-gray-600 max-w-4xl mx-auto">
-			Real scenarios where hidden threats became visible — in time to act
+		
+		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-10 mb-16 border border-gray-200 max-w-4xl mx-auto">
+			<p class="text-xl leading-relaxed mb-4">
+				The risks that hurt portfolios aren't the obvious ones. They're the chain reactions: Event A affects Entity B, which threatens Supply Chain C, which impacts Position D.
+			</p>
+			<p class="text-xl font-semibold">
+				No human can track these connections across the entire world. But thousands of AI agents can.
+			</p>
+		</div>
+		
+		<p class="text-2xl text-center mb-16 font-bold">
+			Here's what that looks like in practice.
 		</p>
 
 		<div class="space-y-8">
@@ -1154,19 +1338,41 @@
 			</div>
 		</div>
 
-		<div class="mt-16 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 border border-gray-200">
-			<p class="text-2xl font-bold mb-6">
-				These scenarios show how Saga reveals hidden risk.
-			</p>
-			<p class="text-xl text-gray-700 mb-8">
-				Request a demo to see what threats might be building in your portfolio right now.
-			</p>
-			<a
-				href="/login"
-				class="inline-block px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
-			>
-				Request Demo
-			</a>
+		<div class="mt-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+			<h3 class="text-3xl font-bold mb-8 text-center">The Pattern Across All Examples</h3>
+			
+			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto mb-10">
+				<p>Notice what these scenarios have in common:</p>
+				
+				<div class="bg-white rounded-xl p-8 border border-gray-200 space-y-4">
+					<p><strong>1.</strong> The information existed. It was public. Available.</p>
+					<p><strong>2.</strong> It was scattered across multiple sources, categories, geographies.</p>
+					<p><strong>3.</strong> The CONNECTION was the insight — not any single data point.</p>
+					<p><strong>4.</strong> Human-scale monitoring couldn't synthesize fast enough.</p>
+					<p><strong>5.</strong> AI-scale monitoring mapped the chain reaction in time to act.</p>
+				</div>
+				
+				<p class="font-bold text-2xl text-center">
+					This is the scale problem.<br/>
+					This is what Saga solves.
+				</p>
+				
+				<p class="text-center">
+					Your portfolio has chain reactions building right now. The question is whether you'll see them in time.
+				</p>
+			</div>
+			
+			<div class="text-center">
+				<a
+					href="/login"
+					class="inline-block px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+				>
+					Request a Demo
+				</a>
+				<p class="text-lg mt-4 text-gray-600">
+					See what risks might be forming in your positions.
+				</p>
+			</div>
 		</div>
 	</section>
 	{/if}
