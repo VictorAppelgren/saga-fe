@@ -28,6 +28,9 @@
   let modalMode: 'create' | 'edit' = 'create';
   let editingStrategy: StrategyDetail | null = null;
 
+  // --- STRATEGY REFRESH KEY ---
+  let strategyRefreshKey = 0;
+
   // --- TOGGLE DEFAULT STATUS ---
   async function toggleDefaultStatus(strategyId: string, currentStatus: boolean) {
     try {
@@ -45,6 +48,9 @@
       
       const result = await response.json();
       alert(result.message);
+      
+      // Force strategy detail to re-fetch
+      strategyRefreshKey++;
       
       // Refresh the page data
       await invalidateAll();
@@ -516,6 +522,7 @@ function handleTabLinkClick(event: MouseEvent) {
         {/if}
       </section>
     {:else if currentSelection.type === 'strategy'}
+      {#key strategyRefreshKey}
       {#await getStrategy(data.user.username, currentSelection.value)}
         <div class="loading-container">
           <div class="loading-spinner"></div>
@@ -683,11 +690,9 @@ function handleTabLinkClick(event: MouseEvent) {
           {/if}
         </section>
       {:catch error}
-        <div class="error-container">
-          <p>Failed to load strategy</p>
-          <button class="btn-retry" on:click={() => window.location.reload()}>Retry</button>
-        </div>
+        <p>Error loading strategy: {error.message}</p>
       {/await}
+      {/key}
     {:else if currentSelection.value === 'settings'}
         <div class="top-bar">
           <h1>Settings</h1>
