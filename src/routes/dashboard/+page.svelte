@@ -557,7 +557,7 @@ function handleTabLinkClick(event: MouseEvent) {
               <span class="meta-item">Version: {strategy.version}</span>
               <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
               
-              {#if data.user.username === 'victor'}
+              {#if data.user?.is_admin}
                 <label class="meta-item" style="cursor: pointer; user-select: none;">
                   <input 
                     type="checkbox" 
