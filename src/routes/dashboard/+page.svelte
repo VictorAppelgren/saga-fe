@@ -522,13 +522,14 @@ function handleTabLinkClick(event: MouseEvent) {
         <!-- Report content - MATCHES STRATEGY VIEW EXACTLY -->
         {#if tabs[activeTabIdx].type === 'report'}
           {#await getReport(currentSelection.value) then report}
+            {@const heroSection = report.sections?.executive_summary ? 'executive_summary' : (report.sections?.house_view ? 'house_view' : null)}
             {#if report.sections && Object.keys(report.sections).length > 0}
-              <!-- Executive Summary (always expanded) - SAME AS STRATEGY -->
-              {#if report.sections.executive_summary}
+              <!-- Hero Section (always expanded) - uses executive_summary OR house_view -->
+              {#if heroSection && report.sections[heroSection]}
                 <div class="executive-summary-section">
-                  <h3 class="section-heading">Executive Summary</h3>
+                  <h3 class="section-heading">{formatSectionTitle(heroSection)}</h3>
                   <div class="executive-summary-content" on:click={handleTabLinkClick}>
-                    {#each report.sections.executive_summary.split('\n') as line}
+                    {#each report.sections[heroSection].split('\n') as line}
                       {@html linkifyIds(simpleMarkdown(line))}
                     {/each}
                   </div>
@@ -541,7 +542,7 @@ function handleTabLinkClick(event: MouseEvent) {
                   <span class="analysis-sections-label">Analysis Sections</span>
                 </div>
                 {#each Object.entries(report.sections) as [sectionName, content]}
-                  {#if sectionName !== 'executive_summary' && content && content.trim()}
+                  {#if sectionName !== heroSection && content && content.trim()}
                     <details class="analysis-card">
                       <summary class="analysis-card-header">
                         <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
