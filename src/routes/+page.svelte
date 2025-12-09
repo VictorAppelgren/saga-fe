@@ -97,7 +97,7 @@
 	<section class="relative overflow-hidden pt-20">
 		<!-- Gradient Background -->
 		<div
-			class="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-60"
+			class="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"
 		></div>
 
 		<!-- Animated Grid Pattern -->
@@ -108,7 +108,7 @@
 
 		<div class="relative max-w-6xl mx-auto px-6 py-12 text-center">
 			<!-- Icon Badge -->
-			<div class="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full mb-4">
+			<div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full mb-6">
 				<Network class="w-4 h-4" />
 				<span class="text-sm font-semibold">Intelligence Infrastructure</span>
 			</div>
@@ -126,7 +126,7 @@
 					The risks you can't see are the ones that hurt you — not because you're not smart enough, but because there's too much to see.
 				</p>
 				
-				<div class="border-l-4 border-blue-600 bg-gradient-to-r from-blue-50/50 to-transparent pl-6 pr-4 py-4 space-y-3">
+				<div class="border-l-2 border-gray-300 pl-6 pr-4 py-4 space-y-3">
 					<p class="font-semibold text-gray-900">
 						Saga scales human intuition beyond human limits. Thousands of AI agents mapping the world continuously — so you see chain reactions others miss.
 					</p>
@@ -140,14 +140,14 @@
 			<div class="flex gap-4 justify-center flex-wrap">
 				<a
 					href="/login"
-					class="group px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 rounded-lg"
+					class="group px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition-all rounded-full"
 				>
 					Request Early Access
 					<span class="inline-block group-hover:translate-x-1 transition-transform">→</span>
 				</a>
 				<a
 					href="/dashboard"
-					class="px-8 py-4 border-2 border-black text-black text-lg font-semibold hover:bg-gray-50 transition-all rounded-lg"
+					class="px-8 py-4 border border-gray-300 text-gray-900 text-lg font-semibold hover:bg-gray-50 transition-all rounded-full"
 				>
 					See the Platform
 				</a>
@@ -172,7 +172,7 @@
 	{#if activeTab === 'home'}
 	<!-- The Problem We Solve -->
 	<section class="max-w-6xl mx-auto px-6 py-20">
-		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200 shadow-sm">
+		<div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h2 class="text-4xl md:text-5xl font-bold mb-10 text-center">
 				The Scale Problem No Human Can Solve
 			</h2>
@@ -244,10 +244,10 @@
 		<div class="grid md:grid-cols-2 gap-8">
 			<!-- Deep Strategic Due Diligence -->
 			<div
-				class="group p-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200 hover:shadow-2xl transition-all hover:scale-[1.02]"
+				class="group p-10 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:scale-[1.01]"
 			>
-				<div class="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-6">
-					<Target class="w-10 h-10 text-white" />
+				<div class="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center mb-6">
+					<Target class="w-7 h-7 text-white" />
 				</div>
 				<h3 class="text-3xl font-bold mb-4">Deep Strategic Due Diligence</h3>
 				<p class="text-lg text-gray-600 mb-6 italic">Before the investment. Before the merger. Before the strategic decision.</p>
@@ -265,10 +265,10 @@
 
 			<!-- Continuous Portfolio & Risk Monitoring -->
 			<div
-				class="group p-10 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200 hover:shadow-2xl transition-all hover:scale-[1.02]"
+				class="group p-10 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all hover:scale-[1.01]"
 			>
-				<div class="w-16 h-16 bg-purple-600 rounded-xl flex items-center justify-center mb-6">
-					<Eye class="w-10 h-10 text-white" />
+				<div class="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center mb-6">
+					<Eye class="w-7 h-7 text-white" />
 				</div>
 				<h3 class="text-3xl font-bold mb-4">Continuous Portfolio & Risk Monitoring</h3>
 				<p class="text-lg text-gray-600 mb-6 italic">After the decision. Every day. 24/7.</p>
@@ -292,7 +292,7 @@
 			AI Scales Human Intuition. It Doesn't Replace It.
 		</h2>
 
-		<div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-10 border border-gray-200">
+		<div class="bg-gray-50 rounded-2xl p-10 border border-gray-100">
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
 				<p>
 					The best decisions still require human judgment — pattern recognition born from experience, intuition honed over decades, the ability to weigh what can't be quantified.
@@ -302,11 +302,11 @@
 					Saga makes it bigger.
 				</p>
 				
-				<div class="bg-white rounded-xl p-8 my-8 border border-gray-200">
+				<div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
 					<div class="space-y-4">
-						<p class="font-semibold">You can't read 10,000 sources daily. <span class="text-blue-600">Our agents can.</span></p>
-						<p class="font-semibold">You can't map 50 million entity relationships. <span class="text-purple-600">Our graph does.</span></p>
-						<p class="font-semibold">You can't simulate how six policy changes cascade. <span class="text-green-600">Our engines do.</span></p>
+						<p class="font-semibold text-gray-900">You can't read 10,000 sources daily. <span class="text-gray-500 font-medium">Our agents can.</span></p>
+						<p class="font-semibold text-gray-900">You can't map 50 million entity relationships. <span class="text-gray-500 font-medium">Our graph does.</span></p>
+						<p class="font-semibold text-gray-900">You can't simulate how six policy changes cascade. <span class="text-gray-500 font-medium">Our engines do.</span></p>
 					</div>
 				</div>
 
@@ -336,8 +336,8 @@
 		<div class="grid md:grid-cols-2 gap-6 mb-10">
 			<div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 				<div class="flex items-start gap-4">
-					<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<TrendingUp class="w-6 h-6 text-blue-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<TrendingUp class="w-5 h-5 text-gray-600" />
 					</div>
 					<div>
 						<h3 class="text-xl font-bold mb-2">Recorded Future</h3>
@@ -348,8 +348,8 @@
 			
 			<div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 				<div class="flex items-start gap-4">
-					<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<Shield class="w-6 h-6 text-purple-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<Shield class="w-5 h-5 text-gray-600" />
 					</div>
 					<div>
 						<h3 class="text-xl font-bold mb-2">Palantir</h3>
@@ -359,7 +359,7 @@
 			</div>
 		</div>
 
-		<div class="bg-black text-white rounded-xl p-8 mb-10">
+		<div class="bg-gray-900 text-white rounded-2xl p-10 mb-10">
 			<p class="text-2xl font-bold mb-4 text-center">No one has built this for financial markets, corporate strategy, and risk.</p>
 			<div class="text-lg space-y-3 mt-6 max-w-3xl mx-auto">
 				<p>The tools exist for cyber threats. For defense intelligence. For government.</p>
@@ -393,8 +393,8 @@
 		<div class="grid md:grid-cols-2 gap-8">
 			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
 				<div class="flex items-start gap-4 mb-4">
-					<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<TrendingUp class="w-6 h-6 text-blue-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<TrendingUp class="w-5 h-5 text-gray-600" />
 					</div>
 					<h3 class="text-2xl font-bold">Investors & Portfolio Managers</h3>
 				</div>
@@ -405,8 +405,8 @@
 
 			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
 				<div class="flex items-start gap-4 mb-4">
-					<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<Target class="w-6 h-6 text-purple-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<Target class="w-5 h-5 text-gray-600" />
 					</div>
 					<h3 class="text-2xl font-bold">PE / VC / M&A Teams</h3>
 				</div>
@@ -417,8 +417,8 @@
 
 			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
 				<div class="flex items-start gap-4 mb-4">
-					<div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<Shield class="w-6 h-6 text-pink-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<Shield class="w-5 h-5 text-gray-600" />
 					</div>
 					<h3 class="text-2xl font-bold">Corporate Strategy & Risk Teams</h3>
 				</div>
@@ -429,8 +429,8 @@
 
 			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
 				<div class="flex items-start gap-4 mb-4">
-					<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<Zap class="w-6 h-6 text-green-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<Zap class="w-5 h-5 text-gray-600" />
 					</div>
 					<h3 class="text-2xl font-bold">CIOs and Allocators</h3>
 				</div>
@@ -441,8 +441,8 @@
 
 			<div class="p-8 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all">
 				<div class="flex items-start gap-4 mb-4">
-					<div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-						<Shield class="w-6 h-6 text-orange-600" />
+					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+						<Shield class="w-5 h-5 text-gray-600" />
 					</div>
 					<div>
 						<h3 class="text-2xl font-bold">Compliance & Fiduciary Teams</h3>
@@ -454,7 +454,7 @@
 				</p>
 				<button 
 					onclick={() => setTab('compliance')}
-					class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2 transition"
+					class="text-gray-600 hover:text-gray-900 font-semibold flex items-center gap-2 transition"
 				>
 					See our Compliance roadmap
 					<ChevronRight class="w-4 h-4" />
@@ -472,7 +472,7 @@
 			How Thousands of AI Agents Scale Your Understanding
 		</p>
 
-		<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200 mb-12">
+		<div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm mb-12">
 			<div class="text-xl leading-relaxed space-y-4 mb-12 max-w-4xl mx-auto text-center">
 				<p class="font-semibold">Traditional AI: One model trying to do everything.</p>
 				<p class="font-bold text-2xl">Saga: A coordinated network of specialized agents, each doing what it does best.</p>
@@ -482,8 +482,8 @@
 				<!-- Reading Agents -->
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
 					<div class="flex items-start gap-4 mb-4">
-						<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-							<Globe class="w-6 h-6 text-blue-600" />
+						<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+							<Globe class="w-5 h-5 text-gray-600" />
 						</div>
 						<h3 class="text-2xl font-bold">Reading Agents</h3>
 					</div>
@@ -498,8 +498,8 @@
 				<!-- Mapping Agents -->
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
 					<div class="flex items-start gap-4 mb-4">
-						<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-							<Network class="w-6 h-6 text-purple-600" />
+						<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+							<Network class="w-5 h-5 text-gray-600" />
 						</div>
 						<h3 class="text-2xl font-bold">Mapping Agents</h3>
 					</div>
@@ -514,8 +514,8 @@
 				<!-- Analysis Agents -->
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
 					<div class="flex items-start gap-4 mb-4">
-						<div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-							<Brain class="w-6 h-6 text-pink-600" />
+						<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+							<Brain class="w-5 h-5 text-gray-600" />
 						</div>
 						<h3 class="text-2xl font-bold">Analysis Agents</h3>
 					</div>
@@ -530,8 +530,8 @@
 				<!-- Simulation Agents -->
 				<div class="bg-white rounded-xl p-8 border border-gray-200">
 					<div class="flex items-start gap-4 mb-4">
-						<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-							<TrendingUp class="w-6 h-6 text-green-600" />
+						<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+							<TrendingUp class="w-5 h-5 text-gray-600" />
 						</div>
 						<h3 class="text-2xl font-bold">Simulation Agents</h3>
 					</div>
@@ -544,7 +544,7 @@
 				</div>
 			</div>
 
-			<div class="mt-12 bg-black text-white rounded-xl p-8">
+			<div class="mt-12 bg-gray-900 text-white rounded-2xl p-10">
 				<h4 class="text-2xl font-bold mb-4 text-center">Orchestration Layer</h4>
 				<p class="text-lg text-center">
 					Coordinating all agents into coherent intelligence. Not chaos — a symphony of specialized expertise. Working for you, 24/7, across the entire world.
@@ -567,7 +567,7 @@
 		</p>
 		<a
 			href="/login"
-			class="inline-block px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+			class="inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
 		>
 			Request Early Access
 		</a>
@@ -600,7 +600,7 @@
 		</p>
 
 		<!-- Why Traditional Tools Fail -->
-		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mb-24 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-6 text-center">Why Bloomberg, Risk Systems, and Generic AI Leave You Exposed</h3>
 			
 			<p class="text-xl text-center mb-10 text-gray-700 max-w-3xl mx-auto">
@@ -764,7 +764,7 @@
 		</div>
 
 		<!-- Why This Can't Be Easily Replicated -->
-		<div class="mt-16 mb-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mt-16 mb-16 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-6 text-center">Why This Can't Be Easily Replicated</h3>
 			<p class="text-xl text-center mb-12 text-gray-600">
 				The technical moat that deepens every day
@@ -798,7 +798,7 @@
 			</p>
 			<a
 				href="/login"
-				class="inline-block px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+				class="inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
 			>
 				Request Demo
 			</a>
@@ -865,7 +865,7 @@
 		</div>
 
 		<!-- The Market -->
-		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mb-24 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-6 text-center">The Market</h3>
 			<p class="text-xl text-center mb-12 text-gray-600">
 				Who Pays for This — And Why
@@ -976,7 +976,7 @@
 				Network effects that compound, infrastructure advantages that can't be replicated, and timing that creates a winner-take-most dynamic
 			</p>
 			
-			<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+			<div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 				<div class="mb-10">
 					<h4 class="text-2xl font-bold mb-6">Network Effects That Compound:</h4>
 					<div class="bg-white rounded-xl p-8 border border-gray-200 space-y-3 text-lg">
@@ -1036,7 +1036,7 @@
 		</div>
 
 		<!-- The Team -->
-		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mb-24 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-6 text-center">The Team</h3>
 			<p class="text-xl text-center mb-12 text-gray-600">
 				Built by experts at the frontier
@@ -1084,7 +1084,7 @@
 		</div>
 
 		<!-- The Endgame -->
-		<div class="mb-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mb-24 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-8 text-center">The Endgame: Intelligence Infrastructure for Capital</h3>
 			
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto mb-10">
@@ -1356,7 +1356,7 @@
 			</div>
 		</div>
 
-		<div class="mt-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mt-16 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-3xl font-bold mb-8 text-center">The Pattern Across All Examples</h3>
 			
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto mb-10">
@@ -1383,7 +1383,7 @@
 			<div class="text-center">
 				<a
 					href="/login"
-					class="inline-block px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+					class="inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
 				>
 					Request a Demo
 				</a>
@@ -1471,7 +1471,7 @@
 		</div>
 
 		<!-- The Regulatory Tailwind -->
-		<div class="mb-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-12 border border-gray-200">
+		<div class="mb-16 bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h3 class="text-4xl font-bold mb-8 text-center">The Regulatory Tailwind</h3>
 			
 			<div class="text-xl leading-relaxed space-y-4 max-w-4xl mx-auto">
