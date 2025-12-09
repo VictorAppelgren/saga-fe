@@ -281,6 +281,7 @@
   <div class="messages" bind:this={chatContainer}>
     {#each messages as message (message.id)}
       <div class="message {message.isUser ? 'user' : 'bot'}">
+        <div class="message-sender">{message.isUser ? (username || 'You') : 'Saga'}</div>
         <div class="message-bubble">
           {#if message.isUser}
               {message.text}
@@ -368,8 +369,25 @@
   .message {
     display: flex;
     flex-direction: column;
-    max-width: 80%;
+    max-width: 92%;
     gap: 0.25rem;
+  }
+
+  .message-sender {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted, #86868b);
+    margin-bottom: 0.125rem;
+    padding: 0 0.25rem;
+  }
+
+  .message.user .message-sender {
+    text-align: right;
+    color: var(--primary, #007aff);
+  }
+
+  .message.bot .message-sender {
+    color: var(--text-muted, #86868b);
   }
 
   .message.user {

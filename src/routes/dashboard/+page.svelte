@@ -479,41 +479,49 @@ function handleTabLinkClick(event: MouseEvent) {
       <ThemeInfo theme={themeForDisplay} />
       <ThemeReview theme={themeForDisplay} />
     {:else if currentSelection.type === 'interest'}
-      <section class="card asset-info-box asset-info-theme wide-box">
-        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-          <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            Back
-          </button>
-          <h2 class="asset-dashboard-title" style="margin: 0;">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
+      <section class="strategy-detail-box">
+        <!-- Topic Info Card - matches strategy view -->
+        <div class="strategy-info-card">
+          <div class="strategy-header-buttons">
+            <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+              </svg>
+              Back
+            </button>
+          </div>
+          
+          <div class="strategy-header">
+            <h2 class="strategy-title">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
+            <div class="strategy-meta">
+              <span class="meta-item"><strong>Type:</strong> Research Topic</span>
+            </div>
+            <p class="strategy-hint">Click this topic or any strategy on the left to explore details and talk to Saga about it in the chat.</p>
+          </div>
         </div>
-        <div class="info-row"><span class="info-label">Type:</span> <span class="info-value">Research Topic</span></div>
-        <p class="asset-hint">Click this topic or any strategy on the left to explore details and talk to Saga about it in the chat.</p>
-      </section>
-      <!-- Tab bar and tab content area remain below for asset view -->
-      <div class="tab-bar" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-        {#each tabs as tab, idx}
-          <button
-            class="strategy-save-btn tab-button {activeTabIdx === idx ? 'active' : ''}"
-            style="max-width:unset; width:auto; border-radius:12px 12px 0 0; margin-bottom:-1.5px; position:relative; padding-right:2.2em;"
-            on:click={() => selectTab(idx)}
-          >
-            {tab.label}
-            {#if idx !== 0}
-              <span
-                class="tab-close"
-                style="position:absolute; right:0.6em; top:0.5em; color:var(--text-muted,#888); font-size:1.1em; cursor:pointer;"
-                on:click|stopPropagation={() => closeTab(idx)}
-                aria-label="Close tab"
-              >×</span>
-            {/if}
-          </button>
-        {/each}
-      </div>
-      <section class="card asset-markdown-box asset-markdown-theme wide-box">
-        <h3 class="asset-markdown-title">{tabs[activeTabIdx].label}</h3>
+
+        <!-- Tab bar -->
+        <div class="topic-tab-bar">
+          {#each tabs as tab, idx}
+            <button
+              class="topic-tab-button {activeTabIdx === idx ? 'active' : ''}"
+              on:click={() => selectTab(idx)}
+            >
+              {tab.label}
+              {#if idx !== 0}
+                <span
+                  class="tab-close-btn"
+                  on:click|stopPropagation={() => closeTab(idx)}
+                  aria-label="Close tab"
+                >×</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+
+        <!-- Report content card -->
+        <div class="topic-content-card">
+          <h3 class="topic-content-title">{tabs[activeTabIdx].label}</h3>
         {#if tabs[activeTabIdx].type === 'report'}
           {#await getReport(currentSelection.value) then report}
             <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
@@ -562,6 +570,7 @@ function handleTabLinkClick(event: MouseEvent) {
             {@html tabs[activeTabIdx].content}
           </div>
         {/if}
+        </div>
       </section>
     {:else if currentSelection.type === 'strategy'}
       {#key strategyRefreshKey}
@@ -571,90 +580,90 @@ function handleTabLinkClick(event: MouseEvent) {
           <p>Loading strategy...</p>
         </div>
       {:then strategy}
-        <section class="card strategy-detail-box">
-          <div class="strategy-header-buttons">
-            <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-              </svg>
-              Back
-            </button>
-            <div class="strategy-actions">
-              {#if data.user?.is_admin}
-                <!-- Admins can always toggle default status -->
-                <button 
-                  class="btn-default" 
-                  on:click={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
-                  style="margin-right: 8px;"
-                >
-                  {strategy.is_default ? 'Remove Default' : 'Make Default'}
-                </button>
-              {/if}
+        <section class="strategy-detail-box">
+          <!-- Strategy Info Card - wraps header, meta, and thesis -->
+          <div class="strategy-info-card">
+            <div class="strategy-header-buttons">
+              <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                Back
+              </button>
+              <div class="strategy-actions">
+                {#if data.user?.is_admin}
+                  <button 
+                    class="btn-toggle-default" 
+                    on:click={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+                  >
+                    {strategy.is_default ? 'Remove Default' : 'Make Default'}
+                  </button>
+                {/if}
 
-              {#if !strategy.is_default || data.user?.is_admin}
-                <!-- Non-default: everyone can edit; default: only admins can edit -->
-                <button class="btn-edit" on:click={() => openEditModal(strategy)}>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                  </svg>
-                  Edit
-                </button>
-              {/if}
+                {#if !strategy.is_default || data.user?.is_admin}
+                  <button class="btn-edit" on:click={() => openEditModal(strategy)}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit
+                  </button>
+                {/if}
 
-              {#if !strategy.is_default}
-                <!-- Delete only allowed for non-default strategies -->
-                <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                  </svg>
-                  Delete
-                </button>
-              {/if}
+                {#if !strategy.is_default}
+                  <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                    Delete
+                  </button>
+                {/if}
+              </div>
             </div>
-          </div>
-          
-          <div class="strategy-header">
-            <h2 class="strategy-title">
-              {strategy.asset.primary}
-              {#if strategy.is_default}
-                <span class="default-badge-large" title="Example Strategy (Read-Only)">
-📌</span>
-              {/if}
-            </h2>
-            <div class="strategy-meta">
-              <span class="meta-item">Target: <strong>{strategy.user_input.target}</strong></span>
-              <span class="meta-item">Version: {strategy.version}</span>
-              <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
+            
+            <div class="strategy-header">
+              <h2 class="strategy-title">
+                {strategy.asset.primary}
+                {#if strategy.is_default}
+                  <span class="default-badge-large" title="Example Strategy">📌</span>
+                {/if}
+              </h2>
+              <div class="strategy-meta">
+                <span class="meta-item"><strong>Target:</strong> {strategy.user_input.target}</span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item"><strong>Version:</strong> {strategy.version}</span>
+                <span class="meta-divider">•</span>
+                <span class="meta-item"><strong>Updated:</strong> {new Date(strategy.updated_at).toLocaleDateString()}</span>
+              </div>
+              <p class="strategy-hint">Keep this thesis high-level; use Edit to adjust it, then chat on the right about this strategy or its topics.</p>
             </div>
-            <p class="strategy-hint">Keep this thesis high-level; use Edit to adjust it, then chat on the right about this strategy or its topics.</p>
-          </div>
-          
-          <!-- User Input Section -->
-          <div class="strategy-section">
-            <h3 class="section-heading">
-              Strategy Thesis
-              {#if strategy.is_default}
-                <span class="section-hint"> (example text, read-only)</span>
-              {:else}
-                <span class="section-hint"> (your text – change it with Edit)</span>
-              {/if}
-            </h3>
-            <p class="section-content">{strategy.user_input.strategy_text}</p>
-          </div>
-          
-          {#if strategy.user_input.position_text}
+            
+            <!-- User Input Section -->
             <div class="strategy-section">
-              <h3 class="section-heading">Target Outlook</h3>
-              <p class="section-content">{strategy.user_input.position_text}</p>
+              <h3 class="section-heading">
+                Strategy Thesis
+                {#if strategy.is_default}
+                  <span class="section-hint">(example text, read-only)</span>
+                {:else}
+                  <span class="section-hint">(your text – change it with Edit)</span>
+                {/if}
+              </h3>
+              <p class="section-content">{strategy.user_input.strategy_text}</p>
             </div>
-          {/if}
-          
-          {#if strategy.user_input.target}
-            <div class="strategy-section">
-              <h3 class="section-heading">Target</h3>
-              <p class="section-content">{strategy.user_input.target}</p>
-            </div>
-          {/if}
+            
+            {#if strategy.user_input.position_text}
+              <div class="strategy-section">
+                <h3 class="section-heading">Target Outlook</h3>
+                <p class="section-content">{strategy.user_input.position_text}</p>
+              </div>
+            {/if}
+            
+            {#if strategy.user_input.target}
+              <div class="strategy-section">
+                <h3 class="section-heading">Target</h3>
+                <p class="section-content">{strategy.user_input.target}</p>
+              </div>
+            {/if}
+          </div>
           
           <!-- Analysis Section (if exists) -->
           {#if strategy.latest_analysis?.analyzed_at}
@@ -1785,24 +1794,21 @@ function handleTabLinkClick(event: MouseEvent) {
 .strategy-detail-box {
   max-width: 900px;
   margin: 2rem auto;
-  padding: 2.5rem;
-  background: var(--card-bg, #ffffff);
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 0 1.5rem;
 }
 
 .strategy-header-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .strategy-header {
   display: flex;
   flex-direction: column;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border-color, #e5e5e7);
 }
 
@@ -1816,7 +1822,8 @@ function handleTabLinkClick(event: MouseEvent) {
 
 .strategy-meta {
   display: flex;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 0.625rem;
   flex-wrap: wrap;
 }
 
@@ -1906,6 +1913,162 @@ function handleTabLinkClick(event: MouseEvent) {
   background: var(--hover-bg, #e8e8ed);
 }
 
+/* Toggle Default button - theme-aware */
+.btn-toggle-default {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--surface-variant, #f5f5f7);
+  color: var(--text-color, #1d1d1f);
+  border: 1px solid var(--border-color, #e5e5e7);
+}
+
+.btn-toggle-default:hover {
+  background: var(--hover-bg, #e8e8ed);
+  border-color: var(--text-muted, #86868b);
+}
+
+:global(.dark) .btn-toggle-default {
+  background: var(--surface-variant, #2c2c2e);
+  color: var(--text-color, #f5f5f7);
+  border-color: var(--border-color, #48484a);
+}
+
+:global(.dark) .btn-toggle-default:hover {
+  background: var(--hover-bg, #3a3a3c);
+  border-color: var(--text-muted, #86868b);
+}
+
+/* Strategy Info Card - wraps header content */
+.strategy-info-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+:global(.dark) .strategy-info-card {
+  background: var(--card-bg, #1c1c1e);
+  border-color: var(--border-color, #38383a);
+}
+
+/* Meta divider */
+.meta-divider {
+  color: var(--text-muted, #86868b);
+  font-size: 0.75rem;
+}
+
+/* Topic Tab Bar */
+.topic-tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  padding: 0 0.25rem;
+}
+
+.topic-tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--surface-variant, #f5f5f7);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  color: var(--text-muted, #86868b);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: -1px;
+}
+
+.topic-tab-button.active {
+  background: var(--card-bg, #ffffff);
+  color: var(--text-color, #1d1d1f);
+  border-color: var(--border-color, #e5e5e7);
+  font-weight: 600;
+  z-index: 2;
+}
+
+.topic-tab-button:hover:not(.active) {
+  background: var(--hover-bg, #e8e8ed);
+  color: var(--text-color, #1d1d1f);
+}
+
+.tab-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text-muted, #86868b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-color, #1d1d1f);
+}
+
+:global(.dark) .topic-tab-button {
+  background: var(--surface-variant, #2c2c2e);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .topic-tab-button.active {
+  background: var(--card-bg, #1c1c1e);
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .topic-tab-button:hover:not(.active) {
+  background: var(--hover-bg, #3a3a3c);
+}
+
+:global(.dark) .tab-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color, #f5f5f7);
+}
+
+/* Topic Content Card */
+.topic-content-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 0 16px 16px 16px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.topic-content-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color, #1d1d1f);
+  margin: 0 0 1.5rem 0;
+  letter-spacing: -0.01em;
+}
+
+:global(.dark) .topic-content-card {
+  background: var(--card-bg, #1c1c1e);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .topic-content-title {
+  color: var(--text-color, #f5f5f7);
+}
+
 .strategy-section {
   margin-bottom: 1.75rem;
 }
@@ -1933,12 +2096,16 @@ function handleTabLinkClick(event: MouseEvent) {
   white-space: pre-wrap;
 }
 
-:global(.dark) .strategy-detail-box {
-  background: var(--card-bg, #1c1c1e);
-}
-
 :global(.dark) .strategy-title {
   color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .meta-item strong {
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .section-content {
+  color: var(--text-color, #e5e5e7);
 }
 
 :global(.dark) .back-button {
@@ -1984,12 +2151,16 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .executive-summary-section .section-heading {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--primary, #007aff);
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text-color, #1d1d1f);
+  margin-bottom: 1.25rem;
+}
+
+:global(.dark) .executive-summary-section .section-heading {
+  color: var(--text-color, #f5f5f7);
 }
 
 .executive-summary-content {
@@ -2123,7 +2294,7 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .analysis-card-content {
-  padding: 0 1.25rem 1.25rem 1.25rem;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--text-secondary, #424245);
