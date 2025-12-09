@@ -521,15 +521,10 @@ function handleTabLinkClick(event: MouseEvent) {
 
         <!-- Report content card -->
         <div class="topic-content-card">
-          <h3 class="topic-content-title">{tabs[activeTabIdx].label}</h3>
         {#if tabs[activeTabIdx].type === 'report'}
           {#await getReport(currentSelection.value) then report}
             <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
-              {#if report.markdown}
-                {#each report.markdown.split('\n') as line}
-                  {@html linkifyIds(simpleMarkdown(line))}
-                {/each}
-              {:else if report.sections}
+              {#if report.sections}
                 <!-- Always show executive summary expanded if available -->
                 {#if report.sections.executive_summary}
                   <div class="asset-executive-summary">
@@ -542,6 +537,9 @@ function handleTabLinkClick(event: MouseEvent) {
 
                 <!-- Other sections collapsed by default -->
                 <div class="analysis-sections-container">
+                  <div class="analysis-sections-header">
+                    <span class="analysis-sections-label">Analysis Sections</span>
+                  </div>
                   {#each Object.entries(report.sections) as [sectionName, content]}
                     {#if sectionName !== 'executive_summary' && content && content.trim()}
                       <details class="analysis-card">
@@ -558,6 +556,10 @@ function handleTabLinkClick(event: MouseEvent) {
                     {/if}
                   {/each}
                 </div>
+              {:else if report.markdown}
+                {#each report.markdown.split('\n') as line}
+                  {@html linkifyIds(simpleMarkdown(line))}
+                {/each}
               {:else}
                 <div class="asset-markdown-error">No report content found.</div>
               {/if}
@@ -1949,15 +1951,16 @@ function handleTabLinkClick(event: MouseEvent) {
 .strategy-info-card {
   background: var(--card-bg, #ffffff);
   border: 1px solid var(--border-color, #e5e5e7);
-  border-radius: 16px;
-  padding: 1.75rem 2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border-radius: 20px;
+  padding: 2rem 2.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 :global(.dark) .strategy-info-card {
   background: var(--card-bg, #1c1c1e);
   border-color: var(--border-color, #38383a);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Meta divider */
@@ -1978,16 +1981,16 @@ function handleTabLinkClick(event: MouseEvent) {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   background: var(--surface-variant, #f5f5f7);
   border: 1px solid var(--border-color, #e5e5e7);
   border-bottom: none;
-  border-radius: 12px 12px 0 0;
+  border-radius: 14px 14px 0 0;
   color: var(--text-muted, #86868b);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   margin-bottom: -1px;
 }
@@ -2047,9 +2050,9 @@ function handleTabLinkClick(event: MouseEvent) {
 .topic-content-card {
   background: var(--card-bg, #ffffff);
   border: 1px solid var(--border-color, #e5e5e7);
-  border-radius: 0 16px 16px 16px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border-radius: 0 20px 20px 20px;
+  padding: 2rem 2.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .topic-content-title {
@@ -2057,12 +2060,13 @@ function handleTabLinkClick(event: MouseEvent) {
   font-weight: 700;
   color: var(--text-color, #1d1d1f);
   margin: 0 0 1.5rem 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 :global(.dark) .topic-content-card {
   background: var(--card-bg, #1c1c1e);
   border-color: var(--border-color, #38383a);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 :global(.dark) .topic-content-title {
@@ -2129,12 +2133,12 @@ function handleTabLinkClick(event: MouseEvent) {
 
 /* Executive Summary - Hero card style */
 .executive-summary-section {
-  margin-top: 2.5rem;
-  padding: 1.75rem 2rem;
-  background: linear-gradient(135deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #f5f5f7) 100%);
+  margin-top: 1.75rem;
+  padding: 2rem 2.25rem;
+  background: linear-gradient(145deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #fafafa) 100%);
   border: 1px solid var(--border-color, #e5e5e7);
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
   position: relative;
   overflow: hidden;
 }
@@ -2145,16 +2149,16 @@ function handleTabLinkClick(event: MouseEvent) {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary, #007aff) 0%, var(--primary-light, #5ac8fa) 100%);
-  border-radius: 16px 16px 0 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary, #007aff) 0%, #5856d6 50%, #af52de 100%);
+  border-radius: 20px 20px 0 0;
 }
 
 .executive-summary-section .section-heading {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   text-transform: none;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--text-color, #1d1d1f);
   margin-bottom: 1.25rem;
 }
@@ -2164,20 +2168,20 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .executive-summary-content {
-  font-size: 1.05rem;
-  line-height: 1.85;
+  font-size: 1.0625rem;
+  line-height: 1.8;
   color: var(--text-color, #1d1d1f);
   font-weight: 400;
 }
 
 :global(.dark) .executive-summary-section {
-  background: linear-gradient(135deg, var(--card-bg, #1c1c1e) 0%, #252528 100%);
+  background: linear-gradient(145deg, var(--card-bg, #1c1c1e) 0%, #232326 100%);
   border-color: var(--border-color, #38383a);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 :global(.dark) .executive-summary-section::before {
-  background: linear-gradient(90deg, #0a84ff 0%, #5e5ce6 100%);
+  background: linear-gradient(90deg, #0a84ff 0%, #5e5ce6 50%, #bf5af2 100%);
 }
 
 :global(.dark) .executive-summary-content {
@@ -2186,18 +2190,45 @@ function handleTabLinkClick(event: MouseEvent) {
 
 /* Asset/Topic executive summary */
 .asset-executive-summary {
-  padding: 1.5rem 0;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color, #e5e5e7);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  background: linear-gradient(145deg, var(--hover-bg, #fafafa) 0%, var(--card-bg, #ffffff) 100%);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 16px;
+  position: relative;
+}
+
+.asset-executive-summary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary, #007aff) 0%, #5856d6 100%);
+  border-radius: 16px 16px 0 0;
 }
 
 .asset-executive-summary h2 {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--primary, #007aff);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text-color, #1d1d1f);
   margin: 0 0 1rem 0;
+}
+
+:global(.dark) .asset-executive-summary {
+  background: linear-gradient(145deg, #232326 0%, var(--card-bg, #1c1c1e) 100%);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .asset-executive-summary::before {
+  background: linear-gradient(90deg, #0a84ff 0%, #5e5ce6 100%);
+}
+
+:global(.dark) .asset-executive-summary h2 {
+  color: var(--text-color, #f5f5f7);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2206,31 +2237,36 @@ function handleTabLinkClick(event: MouseEvent) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .analysis-sections-container {
-  margin-top: 2rem;
+  margin-top: 1.75rem;
+  padding: 1.75rem 2rem 2rem 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color, #e5e5e7);
+  background: linear-gradient(145deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #fafafa) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.875rem;
 }
 
 .analysis-sections-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 0.25rem 1rem 0.25rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color, #e5e5e7);
   margin-bottom: 0.5rem;
 }
 
 .analysis-sections-label {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted, #86868b);
 }
 
 .analysis-timestamp {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted, #86868b);
   font-weight: 500;
 }
@@ -2239,31 +2275,32 @@ function handleTabLinkClick(event: MouseEvent) {
 .analysis-card {
   background: var(--card-bg, #ffffff);
   border: 1px solid var(--border-color, #e5e5e7);
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .analysis-card:hover {
   border-color: var(--border-hover, #d1d1d6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .analysis-card[open] {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-  border-color: var(--primary-light, #007aff20);
+  background: linear-gradient(145deg, var(--card-bg, #ffffff) 0%, #f8f9fa 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 122, 255, 0.25);
 }
 
 .analysis-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: 1.125rem 1.5rem;
   cursor: pointer;
   user-select: none;
   list-style: none;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
 }
 
 .analysis-card-header::-webkit-details-marker {
@@ -2275,30 +2312,31 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .analysis-card-title {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--text-color, #1d1d1f);
   letter-spacing: -0.01em;
 }
 
 .analysis-card-chevron {
-  font-size: 1.5rem;
-  font-weight: 300;
+  font-size: 1.25rem;
+  font-weight: 400;
   color: var(--text-muted, #86868b);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   line-height: 1;
 }
 
 .analysis-card[open] .analysis-card-chevron {
   transform: rotate(90deg);
+  color: var(--primary, #007aff);
 }
 
 .analysis-card-content {
-  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  padding: 0.5rem 1.75rem 2rem 1.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.75;
   color: var(--text-secondary, #424245);
-  animation: slideDown 0.2s ease-out;
+  animation: slideDown 0.25s ease-out;
 }
 
 @keyframes slideDown {
@@ -2313,6 +2351,12 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 /* Dark mode adjustments */
+:global(.dark) .analysis-sections-container {
+  background: linear-gradient(145deg, var(--card-bg, #1c1c1e) 0%, #232326 100%);
+  border-color: var(--border-color, #38383a);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
 :global(.dark) .analysis-card {
   background: var(--card-bg, #1c1c1e);
   border-color: var(--border-color, #38383a);
@@ -2323,8 +2367,9 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 :global(.dark) .analysis-card[open] {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 6px rgba(0, 0, 0, 0.2);
-  border-color: var(--primary-light, #0a84ff40);
+  background: linear-gradient(145deg, #1c1c1e 0%, #252528 100%);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-color: rgba(10, 132, 255, 0.4);
 }
 
 :global(.dark) .analysis-card-header:hover {
@@ -2333,6 +2378,10 @@ function handleTabLinkClick(event: MouseEvent) {
 
 :global(.dark) .analysis-card-title {
   color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .analysis-card[open] .analysis-card-chevron {
+  color: #0a84ff;
 }
 
 :global(.dark) .analysis-card-content {

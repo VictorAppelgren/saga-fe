@@ -270,10 +270,12 @@
 
 <div class="chat-container">
   <div class="chat-header">
-    <h2>Dialogue</h2>
+    <h2>Chat with Saga</h2>
     {#if messages.length > 0}
       <button class="clear-chat-btn" on:click={clearChat} title="Clear conversation">
-        🗑️
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
       </button>
     {/if}
   </div>
@@ -314,71 +316,106 @@
 </div>
 
 <style>
+  /* ═══════════════════════════════════════════════════════════════════════════
+     CHAT - Apple iMessage-inspired design
+     ═══════════════════════════════════════════════════════════════════════════ */
+
   .chat-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: var(--card-bg, #f5f5f5);
-    border-right: 1px solid var(--border-color, #e0e0e0);
+    background: var(--bg-color, #ffffff);
+    border-left: 1px solid var(--border-color, #e5e5e7);
   }
 
   .chat-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #e5e5e7);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: var(--card-bg, #ffffff);
   }
 
   .chat-header h2 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: var(--text-color, black);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color, #1d1d1f);
+    letter-spacing: -0.01em;
   }
 
   .clear-chat-btn {
-    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--surface-variant, #f5f5f7);
     border: none;
-    font-size: 1.25rem;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    opacity: 0.6;
+    color: var(--text-muted, #86868b);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .clear-chat-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
-    opacity: 1;
+    background: var(--hover-bg, #e8e8ed);
+    color: var(--text-color, #1d1d1f);
+  }
+
+  :global(.dark) .chat-container {
+    background: var(--bg-color, #000000);
+  }
+
+  :global(.dark) .chat-header {
+    background: var(--card-bg, #1c1c1e);
+    border-color: var(--border-color, #38383a);
+  }
+
+  :global(.dark) .chat-header h2 {
+    color: var(--text-color, #f5f5f7);
+  }
+
+  :global(.dark) .clear-chat-btn {
+    background: var(--surface-variant, #2c2c2e);
+    color: var(--text-muted, #98989d);
   }
 
   :global(.dark) .clear-chat-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--hover-bg, #3a3a3c);
+    color: var(--text-color, #f5f5f7);
   }
 
   .messages {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
+    background: var(--bg-color, #ffffff);
+  }
+
+  :global(.dark) .messages {
+    background: var(--bg-color, #000000);
   }
 
   .message {
     display: flex;
     flex-direction: column;
-    max-width: 92%;
+    max-width: 88%;
     gap: 0.25rem;
   }
 
   .message-sender {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     color: var(--text-muted, #86868b);
-    margin-bottom: 0.125rem;
-    padding: 0 0.25rem;
+    margin-bottom: 0.25rem;
+    padding: 0 0.5rem;
   }
 
   .message.user .message-sender {
@@ -399,90 +436,150 @@
   }
 
   .message-bubble {
-    padding: 0.75rem 1rem;
-    border-radius: 18px;
+    padding: 0.875rem 1.125rem;
+    border-radius: 20px;
     word-break: break-word;
+    font-size: 0.9375rem;
+    line-height: 1.5;
   }
 
   .message.user .message-bubble {
-    background: #007AFF;
+    background: linear-gradient(135deg, #007AFF 0%, #0066d6 100%);
     color: white;
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
   }
 
   .message.bot .message-bubble {
-    background: #E9E9EB;
-    color: black;
-    border-bottom-left-radius: 4px;
+    background: var(--surface-variant, #f0f0f2);
+    color: var(--text-color, #1d1d1f);
+    border-bottom-left-radius: 6px;
   }
 
   :global(.dark) .message.bot .message-bubble {
-    background: #303030;
-    color: white;
+    background: var(--surface-variant, #2c2c2e);
+    color: var(--text-color, #f5f5f7);
   }
 
   .message-time {
-    font-size: 0.75rem;
-    color: #666;
-    align-self: flex-end;
+    font-size: 0.6875rem;
+    color: var(--text-muted, #86868b);
+    padding: 0 0.5rem;
+    margin-top: 0.125rem;
+  }
+
+  .message.user .message-time {
+    text-align: right;
   }
 
   :global(.dark) .message-time {
-    color: #999;
+    color: var(--text-muted, #98989d);
   }
 
   .input-container {
-    padding: 1rem;
-    border-top: 1px solid var(--border-color, #e0e0e0);
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--border-color, #e5e5e7);
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
+    gap: 0.75rem;
+    align-items: flex-end;
+    background: var(--card-bg, #ffffff);
+  }
+
+  :global(.dark) .input-container {
+    background: var(--card-bg, #1c1c1e);
+    border-color: var(--border-color, #38383a);
   }
 
   textarea {
     flex: 1;
-    padding: 8px 16px;
-    border: 1px solid var(--border-color, #e0e0e0);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color, #e5e5e7);
     border-radius: 20px;
-    background: var(--bg-color, white);
-    color: var(--text-color, black);
+    background: var(--surface-variant, #f5f5f7);
+    color: var(--text-color, #1d1d1f);
     resize: none;
-    height: 40px;
-    line-height: 24px;
+    min-height: 40px;
+    max-height: 120px;
+    line-height: 1.4;
     outline: none;
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  textarea:focus {
+    border-color: var(--primary, #007aff);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  }
+
+  textarea::placeholder {
+    color: var(--text-muted, #86868b);
+  }
+
+  :global(.dark) textarea {
+    background: var(--surface-variant, #2c2c2e);
+    border-color: var(--border-color, #48484a);
+    color: var(--text-color, #f5f5f7);
+  }
+
+  :global(.dark) textarea:focus {
+    border-color: var(--primary, #0a84ff);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+  }
+
+  :global(.dark) textarea::placeholder {
+    color: var(--text-muted, #98989d);
   }
 
   .send-button {
-    background: #007AFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #007AFF 0%, #0066d6 100%);
     border: none;
-    border-radius: 16px;
+    border-radius: 20px;
     height: 40px;
-    padding: 0 1.25rem;
+    padding: 0 1.5rem;
     cursor: pointer;
     color: white;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.875rem;
-    transition: opacity 0.2s, background-color 0.2s;
+    letter-spacing: -0.01em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
   }
 
   .send-button:hover:not(:disabled) {
-    background: #0056b3;
+    background: linear-gradient(135deg, #0066d6 0%, #0052a3 100%);
+    transform: scale(1.02);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+  }
+
+  .send-button:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   .send-button:disabled {
-    background: #cccccc;
+    background: var(--surface-variant, #e5e5e7);
+    color: var(--text-muted, #86868b);
     cursor: default;
+    box-shadow: none;
   }
 
   :global(.dark) .send-button {
-    background: #0056b3;
+    background: linear-gradient(135deg, #0a84ff 0%, #0066d6 100%);
+    box-shadow: 0 1px 3px rgba(10, 132, 255, 0.3);
   }
 
   :global(.dark) .send-button:hover:not(:disabled) {
-    background: #003d80;
+    background: linear-gradient(135deg, #0066d6 0%, #0052a3 100%);
+    box-shadow: 0 2px 6px rgba(10, 132, 255, 0.4);
+  }
+
+  :global(.dark) .send-button:disabled {
+    background: var(--surface-variant, #3a3a3c);
+    color: var(--text-muted, #636366);
   }
 
   :global(.dark) .send-button:disabled {
