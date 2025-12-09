@@ -533,18 +533,23 @@ function handleTabLinkClick(event: MouseEvent) {
                 {/if}
 
                 <!-- Other sections collapsed by default -->
-                {#each Object.entries(report.sections) as [sectionName, content]}
-                  {#if sectionName !== 'executive_summary' && content && content.trim()}
-                    <details class="asset-section">
-                      <summary>{formatSectionTitle(sectionName)}</summary>
-                      <div class="asset-section-content">
-                        {#each content.split('\n') as line}
-                          {@html linkifyIds(simpleMarkdown(line))}
-                        {/each}
-                      </div>
-                    </details>
-                  {/if}
-                {/each}
+                <div class="analysis-sections-container">
+                  {#each Object.entries(report.sections) as [sectionName, content]}
+                    {#if sectionName !== 'executive_summary' && content && content.trim()}
+                      <details class="analysis-card">
+                        <summary class="analysis-card-header">
+                          <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
+                          <span class="analysis-card-chevron">›</span>
+                        </summary>
+                        <div class="analysis-card-content">
+                          {#each content.split('\n') as line}
+                            {@html linkifyIds(simpleMarkdown(line))}
+                          {/each}
+                        </div>
+                      </details>
+                    {/if}
+                  {/each}
+                </div>
               {:else}
                 <div class="asset-markdown-error">No report content found.</div>
               {/if}
@@ -665,20 +670,23 @@ function handleTabLinkClick(event: MouseEvent) {
               </div>
             {/if}
 
-            <div class="analysis-section">
-              <div class="analysis-header">
-                <h3 class="section-heading">AI Analysis</h3>
-                <span class="analysis-timestamp">Generated: {new Date(strategy.latest_analysis.analyzed_at).toLocaleString()}</span>
+            <div class="analysis-sections-container">
+              <div class="analysis-sections-header">
+                <span class="analysis-sections-label">Analysis Sections</span>
+                <span class="analysis-timestamp">Updated {new Date(strategy.latest_analysis.analyzed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
 
               <!-- All other sections collapsed by default -->
               {#if strategy.latest_analysis.final_analysis}
                 {#each Object.entries(strategy.latest_analysis.final_analysis) as [sectionKey, content]}
                   {#if sectionKey !== 'executive_summary' && content && content.trim()}
-                    <details class="analysis-subsection">
-                      <summary class="subsection-heading">{formatSectionTitle(sectionKey)}</summary>
-                      <div class="section-content" on:click={handleTabLinkClick}>
-                        {#each content.split('\\n') as line}
+                    <details class="analysis-card">
+                      <summary class="analysis-card-header">
+                        <span class="analysis-card-title">{formatSectionTitle(sectionKey)}</span>
+                        <span class="analysis-card-chevron">›</span>
+                      </summary>
+                      <div class="analysis-card-content" on:click={handleTabLinkClick}>
+                        {#each content.split('\n') as line}
                           {@html linkifyIds(simpleMarkdown(line))}
                         {/each}
                       </div>
@@ -687,17 +695,6 @@ function handleTabLinkClick(event: MouseEvent) {
                 {/each}
               {/if}
 
-              <!-- Risk & Opportunity Levels -->
-              <div class="analysis-summary">
-                <div class="summary-item">
-                  <span class="summary-label">Risk Level:</span>
-                  <span class="summary-value risk-{strategy.latest_analysis.risk_level}">{strategy.latest_analysis.risk_level?.toUpperCase()}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label">Opportunity Level:</span>
-                  <span class="summary-value opp-{strategy.latest_analysis.opportunity_level}">{strategy.latest_analysis.opportunity_level?.toUpperCase()}</span>
-                </div>
-              </div>
             </div>
           {:else}
             <div class="no-analysis">
@@ -1578,21 +1575,59 @@ function handleTabLinkClick(event: MouseEvent) {
   text-align: left;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   WELCOME BOX - Apple-inspired hero section
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .welcome-theme {
-  max-width: 600px;
+  max-width: 680px;
   margin: 2rem auto 1.5rem auto;
-  padding: 2rem 2.5rem;
+  padding: 2.5rem 3rem;
   text-align: center;
+  background: linear-gradient(135deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #f5f5f7) 100%);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
+
 .welcome-title {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: var(--primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-color, #1d1d1f);
+  letter-spacing: -0.02em;
 }
+
+.welcome-subtitle {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted, #86868b);
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.welcome-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted, #86868b);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e5e5e7);
+  line-height: 1.5;
+}
+
 .welcome-description {
-  font-size: 1.1rem;
-  color: var(--text-primary, var(--text-color, #444)) !important;
+  font-size: 1.05rem;
+  color: var(--text-secondary, #424245);
   transition: color 0.2s;
+}
+
+:global(.dark) .welcome-theme {
+  background: linear-gradient(135deg, var(--card-bg, #1c1c1e) 0%, #252528 100%);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .welcome-title {
+  color: var(--text-color, #f5f5f7);
 }
 
 .markdown-root {
@@ -1743,18 +1778,24 @@ function handleTabLinkClick(event: MouseEvent) {
   list-style: none;
 }
 
-/* Strategy Detail View Styles */
+/* ═══════════════════════════════════════════════════════════════════════════
+   STRATEGY DETAIL VIEW - Apple-inspired clean design
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .strategy-detail-box {
   max-width: 900px;
   margin: 2rem auto;
-  padding: 2rem;
+  padding: 2.5rem;
+  background: var(--card-bg, #ffffff);
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .strategy-header-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .strategy-header {
@@ -1762,14 +1803,15 @@ function handleTabLinkClick(event: MouseEvent) {
   flex-direction: column;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--border-color, #e0e0e0);
+  border-bottom: 1px solid var(--border-color, #e5e5e7);
 }
 
 .strategy-title {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: var(--text-color, black);
-  margin: 0 0 0.5rem 0;
+  color: var(--text-color, #1d1d1f);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
 }
 
 .strategy-meta {
@@ -1779,135 +1821,351 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .meta-item {
-  font-size: 0.9rem;
-  color: var(--text-muted, #666);
+  font-size: 0.875rem;
+  color: var(--text-muted, #86868b);
 }
 
 .meta-item strong {
-  color: var(--text-color, black);
+  color: var(--text-color, #1d1d1f);
   font-weight: 600;
+}
+
+.strategy-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted, #86868b);
+  margin-top: 0.75rem;
+  line-height: 1.5;
 }
 
 .strategy-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.625rem;
 }
 
 .back-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   padding: 0.5rem 1rem;
-  background: var(--surface-color, #f5f5f5);
-  border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 8px;
-  color: var(--text-color, #000);
-  font-size: 0.9rem;
+  background: var(--surface-variant, #f5f5f7);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 100px;
+  color: var(--text-color, #1d1d1f);
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .back-button:hover {
-  background: var(--border-color, #e0e0e0);
+  background: var(--hover-bg, #e8e8ed);
   transform: translateX(-2px);
 }
 
-.btn-edit, .btn-delete {
-  display: flex;
+.btn-edit, .btn-delete, .btn-default {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  border-radius: 100px;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-edit {
-  background: var(--primary, #1976d2);
+  background: var(--primary, #007aff);
   color: white;
 }
 
 .btn-edit:hover {
-  background: #1565c0;
+  background: #0066d6;
+  transform: scale(1.02);
 }
 
 .btn-delete {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--surface-variant, #f5f5f7);
+  color: #ff3b30;
+  border: 1px solid #ffccc9;
 }
 
 .btn-delete:hover {
-  background: #ffcdd2;
+  background: #fff0ef;
+  border-color: #ff3b30;
+}
+
+.btn-default {
+  background: var(--surface-variant, #f5f5f7);
+  color: var(--text-color, #1d1d1f);
+  border: 1px solid var(--border-color, #e5e5e7);
+}
+
+.btn-default:hover {
+  background: var(--hover-bg, #e8e8ed);
 }
 
 .strategy-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .section-heading {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--text-color, black);
-  margin: 0 0 0.75rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #86868b);
+  margin: 0 0 0.625rem 0;
+}
+
+.section-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.8rem;
 }
 
 .section-content {
   font-size: 1rem;
   line-height: 1.7;
-  color: var(--text-color, black);
+  color: var(--text-color, #1d1d1f);
   white-space: pre-wrap;
 }
 
+:global(.dark) .strategy-detail-box {
+  background: var(--card-bg, #1c1c1e);
+}
+
+:global(.dark) .strategy-title {
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .back-button {
+  background: var(--surface-variant, #2c2c2e);
+  border-color: var(--border-color, #38383a);
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .back-button:hover {
+  background: var(--hover-bg, #3a3a3c);
+}
+
+:global(.dark) .btn-delete {
+  background: rgba(255, 59, 48, 0.1);
+  border-color: rgba(255, 59, 48, 0.3);
+}
+
+:global(.dark) .btn-delete:hover {
+  background: rgba(255, 59, 48, 0.2);
+}
+
+/* Executive Summary - Hero card style */
 .executive-summary-section {
-  margin-top: 3rem;
-  padding: 2rem;
-  background: var(--hover-bg, #f8f9fa);
-  border-left: 4px solid var(--primary, #1976d2);
-  border-radius: 8px;
+  margin-top: 2.5rem;
+  padding: 1.75rem 2rem;
+  background: linear-gradient(135deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #f5f5f7) 100%);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.executive-summary-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary, #007aff) 0%, var(--primary-light, #5ac8fa) 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.executive-summary-section .section-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary, #007aff);
+  margin-bottom: 1rem;
 }
 
 .executive-summary-content {
   font-size: 1.05rem;
-  line-height: 1.8;
-  color: var(--text-color, black);
-  font-weight: 500;
+  line-height: 1.85;
+  color: var(--text-color, #1d1d1f);
+  font-weight: 400;
 }
 
 :global(.dark) .executive-summary-section {
-  background: var(--card-bg, #2a2a2a);
+  background: linear-gradient(135deg, var(--card-bg, #1c1c1e) 0%, #252528 100%);
+  border-color: var(--border-color, #38383a);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.analysis-section {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 2px solid var(--border-color, #e0e0e0);
+:global(.dark) .executive-summary-section::before {
+  background: linear-gradient(90deg, #0a84ff 0%, #5e5ce6 100%);
 }
 
-.analysis-header {
+:global(.dark) .executive-summary-content {
+  color: var(--text-color, #f5f5f7);
+}
+
+/* Asset/Topic executive summary */
+.asset-executive-summary {
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e5e7);
+}
+
+.asset-executive-summary h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary, #007aff);
+  margin: 0 0 1rem 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   APPLE-INSPIRED ANALYSIS CARDS
+   Clean, minimal, with subtle depth and smooth animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.analysis-sections-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.analysis-sections-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  padding: 0 0.25rem 1rem 0.25rem;
+  border-bottom: 1px solid var(--border-color, #e5e5e7);
+  margin-bottom: 0.5rem;
+}
+
+.analysis-sections-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #86868b);
 }
 
 .analysis-timestamp {
-  font-size: 0.85rem;
-  color: var(--text-muted, #666);
+  font-size: 0.8rem;
+  color: var(--text-muted, #86868b);
+  font-weight: 500;
 }
 
-.analysis-subsection {
-  margin-bottom: 2rem;
+/* Individual analysis card - Apple style */
+.analysis-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.subsection-heading {
-  font-size: 1.1rem;
+.analysis-card:hover {
+  border-color: var(--border-hover, #d1d1d6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.analysis-card[open] {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  border-color: var(--primary-light, #007aff20);
+}
+
+.analysis-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.analysis-card-header::-webkit-details-marker {
+  display: none;
+}
+
+.analysis-card-header:hover {
+  background: var(--hover-bg, #f5f5f7);
+}
+
+.analysis-card-title {
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color, black);
-  margin: 0 0 0.5rem 0;
+  color: var(--text-color, #1d1d1f);
+  letter-spacing: -0.01em;
+}
+
+.analysis-card-chevron {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--text-muted, #86868b);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1;
+}
+
+.analysis-card[open] .analysis-card-chevron {
+  transform: rotate(90deg);
+}
+
+.analysis-card-content {
+  padding: 0 1.25rem 1.25rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary, #424245);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode adjustments */
+:global(.dark) .analysis-card {
+  background: var(--card-bg, #1c1c1e);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .analysis-card:hover {
+  border-color: var(--border-hover, #48484a);
+}
+
+:global(.dark) .analysis-card[open] {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 6px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-light, #0a84ff40);
+}
+
+:global(.dark) .analysis-card-header:hover {
+  background: var(--hover-bg, #2c2c2e);
+}
+
+:global(.dark) .analysis-card-title {
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .analysis-card-content {
+  color: var(--text-secondary, #a1a1a6);
 }
 
 .evidence-grid {
@@ -2079,97 +2337,127 @@ function handleTabLinkClick(event: MouseEvent) {
   background: #1565c0;
 }
 
-/* Insights Box Styling */
+/* ═══════════════════════════════════════════════════════════════════════════
+   STRATEGY INSIGHTS - Apple-inspired cards
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .insights-box {
   margin: 1.5rem 0;
-  background: var(--card-bg, #fff);
-  border: 1px solid var(--border-color, #e0e0e0);
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 16px;
   padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .insights-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: var(--primary, #1976d2);
+  color: var(--text-color, #1d1d1f);
+  letter-spacing: -0.01em;
 }
 
 .insights-description {
-  color: var(--text-secondary, #666);
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+  color: var(--text-muted, #86868b);
+  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .questions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.875rem;
 }
 
 .question-card {
-  background: var(--surface-variant, #f5f5f5);
-  border: 1px solid var(--border-color, #e0e0e0);
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e7);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1.25rem 1.5rem;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  color: var(--text-primary, #222);
+  gap: 1rem;
+  color: var(--text-color, #1d1d1f);
 }
 
 .question-card:hover {
-  background: var(--hover-bg, #e8e8e8);
+  background: var(--card-bg, #ffffff);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary, #1976d2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-color: var(--primary, #007aff);
+}
+
+.question-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .question-icon {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .question-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
   flex: 1;
+  min-width: 0;
 }
 
 .question-text {
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.5;
-  color: var(--text-primary, #222);
+  color: var(--text-color, #1d1d1f);
+  font-weight: 500;
 }
 
 .strategy-badge {
-  display: inline-block;
-  background: var(--primary-light, #e3f2fd);
-  color: var(--primary, #1976d2);
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary, #007aff) 0%, #5856d6 100%);
+  color: #ffffff;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   align-self: flex-start;
+  text-transform: uppercase;
+}
+
+:global(.dark) .insights-box {
+  background: var(--card-bg, #1c1c1e);
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .insights-title {
+  color: var(--text-color, #f5f5f7);
 }
 
 :global(.dark) .question-card {
-  background: var(--surface-variant, #2a2a2a);
-  border-color: var(--border-color, #444);
+  background: var(--surface-variant, #2c2c2e);
+  border-color: var(--border-color, #38383a);
 }
 
 :global(.dark) .question-card:hover {
-  background: var(--hover-bg, #333);
-  border-color: var(--primary, #64b5f6);
+  background: var(--surface-variant, #3a3a3c);
+  border-color: var(--primary, #0a84ff);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:global(.dark) .question-text {
+  color: var(--text-color, #f5f5f7);
 }
 
 :global(.dark) .strategy-badge {
-  background: rgba(100, 181, 246, 0.2);
-  color: var(--primary, #64b5f6);
+  background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
 }
 
 .welcome-subtitle {
