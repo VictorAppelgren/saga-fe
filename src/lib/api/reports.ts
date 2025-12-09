@@ -3,8 +3,7 @@ import { api } from "$lib/api/client";
 export type Report = {
   topic_id: string;
   topic_name: string;
-  markdown?: string;
-  sections?: Record<string, string>;
+  sections: Record<string, string>;
 };
 
 export async function getReport(topic_id: string): Promise<Report> {

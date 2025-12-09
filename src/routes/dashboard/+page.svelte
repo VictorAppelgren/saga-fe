@@ -557,15 +557,6 @@ function handleTabLinkClick(event: MouseEvent) {
                   {/if}
                 {/each}
               </div>
-            {:else if report.markdown}
-              <!-- Fallback for legacy markdown-only responses -->
-              <div class="topic-content-card">
-                <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
-                  {#each report.markdown.split('\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
             {:else}
               <div class="topic-content-card">
                 <div class="asset-markdown-error">No report content found.</div>
@@ -841,10 +832,12 @@ function handleTabLinkClick(event: MouseEvent) {
   }
 
   .section-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--primary, #1976d2);
-    margin: 1.5rem 0 1rem 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #86868b);
+    margin: 0;
   }
 
   .summary-content {
@@ -973,11 +966,25 @@ function handleTabLinkClick(event: MouseEvent) {
   }
 
   :global(.dark) {
-    --bg-color: black;
-    --text-color: white;
-    --card-bg: #1a1a1a;
-    --border-color: #333;
-    --hover-bg: #2a2a2a;
+    --bg-color: #000000;
+    --text-color: #f5f5f7;
+    --text-muted: #86868b;
+    --card-bg: #1c1c1e;
+    --border-color: #38383a;
+    --hover-bg: #2c2c2e;
+    --primary: #0a84ff;
+    --surface-variant: #2c2c2e;
+  }
+
+  :global(:root) {
+    --bg-color: #ffffff;
+    --text-color: #1d1d1f;
+    --text-muted: #86868b;
+    --card-bg: #ffffff;
+    --border-color: #d2d2d7;
+    --hover-bg: #f5f5f7;
+    --primary: #007aff;
+    --surface-variant: #f5f5f7;
   }
 
   :global(body) {
@@ -988,11 +995,12 @@ function handleTabLinkClick(event: MouseEvent) {
   .sidebar {
     width: 280px;
     height: 100vh;
-    background: var(--card-bg, #f5f5f5);
+    background: var(--surface-variant, #f5f5f7);
     padding: 1.5rem 0 0 1.25rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-right: 1px solid var(--border-color, #d2d2d7);
   }
   
   .scrollable-section {
@@ -1067,24 +1075,49 @@ function handleTabLinkClick(event: MouseEvent) {
   .themes-list button {
     width: 100%;
     text-align: left;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 1rem;
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-color, black);
-    transition: background-color 0.2s;
-    border-radius: 8px 0 0 8px;
+    color: var(--text-color, #1d1d1f);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px 0 0 10px;
   }
 
   .themes-list button:hover {
-    background: var(--hover-bg, #eeeeee);
-    margin-right: 0;
+    background: var(--hover-bg, #e8e8ed);
+    color: var(--text-color, #1d1d1f);
   }
 
-  .themes-list li.active button {
-    background: var(--bg-color, white);
-    margin-right: 0;
-    font-weight: 500;
+  .themes-list li.active button,
+  .themes-list button.active {
+    background: var(--bg-color, #ffffff);
+    font-weight: 600;
+    color: var(--primary, #007aff);
+  }
+
+  .add-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary, #007aff);
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 122, 255, 0.3);
+  }
+
+  .add-button:hover {
+    background: #0066d6;
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.4);
   }
 
   .sidebar-spacer {
@@ -1200,9 +1233,10 @@ function handleTabLinkClick(event: MouseEvent) {
   }
 
   .main-content {
-    padding: 2rem;
-    background: var(--bg-color, white);
+    padding: 1.5rem 2rem;
+    background: var(--bg-color, #ffffff);
     overflow-y: auto;
+    min-height: 100vh;
   }
 
 
