@@ -524,7 +524,7 @@ function handleTabLinkClick(event: MouseEvent) {
         {#if tabs[activeTabIdx].type === 'report'}
           {#await getReport(currentSelection.value) then report}
             <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
-              {#if report.sections}
+              {#if report.sections && Object.keys(report.sections).length > 0}
                 <!-- Always show executive summary expanded if available -->
                 {#if report.sections.executive_summary}
                   <div class="asset-executive-summary">
@@ -2332,10 +2332,10 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .analysis-card-content {
-  padding: 0.5rem 1.75rem 2rem 1.75rem;
-  font-size: 0.9375rem;
-  line-height: 1.75;
-  color: var(--text-secondary, #424245);
+  padding: 1.5rem 2.25rem 2.25rem 2.25rem;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--text-color, #1d1d1f);
   animation: slideDown 0.25s ease-out;
 }
 
@@ -2385,7 +2385,7 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 :global(.dark) .analysis-card-content {
-  color: var(--text-secondary, #a1a1a6);
+  color: var(--text-color, #f5f5f7);
 }
 
 .evidence-grid {
