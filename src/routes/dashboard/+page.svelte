@@ -519,60 +519,69 @@ function handleTabLinkClick(event: MouseEvent) {
           {/each}
         </div>
 
-        <!-- Report content card -->
-        <div class="topic-content-card">
+        <!-- Report content - MATCHES STRATEGY VIEW EXACTLY -->
         {#if tabs[activeTabIdx].type === 'report'}
           {#await getReport(currentSelection.value) then report}
-            <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
-              {#if report.sections && Object.keys(report.sections).length > 0}
-                <!-- Always show executive summary expanded if available -->
-                {#if report.sections.executive_summary}
-                  <div class="asset-executive-summary">
-                    <h2>{formatSectionTitle('executive_summary')}</h2>
+            {#if report.sections && Object.keys(report.sections).length > 0}
+              <!-- Executive Summary (always expanded) - SAME AS STRATEGY -->
+              {#if report.sections.executive_summary}
+                <div class="executive-summary-section">
+                  <h3 class="section-heading">Executive Summary</h3>
+                  <div class="executive-summary-content" on:click={handleTabLinkClick}>
                     {#each report.sections.executive_summary.split('\n') as line}
                       {@html linkifyIds(simpleMarkdown(line))}
                     {/each}
                   </div>
-                {/if}
+                </div>
+              {/if}
 
-                <!-- Other sections collapsed by default -->
-                <div class="analysis-sections-container">
-                  <div class="analysis-sections-header">
-                    <span class="analysis-sections-label">Analysis Sections</span>
-                  </div>
-                  {#each Object.entries(report.sections) as [sectionName, content]}
-                    {#if sectionName !== 'executive_summary' && content && content.trim()}
-                      <details class="analysis-card">
-                        <summary class="analysis-card-header">
-                          <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
-                          <span class="analysis-card-chevron">›</span>
-                        </summary>
-                        <div class="analysis-card-content">
-                          {#each content.split('\n') as line}
-                            {@html linkifyIds(simpleMarkdown(line))}
-                          {/each}
-                        </div>
-                      </details>
-                    {/if}
+              <!-- Analysis Sections Container - SAME AS STRATEGY -->
+              <div class="analysis-sections-container">
+                <div class="analysis-sections-header">
+                  <span class="analysis-sections-label">Analysis Sections</span>
+                </div>
+                {#each Object.entries(report.sections) as [sectionName, content]}
+                  {#if sectionName !== 'executive_summary' && content && content.trim()}
+                    <details class="analysis-card">
+                      <summary class="analysis-card-header">
+                        <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
+                        <span class="analysis-card-chevron">›</span>
+                      </summary>
+                      <div class="analysis-card-content" on:click={handleTabLinkClick}>
+                        {#each content.split('\n') as line}
+                          {@html linkifyIds(simpleMarkdown(line))}
+                        {/each}
+                      </div>
+                    </details>
+                  {/if}
+                {/each}
+              </div>
+            {:else if report.markdown}
+              <!-- Fallback for legacy markdown-only responses -->
+              <div class="topic-content-card">
+                <div class="asset-markdown-content markdown-root" on:click={handleTabLinkClick}>
+                  {#each report.markdown.split('\n') as line}
+                    {@html linkifyIds(simpleMarkdown(line))}
                   {/each}
                 </div>
-              {:else if report.markdown}
-                {#each report.markdown.split('\n') as line}
-                  {@html linkifyIds(simpleMarkdown(line))}
-                {/each}
-              {:else}
+              </div>
+            {:else}
+              <div class="topic-content-card">
                 <div class="asset-markdown-error">No report content found.</div>
-              {/if}
-            </div>
+              </div>
+            {/if}
           {:catch error}
-            <div class="asset-markdown-error">No report found for this topic.</div>
+            <div class="topic-content-card">
+              <div class="asset-markdown-error">No report found for this topic.</div>
+            </div>
           {/await}
         {:else}
-          <div class="tab-content" on:click={handleTabLinkClick}>
-            {@html tabs[activeTabIdx].content}
+          <div class="topic-content-card">
+            <div class="tab-content" on:click={handleTabLinkClick}>
+              {@html tabs[activeTabIdx].content}
+            </div>
           </div>
         {/if}
-        </div>
       </section>
     {:else if currentSelection.type === 'strategy'}
       {#key strategyRefreshKey}
