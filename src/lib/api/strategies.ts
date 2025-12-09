@@ -9,6 +9,15 @@ export interface Strategy {
   is_default: boolean;
 }
 
+// Latest analysis structure saved by backend (simplified for FE)
+export interface StrategyLatestAnalysis {
+  analyzed_at: string | null;
+  risk_level?: string;
+  opportunity_level?: string;
+  // final_analysis is a bag of named sections (executive_summary, position_analysis, etc.)
+  final_analysis?: Record<string, string>;
+}
+
 export interface StrategyDetail {
   id: string;
   created_at: string;
@@ -24,7 +33,8 @@ export interface StrategyDetail {
     position_text: string;
     target: string;
   };
-  analysis: {
+  // Deprecated older analysis shape (kept for backward compatibility)
+  analysis?: {
     generated_at: string | null;
     executive_summary: string;
     fundamental: string;
@@ -34,6 +44,8 @@ export interface StrategyDetail {
     supporting_evidence: string[];
     contradicting_evidence: string[];
   };
+  // New analysis container used by the current pipeline
+  latest_analysis?: StrategyLatestAnalysis;
 }
 
 export interface CreateStrategyRequest {

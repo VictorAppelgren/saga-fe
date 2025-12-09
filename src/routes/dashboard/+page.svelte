@@ -336,6 +336,24 @@ function handleTabLinkClick(event: MouseEvent) {
   }
 
   $: themeForDisplay = null;
+
+  // Helper to turn snake_case section keys into nice titles
+  function formatSectionTitle(key: string): string {
+    const map: Record<string, string> = {
+      executive_summary: 'Executive Summary',
+      position_analysis: 'Position Analysis',
+      risk_analysis: 'Risk Analysis',
+      opportunity_analysis: 'Opportunity Analysis',
+      recommendation: 'Recommendation',
+      scenarios_and_catalysts: 'Scenarios & Catalysts',
+      structuring_and_risk_management: 'Structuring & Risk Management',
+      context_and_alignment: 'Context & Alignment'
+    };
+    if (map[key]) return map[key];
+    return key
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  }
 </script>
 
 
@@ -472,6 +490,7 @@ function handleTabLinkClick(event: MouseEvent) {
           <h2 class="asset-dashboard-title" style="margin: 0;">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
         </div>
         <div class="info-row"><span class="info-label">Type:</span> <span class="info-value">Research Topic</span></div>
+        <p class="asset-hint">Click this topic or any strategy on the left to explore details and talk to Saga about it in the chat.</p>
       </section>
       <!-- Tab bar and tab content area remain below for asset view -->
       <div class="tab-bar" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -503,10 +522,27 @@ function handleTabLinkClick(event: MouseEvent) {
                   {@html linkifyIds(simpleMarkdown(line))}
                 {/each}
               {:else if report.sections}
+                <!-- Always show executive summary expanded if available -->
+                {#if report.sections.executive_summary}
+                  <div class="asset-executive-summary">
+                    <h2>{formatSectionTitle('executive_summary')}</h2>
+                    {#each report.sections.executive_summary.split('\n') as line}
+                      {@html linkifyIds(simpleMarkdown(line))}
+                    {/each}
+                  </div>
+                {/if}
+
+                <!-- Other sections collapsed by default -->
                 {#each Object.entries(report.sections) as [sectionName, content]}
-                  {#if content && content.trim()}
-                    <h2>{sectionName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h2>
-                    {@html linkifyIds(simpleMarkdown(content))}
+                  {#if sectionName !== 'executive_summary' && content && content.trim()}
+                    <details class="asset-section">
+                      <summary>{formatSectionTitle(sectionName)}</summary>
+                      <div class="asset-section-content">
+                        {#each content.split('\n') as line}
+                          {@html linkifyIds(simpleMarkdown(line))}
+                        {/each}
+                      </div>
+                    </details>
                   {/if}
                 {/each}
               {:else}
@@ -576,7 +612,8 @@ function handleTabLinkClick(event: MouseEvent) {
             <h2 class="strategy-title">
               {strategy.asset.primary}
               {#if strategy.is_default}
-                <span class="default-badge-large" title="Example Strategy (Read-Only)">📌</span>
+                <span class="default-badge-large" title="Example Strategy (Read-Only)">
+📌</span>
               {/if}
             </h2>
             <div class="strategy-meta">
@@ -584,11 +621,19 @@ function handleTabLinkClick(event: MouseEvent) {
               <span class="meta-item">Version: {strategy.version}</span>
               <span class="meta-item">Updated: {new Date(strategy.updated_at).toLocaleDateString()}</span>
             </div>
+            <p class="strategy-hint">Keep this thesis high-level; use Edit to adjust it, then chat on the right about this strategy or its topics.</p>
           </div>
           
           <!-- User Input Section -->
           <div class="strategy-section">
-            <h3 class="section-heading">Strategy Thesis</h3>
+            <h3 class="section-heading">
+              Strategy Thesis
+              {#if strategy.is_default}
+                <span class="section-hint"> (example text, read-only)</span>
+              {:else}
+                <span class="section-hint"> (your text – change it with Edit)</span>
+              {/if}
+            </h3>
             <p class="section-content">{strategy.user_input.strategy_text}</p>
           </div>
           
@@ -608,72 +653,40 @@ function handleTabLinkClick(event: MouseEvent) {
           
           <!-- Analysis Section (if exists) -->
           {#if strategy.latest_analysis?.analyzed_at}
-            <!-- Executive Summary -->
+            <!-- Executive Summary (always expanded) -->
             {#if strategy.latest_analysis.final_analysis?.executive_summary}
               <div class="executive-summary-section">
                 <h3 class="section-heading">Executive Summary</h3>
                 <div class="executive-summary-content" on:click={handleTabLinkClick}>
-                  {#each strategy.latest_analysis.final_analysis.executive_summary.split('\n') as line}
+                  {#each strategy.latest_analysis.final_analysis.executive_summary.split('\\n') as line}
                     {@html linkifyIds(simpleMarkdown(line))}
                   {/each}
                 </div>
               </div>
             {/if}
-            
+
             <div class="analysis-section">
               <div class="analysis-header">
                 <h3 class="section-heading">AI Analysis</h3>
                 <span class="analysis-timestamp">Generated: {new Date(strategy.latest_analysis.analyzed_at).toLocaleString()}</span>
               </div>
-              
-              <!-- Position Analysis -->
-              {#if strategy.latest_analysis.final_analysis?.position_analysis}
-                <div class="analysis-subsection">
-                  <h4 class="subsection-heading">Position Analysis</h4>
-                  <div class="section-content" on:click={handleTabLinkClick}>
-                    {#each strategy.latest_analysis.final_analysis.position_analysis.split('\n') as line}
-                      {@html linkifyIds(simpleMarkdown(line))}
-                    {/each}
-                  </div>
-                </div>
+
+              <!-- All other sections collapsed by default -->
+              {#if strategy.latest_analysis.final_analysis}
+                {#each Object.entries(strategy.latest_analysis.final_analysis) as [sectionKey, content]}
+                  {#if sectionKey !== 'executive_summary' && content && content.trim()}
+                    <details class="analysis-subsection">
+                      <summary class="subsection-heading">{formatSectionTitle(sectionKey)}</summary>
+                      <div class="section-content" on:click={handleTabLinkClick}>
+                        {#each content.split('\\n') as line}
+                          {@html linkifyIds(simpleMarkdown(line))}
+                        {/each}
+                      </div>
+                    </details>
+                  {/if}
+                {/each}
               {/if}
-              
-              <!-- Risk Analysis -->
-              {#if strategy.latest_analysis.final_analysis?.risk_analysis}
-                <div class="analysis-subsection">
-                  <h4 class="subsection-heading">Risk Analysis</h4>
-                  <div class="section-content" on:click={handleTabLinkClick}>
-                    {#each strategy.latest_analysis.final_analysis.risk_analysis.split('\n') as line}
-                      {@html linkifyIds(simpleMarkdown(line))}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-              
-              <!-- Opportunity Analysis -->
-              {#if strategy.latest_analysis.final_analysis?.opportunity_analysis}
-                <div class="analysis-subsection">
-                  <h4 class="subsection-heading">Opportunity Analysis</h4>
-                  <div class="section-content" on:click={handleTabLinkClick}>
-                    {#each strategy.latest_analysis.final_analysis.opportunity_analysis.split('\n') as line}
-                      {@html linkifyIds(simpleMarkdown(line))}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-              
-              <!-- Recommendation -->
-              {#if strategy.latest_analysis.final_analysis?.recommendation}
-                <div class="analysis-subsection">
-                  <h4 class="subsection-heading">Recommendation</h4>
-                  <div class="section-content" on:click={handleTabLinkClick}>
-                    {#each strategy.latest_analysis.final_analysis.recommendation.split('\n') as line}
-                      {@html linkifyIds(simpleMarkdown(line))}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-              
+
               <!-- Risk & Opportunity Levels -->
               <div class="analysis-summary">
                 <div class="summary-item">
@@ -716,6 +729,7 @@ function handleTabLinkClick(event: MouseEvent) {
         <section class="card welcome-box welcome-theme">
           <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
           <p class="welcome-subtitle">Your AI-powered strategy command center. Monitor market risks in real-time, identify emerging opportunities, and make informed decisions based on comprehensive analysis of your trading strategies.</p>
+          <p class="welcome-hint">On the left you'll see your topics and strategies (including examples). Add your own at a macro level, then click a topic or strategy to open chat with Saga or use one of the questions below.</p>
         </section>
 
         {#if !loadingQuestions && dashboardQuestions.length > 0}
