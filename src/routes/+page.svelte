@@ -103,10 +103,10 @@
 		<!-- Connected World Network - Subtle Background -->
 		<div class="absolute inset-0 flex items-center justify-center overflow-hidden">
 			<img 
-				src="/images/connected_world.png" 
-				alt="" 
-				class="w-full max-w-5xl opacity-[0.08] object-contain pointer-events-none select-none"
-				style="filter: grayscale(30%);"
+				src="/connected_world.png" 
+				alt="Global network of connected markets" 
+				class="w-full max-w-5xl opacity-[0.14] object-contain pointer-events-none select-none"
+				style="filter: grayscale(25%);"
 			/>
 		</div>
 
@@ -157,16 +157,14 @@
 				</a>
 			</div>
 
-			<!-- Hero Image - Integrated -->
+			<!-- Hero Image - Integrated (Connected World) -->
 			<div class="mt-8 relative max-w-4xl mx-auto">
-				<div class="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-200" style="height: 300px;">
+				<div class="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-100 bg-white" style="height: 240px;">
 					<img 
-						src="/images/pexels-tara-winstead-8386440.jpg" 
-						alt="Global intelligence network" 
-						class="w-full h-full object-cover object-center"
+						src="/connected_world.png" 
+						alt="Global network of connected markets" 
+						class="w-full h-full object-contain"
 					/>
-					<!-- Subtle overlay for better text contrast if needed -->
-					<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 				</div>
 			</div>
 		</div>
@@ -176,7 +174,7 @@
 	{#if activeTab === 'home'}
 	<!-- The Problem We Solve -->
 	<section class="max-w-6xl mx-auto px-6 py-20">
-		<div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm">
+		<div class="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-3xl p-12 border border-gray-100 shadow-sm">
 			<h2 class="text-4xl md:text-5xl font-bold mb-10 text-center">
 				The Scale Problem No Human Can Solve
 			</h2>
@@ -197,7 +195,7 @@
 				</p>
 			</div>
 
-			<div class="bg-white rounded-xl p-10 mb-12 border border-gray-200">
+			<div class="bg-white/80 rounded-xl p-10 mb-12 border border-gray-200">
 				<p class="text-2xl font-bold text-center mb-8">
 					The Risks You Can't See Are the Ones That Hurt You
 				</p>
@@ -240,10 +238,10 @@
 	<div class="relative h-32 overflow-hidden">
 		<div class="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
 		<img 
-			src="/images/connected_world.png" 
-			alt="" 
-			class="w-full h-full object-cover opacity-[0.06] pointer-events-none select-none"
-			style="object-position: center 40%;"
+			src="/connected_world.png" 
+			alt="Global network of connected markets"
+			class="w-full h-full object-contain opacity-[0.10] pointer-events-none select-none"
+			style="object-position: center 40%; filter: grayscale(25%);"
 		/>
 	</div>
 
@@ -307,7 +305,7 @@
 			AI Scales Human Intuition. It Doesn't Replace It.
 		</h2>
 
-		<div class="bg-gray-50 rounded-2xl p-10 border border-gray-100">
+		<div class="bg-gradient-to-br from-gray-50 to-blue-50/60 rounded-2xl p-10 border border-gray-100">
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
 				<p>
 					The best decisions still require human judgment — pattern recognition born from experience, intuition honed over decades, the ability to weigh what can't be quantified.
@@ -317,7 +315,7 @@
 					Saga makes it bigger.
 				</p>
 				
-				<div class="bg-gray-50 rounded-2xl p-8 my-8 border border-gray-100">
+				<div class="bg-white/85 rounded-2xl p-8 my-8 border border-gray-100">
 					<div class="space-y-4">
 						<p class="font-semibold text-gray-900">You can't read 10,000 sources daily. <span class="text-gray-500 font-medium">Our agents can.</span></p>
 						<p class="font-semibold text-gray-900">You can't map 50 million entity relationships. <span class="text-gray-500 font-medium">Our graph does.</span></p>
@@ -487,7 +485,7 @@
 			How Thousands of AI Agents Scale Your Understanding
 		</p>
 
-		<div class="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm mb-12">
+		<div class="bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 rounded-3xl p-12 border border-gray-100 shadow-sm mb-12">
 			<div class="text-xl leading-relaxed space-y-4 mb-12 max-w-4xl mx-auto text-center">
 				<p class="font-semibold">Traditional AI: One model trying to do everything.</p>
 				<p class="font-bold text-2xl">Saga: A coordinated network of specialized agents, each doing what it does best.</p>
