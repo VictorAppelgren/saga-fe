@@ -287,12 +287,17 @@
     <h2>🏷️ Topic Activity</h2>
     <div class="stats-grid">
       <AdminCard 
-        title="Created" 
-        value={summary?.topics?.created || 0} 
-        subtitle="new topics" 
+        title="Suggested" 
+        value={summary?.topics?.suggested || 0} 
+        subtitle="LLM proposed" 
       />
       <AdminCard 
-        title="Rejected" 
+        title="Created" 
+        value={summary?.topics?.created || 0} 
+        subtitle="added to graph" 
+      />
+      <AdminCard 
+        title="Rejected (Total)" 
         value={summary?.topics?.rejected || 0} 
         subtitle="failed gates" 
       />
@@ -302,6 +307,28 @@
         subtitle="removed" 
       />
     </div>
+    
+    <!-- Topic Rejection Breakdown -->
+    {#if (summary?.topics?.rejected || 0) > 0}
+    <h3>📋 Rejection Breakdown</h3>
+    <div class="stats-grid">
+      <AdminCard 
+        title="No Proposal" 
+        value={summary?.topics?.rejected_no_proposal || 0} 
+        subtitle="LLM returned null" 
+      />
+      <AdminCard 
+        title="Relevance" 
+        value={summary?.topics?.rejected_relevance || 0} 
+        subtitle="not trading-relevant" 
+      />
+      <AdminCard 
+        title="Capacity Guard" 
+        value={summary?.topics?.rejected_capacity || 0} 
+        subtitle="quality/granularity" 
+      />
+    </div>
+    {/if}
     
     <!-- Graph State Cards -->
     <h2>🕸️ Graph State</h2>
