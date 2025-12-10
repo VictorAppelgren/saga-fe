@@ -100,11 +100,15 @@
 			class="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"
 		></div>
 
-		<!-- Animated Grid Pattern -->
-		<div
-			class="absolute inset-0 opacity-[0.03]"
-			style="background-image: radial-gradient(circle at 1px 1px, black 1px, transparent 0); background-size: 40px 40px;"
-		></div>
+		<!-- Connected World Network - Subtle Background -->
+		<div class="absolute inset-0 flex items-center justify-center overflow-hidden">
+			<img 
+				src="/images/connected_world.png" 
+				alt="" 
+				class="w-full max-w-5xl opacity-[0.08] object-contain pointer-events-none select-none"
+				style="filter: grayscale(30%);"
+			/>
+		</div>
 
 		<div class="relative max-w-6xl mx-auto px-6 py-12 text-center">
 			<!-- Icon Badge -->
@@ -231,6 +235,17 @@
 			</p>
 		</div>
 	</section>
+
+	<!-- Visual Divider - Connected World -->
+	<div class="relative h-32 overflow-hidden">
+		<div class="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
+		<img 
+			src="/images/connected_world.png" 
+			alt="" 
+			class="w-full h-full object-cover opacity-[0.06] pointer-events-none select-none"
+			style="object-position: center 40%;"
+		/>
+	</div>
 
 	<!-- Two Ways We Strengthen You -->
 	<section id="platform" class="max-w-6xl mx-auto px-6 py-24">
