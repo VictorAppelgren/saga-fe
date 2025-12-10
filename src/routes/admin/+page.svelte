@@ -182,11 +182,6 @@
         subtitle="entered pipeline" 
       />
       <AdminCard 
-        title="Added" 
-        value={summary?.pipeline?.added} 
-        subtitle="to graph" 
-      />
-      <AdminCard 
         title="Rejected" 
         value={summary?.pipeline?.rejected} 
         subtitle="filtered out" 
@@ -198,7 +193,32 @@
       />
     </div>
     
-    <!-- Agent Analysis - MOVED UP FOR VISIBILITY -->
+    <!-- Tier Breakdown - Shows quality of articles added -->
+    <h2>📈 Articles Added by Tier</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Tier 3 Added" 
+        value={summary?.tier_breakdown?.tier_3 || 0} 
+        subtitle="premium (triggers analysis)" 
+      />
+      <AdminCard 
+        title="Tier 2 Added" 
+        value={summary?.tier_breakdown?.tier_2 || 0} 
+        subtitle="standard (triggers analysis)" 
+      />
+      <AdminCard 
+        title="Tier 1 Added" 
+        value={summary?.tier_breakdown?.tier_1 || 0} 
+        subtitle="filler" 
+      />
+      <AdminCard 
+        title="Tier 0 Added" 
+        value={summary?.tier_breakdown?.tier_0 || 0} 
+        subtitle="archive" 
+      />
+    </div>
+    
+    <!-- Agent Analysis -->
     <h2>🤖 Agent Analysis</h2>
     <div class="stats-grid">
       <AdminCard 
@@ -210,6 +230,11 @@
         title="Completed" 
         value={summary?.analysis?.completed || 0} 
         subtitle="analysis finished" 
+      />
+      <AdminCard 
+        title="Skipped" 
+        value={summary?.analysis?.skipped || 0} 
+        subtitle="tier 0/1 (no rewrite)" 
       />
       <AdminCard 
         title="Sections Written" 
@@ -230,31 +255,6 @@
         title="Completed" 
         value={summary?.strategy_analysis?.completed || 0} 
         subtitle="analyses done" 
-      />
-    </div>
-    
-    <!-- Graph State Cards -->
-    <h2>🕸️ Graph State</h2>
-    <div class="stats-grid">
-      <AdminCard 
-        title="Topics" 
-        value={summary?.graph_state?.topics} 
-        subtitle="total" 
-      />
-      <AdminCard 
-        title="Articles" 
-        value={summary?.graph_state?.articles} 
-        subtitle="in graph" 
-      />
-      <AdminCard 
-        title="Connections" 
-        value={summary?.graph_state?.connections} 
-        subtitle="total" 
-      />
-      <AdminCard 
-        title="Avg Articles/Topic" 
-        value={summary?.graph_state?.avg_articles_per_topic?.toFixed(1)} 
-        subtitle="capacity monitoring" 
       />
     </div>
     
@@ -300,6 +300,31 @@
         title="Deleted" 
         value={summary?.topics?.deleted || 0} 
         subtitle="removed" 
+      />
+    </div>
+    
+    <!-- Graph State Cards -->
+    <h2>🕸️ Graph State</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Topics" 
+        value={summary?.graph_state?.topics} 
+        subtitle="total" 
+      />
+      <AdminCard 
+        title="Articles" 
+        value={summary?.graph_state?.articles} 
+        subtitle="in graph" 
+      />
+      <AdminCard 
+        title="Connections" 
+        value={summary?.graph_state?.connections} 
+        subtitle="total" 
+      />
+      <AdminCard 
+        title="Avg Articles/Topic" 
+        value={summary?.graph_state?.avg_articles_per_topic?.toFixed(1)} 
+        subtitle="capacity monitoring" 
       />
     </div>
     
