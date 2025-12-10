@@ -105,8 +105,8 @@
 			<img 
 				src="/connected_world.png" 
 				alt="Global network of connected markets" 
-				class="w-full max-w-7xl opacity-[0.38] object-contain pointer-events-none select-none translate-y-8"
-				style="filter: grayscale(20%) saturate(0.85);"
+				class="w-full max-w-7xl opacity-[0.48] object-contain pointer-events-none select-none translate-y-6"
+				style="filter: grayscale(15%) saturate(0.9);"
 			/>
 		</div>
 
@@ -280,12 +280,16 @@
 	</section>
 
 	<!-- Human + AI -->
-	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200">
-		<h2 class="text-4xl font-bold mb-6 text-center">
+	<section class="relative max-w-6xl mx-auto px-6 py-24 border-t border-gray-200 overflow-hidden">
+		<!-- Subtle side accent -->
+		<div class="absolute -right-32 top-1/2 -translate-y-1/2 w-96 h-96 pointer-events-none select-none opacity-[0.06]">
+			<img src="/connected_world.png" alt="" class="w-full h-full object-contain" style="filter: grayscale(30%);" />
+		</div>
+		<h2 class="relative text-4xl font-bold mb-6 text-center">
 			AI Scales Human Intuition. It Doesn't Replace It.
 		</h2>
 
-		<div class="bg-gradient-to-br from-gray-50 to-blue-50/60 rounded-2xl p-10 border border-gray-100">
+		<div class="relative bg-gradient-to-br from-gray-50 to-blue-50/60 rounded-2xl p-10 border border-gray-100">
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
 				<p>
 					The best decisions still require human judgment — pattern recognition born from experience, intuition honed over decades, the ability to weigh what can't be quantified.
@@ -840,8 +844,12 @@
 		</div>
 
 		<!-- The IP -->
-		<div class="mb-24 bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-12 border border-gray-200">
-			<h3 class="text-4xl font-bold mb-6 text-center">The IP: Why We Win</h3>
+		<div class="relative mb-24 bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-12 border border-gray-200 overflow-hidden">
+			<!-- Subtle corner accent -->
+			<div class="absolute -left-20 -bottom-20 w-80 h-80 pointer-events-none select-none opacity-[0.08]">
+				<img src="/connected_world.png" alt="" class="w-full h-full object-contain" style="filter: grayscale(25%);" />
+			</div>
+			<h3 class="relative text-4xl font-bold mb-6 text-center">The IP: Why We Win</h3>
 			
 			<div class="text-xl leading-relaxed space-y-6 mb-10 max-w-4xl mx-auto">
 				<p class="text-2xl font-bold text-center">
@@ -1568,11 +1576,15 @@
 	{/if}
 
 	<!-- Footer -->
-	<footer class="border-t border-gray-200 py-12 text-center">
-		<p class="text-lg font-semibold mb-2">Saga Labs AB</p>
-		<p class="text-lg mb-2">
+	<footer class="relative border-t border-gray-200 py-16 text-center overflow-hidden">
+		<!-- Subtle footer background -->
+		<div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+			<img src="/connected_world.png" alt="" class="w-full max-w-4xl opacity-[0.05] object-contain" style="filter: grayscale(30%);" />
+		</div>
+		<p class="relative text-lg font-semibold mb-2">Saga Labs AB</p>
+		<p class="relative text-lg mb-2">
 			<a href="mailto:info@saga-labs.com" class="underline">info@saga-labs.com</a>
 		</p>
-		<p class="text-lg italic">The unfair advantage in portfolio intelligence.</p>
+		<p class="relative text-lg italic">The unfair advantage in portfolio intelligence.</p>
 	</footer>
 </div>
