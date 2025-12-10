@@ -105,7 +105,7 @@
 			<img 
 				src="/connected_world.png" 
 				alt="Global network of connected markets" 
-				class="w-full max-w-5xl opacity-[0.14] object-contain pointer-events-none select-none"
+				class="w-full max-w-6xl opacity-[0.30] object-contain pointer-events-none select-none"
 				style="filter: grayscale(25%);"
 			/>
 		</div>
@@ -157,14 +157,26 @@
 				</a>
 			</div>
 
-			<!-- Hero Image - Integrated (Connected World) -->
-			<div class="mt-8 relative max-w-4xl mx-auto">
-				<div class="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-100 bg-white" style="height: 240px;">
+			<!-- Hero Map Card - Designed Integration -->
+			<div class="mt-10 relative max-w-4xl mx-auto">
+				<div class="relative overflow-hidden rounded-3xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-[0_22px_45px_rgba(15,23,42,0.10)]" style="height: 220px;">
 					<img 
 						src="/connected_world.png" 
 						alt="Global network of connected markets" 
-						class="w-full h-full object-contain"
+						class="w-full h-full object-cover opacity-[0.70]"
+						style="filter: grayscale(32%);"
 					/>
+					<div class="absolute inset-0 bg-gradient-to-r from-white/80 via-transparent to-white/80"></div>
+					<div class="absolute inset-x-8 bottom-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs md:text-sm">
+						<div class="font-semibold tracking-tight text-gray-900">
+							Global intelligence graph across markets
+						</div>
+						<div class="flex flex-wrap gap-x-4 gap-y-1 text-gray-600">
+							<span>50M+ entities</span>
+							<span>10k+ sources</span>
+							<span>24/7 agents</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
