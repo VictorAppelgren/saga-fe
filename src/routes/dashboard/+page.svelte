@@ -31,6 +31,41 @@
   // --- STRATEGY REFRESH KEY ---
   let strategyRefreshKey = 0;
 
+  interface FeedbackContext {
+    section: string;
+    sectionTitle: string;
+    strategyId: string;
+    currentContent: string;
+  }
+
+  let feedbackContext: FeedbackContext | null = null;
+
+  function suggestChanges(sectionName: string, sectionTitle: string, content: string) {
+    if (currentSelection.type !== 'strategy') return;
+
+    feedbackContext = {
+      section: sectionName,
+      sectionTitle,
+      strategyId: currentSelection.value,
+      currentContent: content
+    };
+
+    if (typeof document !== 'undefined') {
+      const chatSection = document.querySelector('.chat-container');
+      chatSection?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function clearFeedbackContext() {
+    feedbackContext = null;
+  }
+
+  function handleSectionRewritten(section: string, _newContent: string) {
+    console.info(`Section rewritten: ${section}`);
+    feedbackContext = null;
+    strategyRefreshKey += 1;
+  }
+
   // --- TOGGLE DEFAULT STATUS ---
   async function toggleDefaultStatus(strategyId: string, currentStatus: boolean) {
     try {
@@ -297,14 +332,9 @@ function handleTabLinkClick(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
         
-        // Strategy view: Open modal overlay
-        if (currentSelection.type === 'strategy') {
-          selectedArticleId = articleId;
-          showArticleModal = true;
-        } else {
-          // Asset view: Open tab (existing behavior)
-          openTab('article', articleId, `Article ${articleId}`);
-        }
+        // Always use modal overlay (unified behavior for both strategy and topic views)
+        selectedArticleId = articleId;
+        showArticleModal = true;
         return;
       }
     }
@@ -695,7 +725,17 @@ function handleTabLinkClick(event: MouseEvent) {
                     <details class="analysis-card">
                       <summary class="analysis-card-header">
                         <span class="analysis-card-title">{formatSectionTitle(sectionKey)}</span>
-                        <span class="analysis-card-chevron">›</span>
+                        <span class="analysis-card-actions">
+                          <button 
+                            type="button"
+                            class="suggest-changes-btn"
+                            on:click|stopPropagation={() => suggestChanges(sectionKey, formatSectionTitle(sectionKey), content)}
+                            title="Suggest changes to this section"
+                          >
+                            ✏️
+                          </button>
+                          <span class="analysis-card-chevron">›</span>
+                        </span>
                       </summary>
                       <div class="analysis-card-content" on:click={handleTabLinkClick}>
                         {#each content.split('\n') as line}
@@ -773,6 +813,9 @@ function handleTabLinkClick(event: MouseEvent) {
         strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
         username={data?.user?.username || null}
         triggerMessage={chatTriggerMessage}
+        {feedbackContext}
+        onClearFeedback={clearFeedbackContext}
+        onSectionRewritten={handleSectionRewritten}
       />
     {/key}
   {:else}
@@ -2360,6 +2403,27 @@ function handleTabLinkClick(event: MouseEvent) {
   font-weight: 600;
   color: var(--text-color, #1d1d1f);
   letter-spacing: -0.01em;
+}
+
+.analysis-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.suggest-changes-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.4;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+  line-height: 1;
+}
+
+.suggest-changes-btn:hover {
+  opacity: 1;
 }
 
 .analysis-card-chevron {

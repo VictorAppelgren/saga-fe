@@ -330,6 +330,16 @@
     </div>
     {/if}
     
+    <!-- Storage Stats -->
+    <h2>💾 Article Storage</h2>
+    <div class="stats-grid">
+      <AdminCard 
+        title="Total Articles" 
+        value={summary?.storage?.total_raw_articles?.toLocaleString() || 0} 
+        subtitle="in storage" 
+      />
+    </div>
+    
     <!-- Graph State Cards -->
     <h2>🕸️ Graph State</h2>
     <div class="stats-grid">

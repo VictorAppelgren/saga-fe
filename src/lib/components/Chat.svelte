@@ -7,6 +7,9 @@
   export let triggerMessage: string | null = null; // Message to auto-send from dashboard
   import { onMount } from 'svelte';
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+  const API_KEY = import.meta.env.VITE_API_KEY || '';
+
   interface Message {
     id: string;
     text: string;
@@ -19,6 +22,15 @@
   let chatContainer: HTMLElement;
   let currentChatKey: string | null = null;
   let isInitialized = false;
+
+  export let feedbackContext: {
+    section: string;
+    sectionTitle: string;
+    strategyId: string;
+    currentContent: string;
+  } | null = null;
+  export let onClearFeedback: () => void = () => {};
+  export let onSectionRewritten: (section: string, content: string) => void = () => {};
 
   // Generate unique ID (fallback for browsers without crypto.randomUUID)
   function generateId(): string {
@@ -62,8 +74,11 @@
     const userInput = inputText;
     inputText = '';
     
-    // Use the shared sendMessage function
-    await sendMessage(userInput);
+    if (feedbackContext) {
+      await handleRewrite(userInput);
+    } else {
+      await sendMessage(userInput);
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -220,8 +235,6 @@
         }
       }
       
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-      const API_KEY = import.meta.env.VITE_API_KEY || '';
       console.log('🌐 Sending to:', API_BASE + '/chat', 'with body:', body);
       
       const resp = await fetch(API_BASE + '/chat', {
@@ -266,6 +279,63 @@
       console.log('✅ sendMessage complete, loading:', loading);
     }
   }
+
+  async function handleRewrite(feedback: string) {
+    if (!feedbackContext) return;
+
+    loading = true;
+    errorMsg = '';
+
+    try {
+      const response = await fetch(`${API_BASE}/strategy/rewrite-section`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY
+        },
+        body: JSON.stringify({
+          strategy_id: feedbackContext.strategyId,
+          section: feedbackContext.section,
+          feedback,
+          current_content: feedbackContext.currentContent,
+          username: username
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Rewrite request failed');
+      }
+
+      const data = await response.json();
+      const newContent = data?.new_content ?? '';
+
+      onSectionRewritten(feedbackContext.section, newContent);
+
+      const confirmation: Message = {
+        id: generateId(),
+        text: `✅ Rewrote ${feedbackContext.sectionTitle} based on your guidance.`,
+        isUser: false,
+        timestamp: new Date()
+      };
+      messages = [...messages, confirmation];
+      saveChat();
+      scrollToBottom();
+    } catch (err: any) {
+      const errorText = err?.message || 'Failed to rewrite section.';
+      const failure: Message = {
+        id: generateId(),
+        text: `❌ ${errorText}`,
+        isUser: false,
+        timestamp: new Date()
+      };
+      messages = [...messages, failure];
+      saveChat();
+      scrollToBottom();
+    } finally {
+      loading = false;
+      onClearFeedback();
+    }
+  }
 </script>
 
 <div class="chat-container">
@@ -299,6 +369,12 @@
   </div>
 
   <div class="input-container">
+    {#if feedbackContext}
+      <div class="feedback-chip">
+        <span>✏️ Rewrite: <strong>{feedbackContext.sectionTitle}</strong></span>
+        <button class="chip-close" on:click={onClearFeedback} aria-label="Cancel rewrite">×</button>
+      </div>
+    {/if}
     <textarea
       bind:value={inputText}
       on:keydown={handleKeydown}
@@ -477,17 +553,15 @@
   }
 
   .input-container {
-    padding: 1rem 1.25rem 1.25rem;
-    border-top: 1px solid var(--border-color, #e5e5e7);
     display: flex;
     gap: 0.75rem;
-    align-items: flex-end;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-color, #e5e5e7);
     background: var(--card-bg, #ffffff);
+    flex-direction: column;
   }
 
-  :global(.dark) .input-container {
-    background: var(--card-bg, #1c1c1e);
-    border-color: var(--border-color, #38383a);
+  .input-container textarea {
   }
 
   textarea {
