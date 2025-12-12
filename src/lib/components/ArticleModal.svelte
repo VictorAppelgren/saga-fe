@@ -4,14 +4,27 @@
   export let articleId: string;
   export let onClose: () => void;
   
-  let article: any = null;
+  type NormalizedArticle = {
+    id: string;
+    title: string;
+    summary?: string;
+    content?: string;
+    publisher?: string;
+    publishedDate?: string;
+    url?: string;
+    authors?: string;
+    sourceDomain?: string;
+  };
+
+  let article: NormalizedArticle | null = null;
   let loading = true;
   let error = false;
   
   const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
   
   // Extract publisher name from domain
-  function getPublisher(domain: string): string {
+  function getPublisher(domain?: string): string | undefined {
+    if (!domain) return undefined;
     const publishers: Record<string, string> = {
       'bloomberg.com': 'Bloomberg',
       'reuters.com': 'Reuters',
@@ -29,13 +42,58 @@
     
     return publishers[domain] || domain.replace(/^www\./, '').split('.')[0].charAt(0).toUpperCase() + domain.replace(/^www\./, '').split('.')[0].slice(1);
   }
-  
+
+  function normalizeArticle(raw: any): NormalizedArticle {
+    const base = raw?.data && typeof raw.data === 'object' ? raw.data : raw;
+    const source = base?.source || raw?.source || {};
+    const publisher =
+      base?.publisher ||
+      source?.name ||
+      source?.publisher ||
+      getPublisher(source?.domain || base?.domain);
+
+    const authors =
+      base?.authorsByline ||
+      base?.author ||
+      (Array.isArray(base?.authors) ? base.authors.join(', ') : undefined);
+
+    const publishDate =
+      base?.published_date ||
+      base?.published_at ||
+      base?.pubDate ||
+      raw?.published_date ||
+      raw?.published_at;
+
+    return {
+      id: base?.id || raw?.id || raw?.argos_id || articleId,
+      title: base?.title || raw?.title || 'Untitled Article',
+      summary: base?.summary || base?.description || base?.argos_summary,
+      content: base?.content || base?.body || base?.enContent || base?.enContentFull,
+      publisher,
+      publishedDate: publishDate,
+      url: base?.url || raw?.url,
+      authors,
+      sourceDomain: source?.domain || base?.domain
+    };
+  }
+
+  function formatDate(value?: string): string | undefined {
+    if (!value) return undefined;
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) return undefined;
+    return new Date(timestamp).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
   onMount(async () => {
     try {
       const response = await fetch(`${API_BASE}/articles/${articleId}`);
       if (!response.ok) throw new Error('Failed to fetch article');
-      article = await response.json();
-      console.log('Article data received:', article);
+      const raw = await response.json();
+      article = normalizeArticle(raw);
     } catch (e) {
       console.error('Error loading article:', e);
       error = true;
@@ -65,7 +123,7 @@
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
             </svg>
-            ID: {article.id || articleId}
+            ID: {article.id}
           </span>
           
           <!-- Publisher - always show -->
@@ -75,7 +133,7 @@
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
             </svg>
-            Publisher: {article.publisher || '-'}
+            Publisher: {article.publisher || article.sourceDomain || '-'}
           </span>
           
           <!-- Published date - always show -->
@@ -86,12 +144,17 @@
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            Published: {article.published_date ? new Date(article.published_date).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            }) : '-'}
+            Published: {formatDate(article.publishedDate) || '-'}
           </span>
+
+          {#if article.authors}
+            <span class="metadata-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+              </svg>
+              {article.authors}
+            </span>
+          {/if}
         </div>
         
         <!-- Summary -->
@@ -102,6 +165,18 @@
           </div>
         {/if}
         
+        <!-- Full Content -->
+        {#if article.content}
+          <div class="article-body">
+            <h3>Full Content</h3>
+            {#each article.content.trim().split(/\n\s*\n/) as paragraph (paragraph)}
+              {#if paragraph.trim().length}
+                <p>{paragraph}</p>
+              {/if}
+            {/each}
+          </div>
+        {/if}
+
         <!-- View original link -->
         {#if article.url}
           <div class="article-footer">
@@ -266,6 +341,22 @@
   .article-footer {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color, #e0e0e0);
+  }
+
+  .article-body {
+    margin-top: 2rem;
+    line-height: 1.7;
+    color: var(--text-color, black);
+  }
+
+  .article-body h3 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .article-body p + p {
+    margin-top: 1rem;
   }
 
   .external-link {

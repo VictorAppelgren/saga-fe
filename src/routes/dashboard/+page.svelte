@@ -39,6 +39,7 @@
   }
 
   let feedbackContext: FeedbackContext | null = null;
+  let openSections: Record<string, boolean> = {};
 
   function suggestChanges(sectionName: string, sectionTitle: string, content: string) {
     if (currentSelection.type !== 'strategy') return;
@@ -49,6 +50,7 @@
       strategyId: currentSelection.value,
       currentContent: content
     };
+    openSections = { ...openSections, [sectionName]: true };
 
     if (typeof document !== 'undefined') {
       const chatSection = document.querySelector('.chat-container');
@@ -63,7 +65,12 @@
   function handleSectionRewritten(section: string, _newContent: string) {
     console.info(`Section rewritten: ${section}`);
     feedbackContext = null;
+    openSections = { ...openSections, [section]: true };
     strategyRefreshKey += 1;
+  }
+
+  function handleSectionToggle(section: string, isOpen: boolean) {
+    openSections = { ...openSections, [section]: isOpen };
   }
 
   // --- TOGGLE DEFAULT STATUS ---
@@ -363,6 +370,7 @@ function handleTabLinkClick(event: MouseEvent) {
 
   function selectStrategy(strategy: Strategy): void {
     currentSelection = { type: 'strategy', value: strategy.id };
+    openSections = {};
   }
 
   $: themeForDisplay = null;
@@ -573,7 +581,11 @@ function handleTabLinkClick(event: MouseEvent) {
                 </div>
                 {#each Object.entries(report.sections) as [sectionName, content]}
                   {#if sectionName !== heroSection && content && content.trim()}
-                    <details class="analysis-card">
+                    <details
+                      class="analysis-card"
+                      open={!!openSections[sectionName]}
+                      on:toggle={(event) => handleSectionToggle(sectionName, event.currentTarget.open)}
+                    >
                       <summary class="analysis-card-header">
                         <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
                         <span class="analysis-card-chevron">›</span>
