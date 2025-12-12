@@ -283,8 +283,33 @@
   async function handleRewrite(feedback: string) {
     if (!feedbackContext) return;
 
+    // 1. Add user's feedback as a message
+    const userMessage: Message = {
+      id: generateId(),
+      text: `✏️ **Rewrite ${feedbackContext.sectionTitle}:** ${feedback}`,
+      isUser: true,
+      timestamp: new Date()
+    };
+    messages = [...messages, userMessage];
+
+    // 2. Add immediate "working" message
+    const workingMessage: Message = {
+      id: generateId(),
+      text: `🔄 Working on your rewrite of **${feedbackContext.sectionTitle}**... this takes about 30 seconds.`,
+      isUser: false,
+      timestamp: new Date()
+    };
+    messages = [...messages, workingMessage];
+    saveChat();
+    scrollToBottom();
+
     loading = true;
     errorMsg = '';
+
+    // 3. Prepare conversation history for context
+    const conversationHistory = messages
+      .slice(-10) // Last 10 messages for context
+      .map(m => ({ role: m.isUser ? 'user' : 'assistant', content: m.text }));
 
     try {
       const response = await fetch(`${API_BASE}/strategy/rewrite-section`, {
@@ -296,9 +321,11 @@
         body: JSON.stringify({
           strategy_id: feedbackContext.strategyId,
           section: feedbackContext.section,
+          section_title: feedbackContext.sectionTitle,
           feedback,
           current_content: feedbackContext.currentContent,
-          username: username
+          username: username,
+          messages: conversationHistory
         })
       });
 
@@ -308,12 +335,14 @@
 
       const data = await response.json();
       const newContent = data?.new_content ?? '';
+      const comment = data?.comment ?? `✅ Done! I've updated the ${feedbackContext.sectionTitle} section.`;
 
       onSectionRewritten(feedbackContext.section, newContent);
 
+      // 4. Show the contextual comment from backend
       const confirmation: Message = {
         id: generateId(),
-        text: `✅ Rewrote ${feedbackContext.sectionTitle} based on your guidance.`,
+        text: comment,
         isUser: false,
         timestamp: new Date()
       };
