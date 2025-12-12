@@ -202,11 +202,7 @@
         {#if article.content}
           <div class="article-body">
             <h3>Full Content</h3>
-            {#each article.content.trim().split(/\n\s*\n/) as paragraph (paragraph)}
-              {#if paragraph.trim().length}
-                <p>{paragraph}</p>
-              {/if}
-            {/each}
+            <p>{article.content}</p>
           </div>
         {/if}
 
