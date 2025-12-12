@@ -730,9 +730,8 @@ function handleTabLinkClick(event: MouseEvent) {
                             type="button"
                             class="suggest-changes-btn"
                             on:click|stopPropagation={() => suggestChanges(sectionKey, formatSectionTitle(sectionKey), content)}
-                            title="Suggest changes to this section"
                           >
-                            ✏️
+                            Suggest edits
                           </button>
                           <span class="analysis-card-chevron">›</span>
                         </span>
@@ -2412,18 +2411,29 @@ function handleTabLinkClick(event: MouseEvent) {
 }
 
 .suggest-changes-btn {
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--primary, #007aff);
+  color: #fff;
   border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  opacity: 0.4;
-  padding: 0.25rem;
-  font-size: 0.9rem;
-  transition: opacity 0.2s;
-  line-height: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 122, 255, 0.25);
 }
 
 .suggest-changes-btn:hover {
-  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 122, 255, 0.35);
+}
+
+:global(.dark) .suggest-changes-btn {
+  background: linear-gradient(90deg, #0a84ff 0%, #5e5ce6 100%);
+  box-shadow: 0 6px 16px rgba(10, 132, 255, 0.35);
 }
 
 .analysis-card-chevron {
