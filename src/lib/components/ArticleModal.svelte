@@ -1,3 +1,12 @@
+          {#if article.sourceLocation}
+            <span class="metadata-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {article.sourceLocation}
+            </span>
+          {/if}
 <script lang="ts">
   import { onMount } from 'svelte';
   
@@ -14,6 +23,7 @@
     url?: string;
     authors?: string;
     sourceDomain?: string;
+    sourceLocation?: string;
   };
 
   let article: NormalizedArticle | null = null;
@@ -64,6 +74,11 @@
       raw?.published_date ||
       raw?.published_at;
 
+    const location = source?.location || base?.location;
+    const locationParts = [location?.city, location?.state, location?.country]
+      .filter(Boolean)
+      .join(', ');
+
     return {
       id: base?.id || raw?.id || raw?.argos_id || articleId,
       title: base?.title || raw?.title || 'Untitled Article',
@@ -73,8 +88,14 @@
       publishedDate: publishDate,
       url: base?.url || raw?.url,
       authors,
-      sourceDomain: source?.domain || base?.domain
+      sourceDomain: source?.domain || base?.domain,
+      sourceLocation: locationParts || undefined
     };
+  }
+
+  function formatDomain(domain?: string): string | undefined {
+    if (!domain) return undefined;
+    return domain.replace(/^https?:\/\//, '').replace(/^www\./, '');
   }
 
   function formatDate(value?: string): string | undefined {
@@ -133,9 +154,30 @@
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
             </svg>
-            Publisher: {article.publisher || article.sourceDomain || '-'}
+            Publisher: {article.publisher || formatDomain(article.sourceDomain) || '-'}
           </span>
-          
+
+          {#if article.sourceDomain}
+            <span class="metadata-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              Source: {formatDomain(article.sourceDomain)}
+            </span>
+          {/if}
+
+          {#if article.sourceLocation}
+            <span class="metadata-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {article.sourceLocation}
+            </span>
+          {/if}
+
           <!-- Published date - always show -->
           <span class="metadata-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
