@@ -4,108 +4,17 @@
   export let articleId: string;
   export let onClose: () => void;
   
-  type NormalizedArticle = {
-    id: string;
-    title: string;
-    summary?: string;
-    content?: string;
-    publisher?: string;
-    publishedDate?: string;
-    url?: string;
-    authors?: string;
-    sourceDomain?: string;
-    sourceLocation?: string;
-  };
-
-  let article: NormalizedArticle | null = null;
+  let article: any = null;
   let loading = true;
   let error = false;
   
   const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-  
-  // Extract publisher name from domain
-  function getPublisher(domain?: string): string | undefined {
-    if (!domain) return undefined;
-    const publishers: Record<string, string> = {
-      'bloomberg.com': 'Bloomberg',
-      'reuters.com': 'Reuters',
-      'ft.com': 'Financial Times',
-      'wsj.com': 'Wall Street Journal',
-      'cnbc.com': 'CNBC',
-      'marketwatch.com': 'MarketWatch',
-      'economist.com': 'The Economist',
-      'nytimes.com': 'New York Times',
-      'washingtonpost.com': 'Washington Post',
-      'theguardian.com': 'The Guardian',
-      'bbc.com': 'BBC',
-      'cnn.com': 'CNN'
-    };
-    
-    return publishers[domain] || domain.replace(/^www\./, '').split('.')[0].charAt(0).toUpperCase() + domain.replace(/^www\./, '').split('.')[0].slice(1);
-  }
-
-  function normalizeArticle(raw: any): NormalizedArticle {
-    const base = raw?.data && typeof raw.data === 'object' ? raw.data : raw;
-    const source = base?.source || raw?.source || {};
-    const publisher =
-      base?.publisher ||
-      source?.name ||
-      source?.publisher ||
-      getPublisher(source?.domain || base?.domain);
-
-    const authors =
-      base?.authorsByline ||
-      base?.author ||
-      (Array.isArray(base?.authors) ? base.authors.join(', ') : undefined);
-
-    const publishDate =
-      base?.published_date ||
-      base?.published_at ||
-      base?.pubDate ||
-      raw?.published_date ||
-      raw?.published_at;
-
-    const location = source?.location || base?.location;
-    const locationParts = [location?.city, location?.state, location?.country]
-      .filter(Boolean)
-      .join(', ');
-
-    return {
-      id: base?.id || raw?.id || raw?.argos_id || articleId,
-      title: base?.title || raw?.title || 'Untitled Article',
-      summary: base?.summary || base?.description || base?.argos_summary,
-      content: base?.content || base?.body || base?.enContent || base?.enContentFull,
-      publisher,
-      publishedDate: publishDate,
-      url: base?.url || raw?.url,
-      authors,
-      sourceDomain: source?.domain || base?.domain,
-      sourceLocation: locationParts || undefined
-    };
-  }
-
-  function formatDomain(domain?: string): string | undefined {
-    if (!domain) return undefined;
-    return domain.replace(/^https?:\/\//, '').replace(/^www\./, '');
-  }
-
-  function formatDate(value?: string): string | undefined {
-    if (!value) return undefined;
-    const timestamp = Date.parse(value);
-    if (Number.isNaN(timestamp)) return undefined;
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
 
   onMount(async () => {
     try {
       const response = await fetch(`${API_BASE}/articles/${articleId}`);
       if (!response.ok) throw new Error('Failed to fetch article');
-      const raw = await response.json();
-      article = normalizeArticle(raw);
+      article = await response.json();
     } catch (e) {
       console.error('Error loading article:', e);
       error = true;
@@ -129,65 +38,9 @@
         
         <!-- Metadata bar -->
         <div class="metadata-bar">
-          <!-- Article ID -->
-          <span class="metadata-item article-id">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            ID: {article.id}
-          </span>
-          
-          <!-- Publisher - always show -->
-          <span class="metadata-item source-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
-            </svg>
-            Publisher: {article.publisher || formatDomain(article.sourceDomain) || '-'}
-          </span>
-
-          {#if article.sourceDomain}
-            <span class="metadata-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="2" y1="12" x2="22" y2="12"></line>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-              </svg>
-              Source: {formatDomain(article.sourceDomain)}
-            </span>
-          {/if}
-
-          {#if article.sourceLocation}
-            <span class="metadata-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              {article.sourceLocation}
-            </span>
-          {/if}
-
-          <!-- Published date - always show -->
-          <span class="metadata-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Published: {formatDate(article.publishedDate) || '-'}
-          </span>
-
-          {#if article.authors}
-            <span class="metadata-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-              </svg>
-              {article.authors}
-            </span>
-          {/if}
+          <span class="metadata-item article-id">ID: {article.id || articleId}</span>
+          <span class="metadata-item">Source: {article.source?.domain || '-'}</span>
+          <span class="metadata-item">Published: {article.pubDate || article.published_at || '-'}</span>
         </div>
         
         <!-- Summary -->
