@@ -22,6 +22,19 @@ export default defineConfig({
 		}
 	},
 	
+	// Production preview server settings
+	preview: {
+		host: true,
+		allowedHosts: [
+			'localhost',
+			'167.172.185.204',
+			'sagalabs.world',
+			'sagalabs.com',
+			'www.sagalabs.world',
+			'www.sagalabs.com'
+		]
+	},
+	
 	optimizeDeps: {
 		// Pre-bundle these dependencies for faster cold starts
 		include: ['svelte', 'svelte/store']
