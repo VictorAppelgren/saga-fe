@@ -29,9 +29,7 @@ export default defineConfig({
 			'localhost',
 			'167.172.185.204',
 			'sagalabs.world',
-			'sagalabs.com',
-			'www.sagalabs.world',
-			'www.sagalabs.com'
+			'www.sagalabs.world'
 		]
 	},
 	
