@@ -3,12 +3,22 @@
   const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
   // Simple markdown renderer: bold, headings, bullets, spacing
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   import { linkifyIds } from '$lib/utils/linkifyIds';
   import { getArticle } from '../api/articles';
   import { getReport } from '$lib/api/reports';
   // simpleMarkdown is now imported from utils for DRYness.
+  
+  // UI Store for responsive sidebars
+  import { 
+    leftSidebarOpen, 
+    rightSidebarOpen, 
+    isMobile, 
+    toggleLeftSidebar, 
+    toggleRightSidebar,
+    anySidebarOpen 
+  } from '$lib/stores/ui';
 
   // Remove linkifyInsightText - we'll use linkifyIds from utils
 
@@ -358,6 +368,8 @@ function handleTabLinkClick(event: MouseEvent) {
 
   function selectInterest(interest: any): void {
     currentSelection = { type: 'interest', value: interest.id };
+    // Auto-close left sidebar on mobile
+    if ($isMobile) leftSidebarOpen.set(false);
   }
 
   function selectTheme(theme: Theme): void {
@@ -371,6 +383,8 @@ function handleTabLinkClick(event: MouseEvent) {
   function selectStrategy(strategy: Strategy): void {
     currentSelection = { type: 'strategy', value: strategy.id };
     openSections = {};
+    // Auto-close left sidebar on mobile
+    if ($isMobile) leftSidebarOpen.set(false);
   }
 
   $: themeForDisplay = null;
@@ -397,9 +411,35 @@ function handleTabLinkClick(event: MouseEvent) {
 
 
   <div class="app-container">
-  <div class="dashboard-container">
-  <!-- Sidebar Navigation -->
-  <nav class="sidebar">
+  <!-- Mobile Header with toggle buttons -->
+  {#if $isMobile}
+    <header class="mobile-header">
+      <button class="mobile-toggle-btn" on:click={() => { rightSidebarOpen.set(false); toggleLeftSidebar(); }} aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+        </svg>
+      </button>
+      <span class="mobile-title">Saga</span>
+      <button class="mobile-toggle-btn" on:click={() => { leftSidebarOpen.set(false); toggleRightSidebar(); }} aria-label="Toggle chat">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg>
+      </button>
+    </header>
+  {/if}
+
+  <!-- Backdrop for mobile when sidebar is open -->
+  {#if $anySidebarOpen}
+    <button 
+      class="sidebar-backdrop" 
+      on:click={() => { leftSidebarOpen.set(false); rightSidebarOpen.set(false); }}
+      on:touchmove|preventDefault
+      aria-label="Close sidebar"
+    ></button>
+  {/if}
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar left-sidebar" class:open={$leftSidebarOpen} class:mobile={$isMobile}>
     <div class="logo-container" style="background-color: var(--sidebar-background-color)">
       <a href="/dashboard" aria-label="Go to main dashboard">
         <img src="/saga-labs.avif" alt="Saga Intelligence Logo" class="logo" />
@@ -506,7 +546,7 @@ function handleTabLinkClick(event: MouseEvent) {
         </svg>
       </button>
     </div>
-  </nav>
+  </aside>
 
   <!-- Main Content -->
   <main class="main-content scrollable-main">
@@ -815,29 +855,56 @@ function handleTabLinkClick(event: MouseEvent) {
         </div>
       {/if}
     </main>
-  </div>
-  
-  {#if currentSelection?.type === 'interest' || currentSelection?.type === 'strategy'}
-    {#key currentSelection?.value}
-      <Chat 
-        topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
-        strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
-        username={data?.user?.username || null}
-        triggerMessage={chatTriggerMessage}
-        {feedbackContext}
-        onClearFeedback={clearFeedbackContext}
-        onSectionRewritten={handleSectionRewritten}
-      />
-    {/key}
-  {:else}
-    <div class="chat-placeholder">
-      <div class="chat-placeholder-content">
-        <h3>💬 Start a Conversation</h3>
-        <p>Choose a <strong>strategy</strong> or <strong>topic</strong> from the sidebar to begin chatting.</p>
-        <p class="placeholder-hint">Each strategy and topic has its own dedicated conversation history that persists across sessions.</p>
-      </div>
+
+  <!-- Right Sidebar (Chat) -->
+  <aside 
+    class="sidebar right-sidebar" 
+    class:open={$rightSidebarOpen} 
+    class:mobile={$isMobile}
+    on:touchstart|stopPropagation
+    on:touchmove|stopPropagation
+  >
+    <!-- Desktop toggle button for chat -->
+    {#if !$isMobile}
+      <button class="chat-toggle-btn" on:click={toggleRightSidebar} aria-label="Toggle chat panel">
+        {#if $rightSidebarOpen}
+          <span class="toggle-text">Hide</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+          <span class="toggle-text">Chat</span>
+        {/if}
+      </button>
+    {/if}
+    
+    <div class="chat-wrapper">
+      {#if currentSelection?.type === 'interest' || currentSelection?.type === 'strategy'}
+        {#key currentSelection?.value}
+          <Chat 
+            topic_id={currentSelection?.type === 'interest' ? currentSelection?.value : null}
+            strategy_id={currentSelection?.type === 'strategy' ? currentSelection?.value : null}
+            username={data?.user?.username || null}
+            triggerMessage={chatTriggerMessage}
+            {feedbackContext}
+            onClearFeedback={clearFeedbackContext}
+            onSectionRewritten={handleSectionRewritten}
+          />
+        {/key}
+      {:else}
+        <div class="chat-placeholder">
+          <div class="chat-placeholder-content">
+            <h3>Start a Conversation</h3>
+            <p>Choose a <strong>strategy</strong> or <strong>topic</strong> from the sidebar to begin chatting.</p>
+            <p class="placeholder-hint">Each strategy and topic has its own dedicated conversation history that persists across sessions.</p>
+          </div>
+        </div>
+      {/if}
     </div>
-  {/if}
+  </aside>
 </div>
 
 {#if showStrategyModal}
@@ -1005,18 +1072,26 @@ function handleTabLinkClick(event: MouseEvent) {
     overflow-x: hidden;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════════
+     RESPONSIVE 3-COLUMN LAYOUT
+     ═══════════════════════════════════════════════════════════════════════════ */
+
   .app-container {
     display: grid;
-    grid-template-columns: 1fr 25%;
+    grid-template-columns: 280px 1fr 320px;
     min-height: 100vh;
     background: var(--bg-color, white);
+    position: relative;
+    overflow: hidden;
   }
 
-  .dashboard-container {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    min-height: 100vh;
-    color: var(--text-color, black);
+  /* When right sidebar is closed on desktop */
+  .app-container:has(.right-sidebar:not(.open)) {
+    grid-template-columns: 280px 1fr 0;
+  }
+
+  .app-container:has(.right-sidebar:not(.open)) .main-content {
+    margin-right: 0;
   }
 
   :global(.dark) {
@@ -1046,15 +1121,450 @@ function handleTabLinkClick(event: MouseEvent) {
     padding: 0;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SIDEBAR BASE STYLES (both left and right)
+     ═══════════════════════════════════════════════════════════════════════════ */
+
   .sidebar {
-    width: 280px;
     height: 100vh;
     background: var(--surface-variant, #f5f5f7);
-    padding: 1.5rem 0 0 1.25rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
+  }
+
+  .left-sidebar {
+    width: 280px;
+    padding: 1.5rem 0 0 1.25rem;
     border-right: 1px solid var(--border-color, #d2d2d7);
+  }
+
+  .right-sidebar {
+    width: 320px;
+    border-left: 1px solid var(--border-color, #d2d2d7);
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-sidebar:not(.open) {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    border: none;
+    visibility: hidden;
+  }
+
+  .right-sidebar:not(.open) .chat-toggle-btn {
+    visibility: visible;
+  }
+
+  .chat-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     MOBILE HEADER
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--card-bg, #ffffff);
+    border-bottom: 1px solid var(--border-color, #d2d2d7);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 200;
+  }
+
+  :global(.dark) .mobile-header {
+    background: var(--card-bg, #1c1c1e);
+  }
+
+  .mobile-toggle-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-color, #1d1d1f);
+    transition: background 0.2s;
+  }
+
+  .mobile-toggle-btn:hover {
+    background: var(--hover-bg, #f5f5f7);
+  }
+
+  .mobile-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color, #1d1d1f);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     SIDEBAR BACKDROP (mobile overlay)
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     DESKTOP SIDEBAR TOGGLE BUTTON
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  .chat-toggle-btn {
+    position: absolute;
+    top: 1rem;
+    left: -70px;
+    height: 32px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #d2d2d7);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted, #86868b);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+  }
+
+  .chat-toggle-btn .toggle-text {
+    font-size: 0.8125rem;
+  }
+
+  .chat-toggle-btn:hover {
+    background: var(--hover-bg, #f5f5f7);
+    color: var(--text-color, #1d1d1f);
+  }
+
+  /* When chat is closed, show button on the right edge */
+  .right-sidebar:not(.open) {
+    width: 0 !important;
+    min-width: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .right-sidebar:not(.open) .chat-toggle-btn {
+    left: -75px;
+    background: var(--primary, #007aff);
+    color: white;
+    border-color: var(--primary, #007aff);
+  }
+
+  .right-sidebar:not(.open) .chat-toggle-btn:hover {
+    background: var(--primary-hover, #0066d6);
+    color: white;
+  }
+
+  :global(.dark) .chat-toggle-btn {
+    background: var(--card-bg, #1c1c1e);
+    border-color: var(--border-color, #38383a);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     MOBILE RESPONSIVE STYLES
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  @media (max-width: 768px) {
+    .app-container {
+      display: block;
+      padding-top: 56px; /* Space for mobile header */
+      min-height: 100vh;
+      min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+      overflow-x: hidden;
+    }
+
+    .sidebar.mobile {
+      position: fixed;
+      top: 56px;
+      bottom: 0;
+      height: calc(100vh - 56px);
+      height: calc(100dvh - 56px); /* Dynamic viewport height */
+      width: 85vw !important;
+      max-width: 320px;
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+      background: var(--surface-variant, #f5f5f7);
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    }
+
+    .left-sidebar.mobile {
+      left: 0;
+      transform: translateX(-100%);
+    }
+
+    .left-sidebar.mobile.open {
+      transform: translateX(0);
+    }
+
+    .right-sidebar.mobile {
+      right: 0;
+      left: auto;
+      transform: translateX(100%);
+      border-left: none;
+      background: var(--bg-color, #ffffff);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .right-sidebar.mobile.open {
+      transform: translateX(0);
+      width: 85vw !important;
+      max-width: 350px;
+      height: calc(100vh - 56px);
+      height: calc(100dvh - 56px); /* Dynamic viewport height for mobile browsers */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-close-btn,
+    .chat-toggle-btn {
+      display: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       MOBILE: ABSOLUTE FULL WIDTH - ZERO WASTED SPACE
+       ═══════════════════════════════════════════════════════════════════════════ */
+
+    .strategy-detail-box {
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+
+    .strategy-info-card {
+      border-radius: 10px !important;
+      padding: 1rem !important;
+      margin: 0 0 0.625rem 0 !important;
+    }
+
+    .strategy-header-buttons {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      margin-bottom: 0.625rem;
+      padding: 0 0.25rem;
+    }
+
+    .back-button {
+      width: 100%;
+      justify-content: center;
+      font-size: 0.8125rem;
+      padding: 0.4rem 0.5rem;
+    }
+
+    .strategy-actions {
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .strategy-actions button {
+      flex: 1 1 calc(50% - 0.25rem);
+      min-width: 0;
+      justify-content: center;
+      font-size: 0.75rem;
+      padding: 0.4rem 0.5rem;
+    }
+
+    .strategy-header {
+      padding: 0 0.25rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .strategy-title {
+      font-size: 1.35rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .strategy-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.125rem;
+    }
+
+    .strategy-hint {
+      font-size: 0.8125rem;
+      margin-top: 0.375rem;
+    }
+
+    .strategy-section {
+      padding: 0.5rem 0.25rem;
+    }
+
+    .section-heading {
+      font-size: 0.875rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .section-content {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Analysis sections - comfortable padding */
+    .analysis-sections-container {
+      margin: 0 !important;
+      border-radius: 10px !important;
+    }
+
+    .analysis-card {
+      border-radius: 0 !important;
+    }
+
+    .analysis-card:first-child {
+      border-radius: 10px 10px 0 0 !important;
+    }
+
+    .analysis-card:last-child {
+      border-radius: 0 0 10px 10px !important;
+    }
+
+    .analysis-card-header {
+      padding: 1rem !important;
+    }
+
+    .analysis-card-content {
+      padding: 0.625rem 0.75rem !important;
+    }
+
+    .executive-summary-section {
+      padding: 1rem !important;
+      margin: 0 0 0.625rem 0 !important;
+      border-radius: 10px !important;
+    }
+
+    /* Topic content cards */
+    .topic-content-card {
+      border-radius: 10px !important;
+      padding: 1rem !important;
+    }
+
+    .topic-tab-bar {
+      padding: 0 0.25rem;
+    }
+
+    .topic-tab-button {
+      padding: 0.5rem 0.625rem;
+      font-size: 0.8125rem;
+      border-radius: 6px 6px 0 0;
+    }
+
+    /* Chat wrapper - MUST have position:relative for absolute child positioning */
+    .right-sidebar.mobile .chat-wrapper {
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+      max-height: 100%;
+      position: relative; /* CRITICAL: Anchor for absolute positioned chat-container */
+      overflow: hidden;
+    }
+
+    .main-content {
+      width: 100%;
+      min-height: calc(100vh - 56px);
+      min-height: calc(100dvh - 56px);
+      overflow-y: auto;
+      padding: 0.5rem 1rem !important; /* Comfortable padding */
+      padding-bottom: env(safe-area-inset-bottom, 0) !important;
+    }
+
+    .scrollable-main {
+      height: auto;
+      min-height: calc(100vh - 56px);
+      min-height: calc(100dvh - 56px);
+      padding: 0.5rem 1rem !important;
+      padding-bottom: env(safe-area-inset-bottom, 20px) !important;
+    }
+
+    .card {
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0;
+    }
+
+    .welcome-box {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .welcome-title {
+      font-size: 1.25rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 0.875rem;
+    }
+
+    .insights-box {
+      margin: 0;
+    }
+
+    .question-card {
+      padding: 0.75rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    /* Lock body scroll when sidebar is open */
+    .app-container:has(.sidebar.mobile.open) .main-content {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .app-container {
+      grid-template-columns: 240px 1fr 280px;
+    }
+
+    .left-sidebar {
+      width: 240px;
+    }
+
+    .right-sidebar {
+      width: 280px;
+    }
   }
   
   .scrollable-section {
@@ -2836,40 +3346,43 @@ function handleTabLinkClick(event: MouseEvent) {
   }
 }
 
-/* Chat Placeholder */
+/* Chat Placeholder - inside right sidebar */
 .chat-placeholder {
-  width: 320px;
-  max-width: 100%;
-  background: var(--surface-color, #ffffff);
-  border-left: 1px solid var(--border-color, #e0e0e0);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
-  flex-shrink: 0;
+  background: var(--bg-color, #ffffff);
 }
 
 .chat-placeholder-content {
   text-align: center;
-  max-width: 300px;
+  max-width: 260px;
 }
 
 .chat-placeholder-content h3 {
   margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  color: var(--text-color, #000000);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color, #1d1d1f);
 }
 
 .chat-placeholder-content p {
   margin: 0 0 0.75rem 0;
-  color: var(--text-secondary, #666666);
+  color: var(--text-muted, #86868b);
   line-height: 1.5;
+  font-size: 0.9375rem;
 }
 
 .placeholder-hint {
-  font-size: 0.875rem;
-  color: var(--text-muted, #999999);
+  font-size: 0.8125rem;
+  color: var(--text-muted, #86868b);
   font-style: italic;
+}
+
+:global(.dark) .chat-placeholder {
+  background: var(--bg-color, #000000);
 }
 
 </style>

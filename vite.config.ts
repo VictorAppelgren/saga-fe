@@ -19,7 +19,7 @@ export default defineConfig({
 		watch: {
 			// Ignore node_modules and .git to reduce file watching overhead
 			ignored: ['**/node_modules/**', '**/.git/**']
-		}
+		},
 	},
 	
 	// Production preview server settings

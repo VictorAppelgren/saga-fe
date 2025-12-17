@@ -428,9 +428,9 @@
   .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    flex: 1;
     background: var(--bg-color, #ffffff);
-    border-left: 1px solid var(--border-color, #e5e5e7);
   }
 
   .chat-header {
@@ -585,12 +585,11 @@
     display: flex;
     gap: 0.75rem;
     padding: 1rem 1.25rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
     border-top: 1px solid var(--border-color, #e5e5e7);
     background: var(--card-bg, #ffffff);
     flex-direction: column;
-  }
-
-  .input-container textarea {
+    flex-shrink: 0;
   }
 
   textarea {
@@ -685,7 +684,78 @@
     color: var(--text-muted, #636366);
   }
 
-  :global(.dark) .send-button:disabled {
-    background: #404040;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     MOBILE RESPONSIVE
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  @media (max-width: 768px) {
+    .chat-container {
+      /* Use absolute positioning to guarantee full height */
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 0.875rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .chat-header h2 {
+      font-size: 1rem;
+    }
+
+    .messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      overscroll-behavior-x: none;
+      touch-action: pan-y;
+      padding: 1rem;
+      padding-bottom: 0.5rem;
+      scroll-behavior: smooth;
+    }
+
+    /* NUCLEAR FIX: Sticky input at bottom, always visible */
+    .input-container {
+      flex-shrink: 0;
+      padding: 0.75rem 1rem;
+      padding-bottom: max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 16px));
+      background: var(--card-bg, #ffffff);
+      border-top: 1px solid var(--border-color, #e5e5e7);
+      /* Row layout for textarea + button */
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 0.5rem;
+      /* Ensure it's always on top */
+      position: relative;
+      z-index: 100;
+    }
+
+    .input-container textarea {
+      flex: 1;
+      min-width: 0;
+      font-size: 16px; /* Prevents iOS zoom */
+      max-height: 100px;
+    }
+
+    :global(.dark) .input-container {
+      background: var(--card-bg, #1c1c1e);
+    }
+
+    .send-button {
+      min-height: 44px;
+      min-width: 60px;
+      flex-shrink: 0;
+    }
   }
 </style>
