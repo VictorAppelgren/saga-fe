@@ -30,11 +30,13 @@
   import Chat from '$lib/components/Chat.svelte';
   import StrategyModal from '$lib/components/StrategyModal.svelte';
   import ArticleModal from '$lib/components/ArticleModal.svelte';
+  import PdfExportModal from '$lib/components/PdfExportModal.svelte';
   import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail } from '$lib/api/strategies';
   import { invalidateAll } from '$app/navigation';
 
   // --- STRATEGY MODAL STATE ---
   let showStrategyModal = false;
+  let showPdfModal = false;
   let modalMode: 'create' | 'edit' = 'create';
   let editingStrategy: StrategyDetail | null = null;
 
@@ -387,6 +389,20 @@ function handleTabLinkClick(event: MouseEvent) {
     if ($isMobile) leftSidebarOpen.set(false);
   }
 
+  function getExportableSections(strategy: StrategyDetail) {
+    return [
+      { title: 'Strategy Thesis', content: strategy.user_input.strategy_text },
+      { title: 'Target Outlook', content: strategy.user_input.position_text || '' },
+      { title: 'Price Target', content: strategy.user_input.target || '' },
+      ...(strategy.latest_analysis?.final_analysis 
+        ? Object.entries(strategy.latest_analysis.final_analysis).map(([key, content]) => ({
+            title: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            content: content || ''
+          }))
+        : [])
+    ];
+  }
+
   $: themeForDisplay = null;
 
   // Helper to turn snake_case section keys into nice titles
@@ -702,6 +718,12 @@ function handleTabLinkClick(event: MouseEvent) {
                     Delete
                   </button>
                 {/if}
+                <button class="btn-export" on:click={() => showPdfModal = true}>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                  </svg>
+                  Export PDF
+                </button>
               </div>
             </div>
             
@@ -806,6 +828,16 @@ function handleTabLinkClick(event: MouseEvent) {
                 Generate Analysis (Coming Soon)
               </button>
             </div>
+          {/if}
+
+          {#if showPdfModal}
+            <PdfExportModal 
+              strategy={{
+                title: strategy.asset.primary,
+                sections: getExportableSections(strategy)
+              }} 
+              onClose={() => showPdfModal = false}
+            />
           {/if}
         </section>
       {:catch error}
@@ -3383,6 +3415,34 @@ function handleTabLinkClick(event: MouseEvent) {
 
 :global(.dark) .chat-placeholder {
   background: var(--bg-color, #000000);
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #2c3e50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-export:hover {
+  background: #1a252f;
+  transform: scale(1.02);
+}
+
+:global(.dark) .btn-export {
+  background: #34495e;
+}
+
+:global(.dark) .btn-export:hover {
+  background: #2c3e50;
 }
 
 </style>

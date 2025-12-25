@@ -2,33 +2,36 @@
   import { onMount } from 'svelte';
   import { Chart } from 'chart.js/auto';
   import AdminCard from '$lib/components/AdminCard.svelte';
-  
+
   let summary: any = $state(null);
   let articlesTrend: any = $state(null);
   let analysisTrend: any = $state(null);
   let strategyAnalysisTrend: any = $state(null);
   let queriesTrend: any = $state(null);
   let logs: any = $state(null);
+  let distribution: any = $state(null);
   let loading = $state(true);
-  
+
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes, distRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
         fetch('/api/admin/trends/analysis?days=7'),
         fetch('/api/admin/trends/strategy-analysis?days=7'),
         fetch('/api/admin/trends/queries?days=7'),
-        fetch('/api/admin/logs/today?lines=20')
+        fetch('/api/admin/logs/today?lines=20'),
+        fetch('/api/admin/article-distribution')
       ]);
-      
+
       summary = await summaryRes.json();
       articlesTrend = await articlesRes.json();
       analysisTrend = await analysisRes.json();
       strategyAnalysisTrend = await strategyAnalysisRes.json();
       queriesTrend = await queriesRes.json();
       logs = await logsRes.json();
+      distribution = await distRes.json();
       
       loading = false;
       
@@ -333,10 +336,20 @@
     <!-- Storage Stats -->
     <h2>💾 Article Storage</h2>
     <div class="stats-grid">
-      <AdminCard 
-        title="Total Articles" 
-        value={summary?.storage?.total_raw_articles?.toLocaleString() || 0} 
-        subtitle="in storage" 
+      <AdminCard
+        title="Cold Storage"
+        value={summary?.cold_storage?.total_articles?.toLocaleString() || 0}
+        subtitle="raw articles"
+      />
+      <AdminCard
+        title="Date Range"
+        value={summary?.cold_storage?.total_days || 0}
+        subtitle="days of data"
+      />
+      <AdminCard
+        title="URLs Indexed"
+        value={summary?.cold_storage?.urls_indexed?.toLocaleString() || 0}
+        subtitle="for deduplication"
       />
     </div>
     
@@ -365,6 +378,54 @@
       />
     </div>
     
+    <!-- Article Distribution -->
+    {#if distribution?.distribution}
+    <h2>📊 Article Distribution by Topic</h2>
+    <div class="distribution-container">
+      <div class="distribution-header">
+        <span class="topic-col">Topic</span>
+        <span class="timeframe-col">Fundamental</span>
+        <span class="timeframe-col">Medium</span>
+        <span class="timeframe-col">Current</span>
+        <span class="total-col">Total</span>
+      </div>
+      {#each Object.entries(distribution.distribution) as [topicId, topic]}
+        {@const t = topic as any}
+        {@const total = (t.fundamental?.risk || 0) + (t.fundamental?.opportunity || 0) + (t.fundamental?.trend || 0) + (t.fundamental?.catalyst || 0) +
+                        (t.medium?.risk || 0) + (t.medium?.opportunity || 0) + (t.medium?.trend || 0) + (t.medium?.catalyst || 0) +
+                        (t.current?.risk || 0) + (t.current?.opportunity || 0) + (t.current?.trend || 0) + (t.current?.catalyst || 0)}
+        <div class="distribution-row">
+          <span class="topic-col" title={topicId}>{t.name || topicId}</span>
+          <span class="timeframe-col">
+            <span class="mini-bar risk" style="width: {Math.min(t.fundamental?.risk || 0, 20) * 5}px" title="Risk: {t.fundamental?.risk || 0}"></span>
+            <span class="mini-bar opportunity" style="width: {Math.min(t.fundamental?.opportunity || 0, 20) * 5}px" title="Opp: {t.fundamental?.opportunity || 0}"></span>
+            <span class="mini-bar trend" style="width: {Math.min(t.fundamental?.trend || 0, 20) * 5}px" title="Trend: {t.fundamental?.trend || 0}"></span>
+            <span class="mini-bar catalyst" style="width: {Math.min(t.fundamental?.catalyst || 0, 20) * 5}px" title="Cat: {t.fundamental?.catalyst || 0}"></span>
+          </span>
+          <span class="timeframe-col">
+            <span class="mini-bar risk" style="width: {Math.min(t.medium?.risk || 0, 20) * 5}px" title="Risk: {t.medium?.risk || 0}"></span>
+            <span class="mini-bar opportunity" style="width: {Math.min(t.medium?.opportunity || 0, 20) * 5}px" title="Opp: {t.medium?.opportunity || 0}"></span>
+            <span class="mini-bar trend" style="width: {Math.min(t.medium?.trend || 0, 20) * 5}px" title="Trend: {t.medium?.trend || 0}"></span>
+            <span class="mini-bar catalyst" style="width: {Math.min(t.medium?.catalyst || 0, 20) * 5}px" title="Cat: {t.medium?.catalyst || 0}"></span>
+          </span>
+          <span class="timeframe-col">
+            <span class="mini-bar risk" style="width: {Math.min(t.current?.risk || 0, 20) * 5}px" title="Risk: {t.current?.risk || 0}"></span>
+            <span class="mini-bar opportunity" style="width: {Math.min(t.current?.opportunity || 0, 20) * 5}px" title="Opp: {t.current?.opportunity || 0}"></span>
+            <span class="mini-bar trend" style="width: {Math.min(t.current?.trend || 0, 20) * 5}px" title="Trend: {t.current?.trend || 0}"></span>
+            <span class="mini-bar catalyst" style="width: {Math.min(t.current?.catalyst || 0, 20) * 5}px" title="Cat: {t.current?.catalyst || 0}"></span>
+          </span>
+          <span class="total-col">{total}</span>
+        </div>
+      {/each}
+      <div class="distribution-legend">
+        <span><span class="legend-dot risk"></span> Risk</span>
+        <span><span class="legend-dot opportunity"></span> Opportunity</span>
+        <span><span class="legend-dot trend"></span> Trend</span>
+        <span><span class="legend-dot catalyst"></span> Catalyst</span>
+      </div>
+    </div>
+    {/if}
+
     <!-- Trend Charts -->
     {#if queriesTrend?.dates?.length > 1}
       <div class="chart-container">
@@ -529,4 +590,92 @@
     padding: 0.25rem 0;
     font-weight: 500;
   }
+
+  /* Distribution Table Styles */
+  .distribution-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow-x: auto;
+  }
+
+  .distribution-header, .distribution-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr 1fr 60px;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    align-items: center;
+  }
+
+  .distribution-header {
+    font-weight: 600;
+    border-bottom: 2px solid #e5e7eb;
+    color: #374151;
+  }
+
+  .distribution-row {
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .distribution-row:hover {
+    background: #f9fafb;
+  }
+
+  .topic-col {
+    font-weight: 500;
+    color: #111827;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .timeframe-col {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .total-col {
+    text-align: right;
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .mini-bar {
+    display: inline-block;
+    height: 12px;
+    min-width: 2px;
+    border-radius: 2px;
+  }
+
+  .mini-bar.risk { background: #ef4444; }
+  .mini-bar.opportunity { background: #22c55e; }
+  .mini-bar.trend { background: #3b82f6; }
+  .mini-bar.catalyst { background: #f59e0b; }
+
+  .distribution-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .legend-dot.risk { background: #ef4444; }
+  .legend-dot.opportunity { background: #22c55e; }
+  .legend-dot.trend { background: #3b82f6; }
+  .legend-dot.catalyst { background: #f59e0b; }
 </style>

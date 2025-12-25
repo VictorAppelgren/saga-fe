@@ -3,16 +3,16 @@
 // Detect if running server-side (SvelteKit server actions) or client-side (browser)
 const isServer = typeof window === 'undefined';
 
-// Server-side: Use absolute URL to NGINX (Docker network DNS)
+// Server-side: Use direct API container URL (bypasses nginx for internal calls)
 // Client-side: Use relative URL (browser goes through NGINX on port 80)
 const API_BASE = isServer 
-  ? 'http://nginx/api'  // NGINX service name in Docker network
-  : '/api';              // Relative path for browser
+  ? 'http://apis:8000/api'  // Direct to API container in Docker network
+  : '/api';                  // Relative path for browser
 
 // Server-side uses process.env, client-side uses import.meta.env
 const API_KEY = isServer
-  ? process.env.VITE_API_KEY || ''
-  : import.meta.env.VITE_API_KEY || '';
+  ? (process.env.VITE_API_KEY || '785fc6c1647ff650b6b611509cc0a8f47009e6b743340503519d433f111fcf12')
+  : (import.meta.env.VITE_API_KEY || '');
 
 export interface LoginResponse {
   username: string;

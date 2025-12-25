@@ -1,4 +1,10 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+// Detect server vs client for proper URL resolution
+const isServer = typeof window === 'undefined';
+
+// Server-side: Direct to API container | Client-side: Relative path through nginx
+const API_BASE = isServer 
+  ? 'http://apis:8000/api' 
+  : (import.meta.env.VITE_API_BASE_URL || '/api');
 
 export interface Strategy {
   id: string;
