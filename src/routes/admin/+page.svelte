@@ -378,51 +378,68 @@
       />
     </div>
     
-    <!-- Article Distribution -->
+    <!-- Article Distribution Summary -->
     {#if distribution?.distribution}
-    <h2>📊 Article Distribution by Topic</h2>
-    <div class="distribution-container">
-      <div class="distribution-header">
-        <span class="topic-col">Topic</span>
-        <span class="timeframe-col">Fundamental</span>
-        <span class="timeframe-col">Medium</span>
-        <span class="timeframe-col">Current</span>
-        <span class="total-col">Total</span>
+    {@const allTopics = Object.values(distribution.distribution) as any[]}
+    {@const totals = {
+      fundamental: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 },
+      medium: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 },
+      current: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 }
+    }}
+    {@const _ = allTopics.forEach((t: any) => {
+      ['fundamental', 'medium', 'current'].forEach(tf => {
+        ['risk', 'opportunity', 'trend', 'catalyst'].forEach(p => {
+          totals[tf][p] += t[tf]?.[p] || 0;
+        });
+      });
+    })}
+    {@const grandTotal = Object.values(totals).reduce((sum, tf) =>
+      sum + tf.risk + tf.opportunity + tf.trend + tf.catalyst, 0)}
+    <h2>📊 Article Distribution (All Topics)</h2>
+    <div class="distribution-summary">
+      <div class="dist-row header">
+        <span class="dist-label"></span>
+        <span class="dist-cell">Fundamental</span>
+        <span class="dist-cell">Medium</span>
+        <span class="dist-cell">Current</span>
+        <span class="dist-cell total">Total</span>
       </div>
-      {#each Object.entries(distribution.distribution) as [topicId, topic]}
-        {@const t = topic as any}
-        {@const total = (t.fundamental?.risk || 0) + (t.fundamental?.opportunity || 0) + (t.fundamental?.trend || 0) + (t.fundamental?.catalyst || 0) +
-                        (t.medium?.risk || 0) + (t.medium?.opportunity || 0) + (t.medium?.trend || 0) + (t.medium?.catalyst || 0) +
-                        (t.current?.risk || 0) + (t.current?.opportunity || 0) + (t.current?.trend || 0) + (t.current?.catalyst || 0)}
-        <div class="distribution-row">
-          <span class="topic-col" title={topicId}>{t.name || topicId}</span>
-          <span class="timeframe-col">
-            <span class="mini-bar risk" style="width: {Math.min(t.fundamental?.risk || 0, 20) * 5}px" title="Risk: {t.fundamental?.risk || 0}"></span>
-            <span class="mini-bar opportunity" style="width: {Math.min(t.fundamental?.opportunity || 0, 20) * 5}px" title="Opp: {t.fundamental?.opportunity || 0}"></span>
-            <span class="mini-bar trend" style="width: {Math.min(t.fundamental?.trend || 0, 20) * 5}px" title="Trend: {t.fundamental?.trend || 0}"></span>
-            <span class="mini-bar catalyst" style="width: {Math.min(t.fundamental?.catalyst || 0, 20) * 5}px" title="Cat: {t.fundamental?.catalyst || 0}"></span>
-          </span>
-          <span class="timeframe-col">
-            <span class="mini-bar risk" style="width: {Math.min(t.medium?.risk || 0, 20) * 5}px" title="Risk: {t.medium?.risk || 0}"></span>
-            <span class="mini-bar opportunity" style="width: {Math.min(t.medium?.opportunity || 0, 20) * 5}px" title="Opp: {t.medium?.opportunity || 0}"></span>
-            <span class="mini-bar trend" style="width: {Math.min(t.medium?.trend || 0, 20) * 5}px" title="Trend: {t.medium?.trend || 0}"></span>
-            <span class="mini-bar catalyst" style="width: {Math.min(t.medium?.catalyst || 0, 20) * 5}px" title="Cat: {t.medium?.catalyst || 0}"></span>
-          </span>
-          <span class="timeframe-col">
-            <span class="mini-bar risk" style="width: {Math.min(t.current?.risk || 0, 20) * 5}px" title="Risk: {t.current?.risk || 0}"></span>
-            <span class="mini-bar opportunity" style="width: {Math.min(t.current?.opportunity || 0, 20) * 5}px" title="Opp: {t.current?.opportunity || 0}"></span>
-            <span class="mini-bar trend" style="width: {Math.min(t.current?.trend || 0, 20) * 5}px" title="Trend: {t.current?.trend || 0}"></span>
-            <span class="mini-bar catalyst" style="width: {Math.min(t.current?.catalyst || 0, 20) * 5}px" title="Cat: {t.current?.catalyst || 0}"></span>
-          </span>
-          <span class="total-col">{total}</span>
-        </div>
-      {/each}
-      <div class="distribution-legend">
-        <span><span class="legend-dot risk"></span> Risk</span>
-        <span><span class="legend-dot opportunity"></span> Opportunity</span>
-        <span><span class="legend-dot trend"></span> Trend</span>
-        <span><span class="legend-dot catalyst"></span> Catalyst</span>
+      <div class="dist-row">
+        <span class="dist-label risk-label">Risk</span>
+        <span class="dist-cell">{totals.fundamental.risk}</span>
+        <span class="dist-cell">{totals.medium.risk}</span>
+        <span class="dist-cell">{totals.current.risk}</span>
+        <span class="dist-cell total">{totals.fundamental.risk + totals.medium.risk + totals.current.risk}</span>
       </div>
+      <div class="dist-row">
+        <span class="dist-label opp-label">Opportunity</span>
+        <span class="dist-cell">{totals.fundamental.opportunity}</span>
+        <span class="dist-cell">{totals.medium.opportunity}</span>
+        <span class="dist-cell">{totals.current.opportunity}</span>
+        <span class="dist-cell total">{totals.fundamental.opportunity + totals.medium.opportunity + totals.current.opportunity}</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label trend-label">Trend</span>
+        <span class="dist-cell">{totals.fundamental.trend}</span>
+        <span class="dist-cell">{totals.medium.trend}</span>
+        <span class="dist-cell">{totals.current.trend}</span>
+        <span class="dist-cell total">{totals.fundamental.trend + totals.medium.trend + totals.current.trend}</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label cat-label">Catalyst</span>
+        <span class="dist-cell">{totals.fundamental.catalyst}</span>
+        <span class="dist-cell">{totals.medium.catalyst}</span>
+        <span class="dist-cell">{totals.current.catalyst}</span>
+        <span class="dist-cell total">{totals.fundamental.catalyst + totals.medium.catalyst + totals.current.catalyst}</span>
+      </div>
+      <div class="dist-row footer">
+        <span class="dist-label">Total</span>
+        <span class="dist-cell">{totals.fundamental.risk + totals.fundamental.opportunity + totals.fundamental.trend + totals.fundamental.catalyst}</span>
+        <span class="dist-cell">{totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst}</span>
+        <span class="dist-cell">{totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}</span>
+        <span class="dist-cell total grand">{grandTotal}</span>
+      </div>
+      <p class="dist-hint">See <a href="/admin/distribution">Distribution</a> for per-topic breakdown ({Object.keys(distribution.distribution).length} topics)</p>
     </div>
     {/if}
 
@@ -591,91 +608,75 @@
     font-weight: 500;
   }
 
-  /* Distribution Table Styles */
-  .distribution-container {
+  /* Distribution Summary Styles */
+  .distribution-summary {
     background: white;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 1.5rem;
     margin-bottom: 2rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    overflow-x: auto;
   }
 
-  .distribution-header, .distribution-row {
+  .dist-row {
     display: grid;
-    grid-template-columns: 200px 1fr 1fr 1fr 60px;
+    grid-template-columns: 100px repeat(4, 1fr);
     gap: 0.5rem;
-    padding: 0.5rem 0;
-    align-items: center;
-  }
-
-  .distribution-header {
-    font-weight: 600;
-    border-bottom: 2px solid #e5e7eb;
-    color: #374151;
-  }
-
-  .distribution-row {
+    padding: 0.75rem 0;
     border-bottom: 1px solid #f3f4f6;
   }
 
-  .distribution-row:hover {
-    background: #f9fafb;
-  }
-
-  .topic-col {
-    font-weight: 500;
-    color: #111827;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .timeframe-col {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-  }
-
-  .total-col {
-    text-align: right;
+  .dist-row.header {
     font-weight: 600;
-    color: #6b7280;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
   }
 
-  .mini-bar {
-    display: inline-block;
-    height: 12px;
-    min-width: 2px;
-    border-radius: 2px;
+  .dist-row.footer {
+    font-weight: 600;
+    border-top: 2px solid #e5e7eb;
+    border-bottom: none;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
   }
 
-  .mini-bar.risk { background: #ef4444; }
-  .mini-bar.opportunity { background: #22c55e; }
-  .mini-bar.trend { background: #3b82f6; }
-  .mini-bar.catalyst { background: #f59e0b; }
+  .dist-label {
+    font-weight: 500;
+    color: #374151;
+  }
 
-  .distribution-legend {
-    display: flex;
-    gap: 1.5rem;
+  .dist-label.risk-label { color: #ef4444; }
+  .dist-label.opp-label { color: #22c55e; }
+  .dist-label.trend-label { color: #3b82f6; }
+  .dist-label.cat-label { color: #f59e0b; }
+
+  .dist-cell {
+    text-align: center;
+    color: #4b5563;
+  }
+
+  .dist-cell.total {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .dist-cell.grand {
+    font-size: 1.1rem;
+    color: #1976d2;
+  }
+
+  .dist-hint {
     margin-top: 1rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #e5e7eb;
     font-size: 0.875rem;
     color: #6b7280;
+    text-align: center;
   }
 
-  .legend-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 4px;
-    vertical-align: middle;
+  .dist-hint a {
+    color: #1976d2;
+    text-decoration: none;
   }
 
-  .legend-dot.risk { background: #ef4444; }
-  .legend-dot.opportunity { background: #22c55e; }
-  .legend-dot.trend { background: #3b82f6; }
-  .legend-dot.catalyst { background: #f59e0b; }
+  .dist-hint a:hover {
+    text-decoration: underline;
+  }
 </style>
