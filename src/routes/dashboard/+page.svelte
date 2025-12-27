@@ -229,7 +229,7 @@
       }
 
       console.log('✅ Total questions found:', questions.length, questions);
-      dashboardQuestions = questions.slice(0, 3); // Max 3 questions
+      dashboardQuestions = questions; // Show all strategy questions
       loadingQuestions = false;
     } catch (error) {
       console.error('Failed to load dashboard questions:', error);

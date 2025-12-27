@@ -224,25 +224,30 @@
     <!-- Agent Analysis -->
     <h2>🤖 Agent Analysis</h2>
     <div class="stats-grid">
-      <AdminCard 
-        title="Triggered" 
-        value={summary?.analysis?.triggered || 0} 
-        subtitle="analysis started" 
+      <AdminCard
+        title="Triggered"
+        value={summary?.analysis?.triggered || 0}
+        subtitle="new articles found"
       />
-      <AdminCard 
-        title="Completed" 
-        value={summary?.analysis?.completed || 0} 
-        subtitle="analysis finished" 
+      <AdminCard
+        title="Completed"
+        value={summary?.analysis?.completed || 0}
+        subtitle="analysis finished"
       />
-      <AdminCard 
-        title="Skipped" 
-        value={summary?.analysis?.skipped || 0} 
-        subtitle="tier 0/1 (no rewrite)" 
+      <AdminCard
+        title="Skipped (No New)"
+        value={summary?.analysis?.skipped_no_new || 0}
+        subtitle="no new Tier 3 articles"
       />
-      <AdminCard 
-        title="Sections Written" 
-        value={summary?.analysis?.sections || 0} 
-        subtitle="content generated" 
+      <AdminCard
+        title="Skipped (Cooldown)"
+        value={summary?.analysis?.skipped_cooldown || 0}
+        subtitle="< 24h since last write"
+      />
+      <AdminCard
+        title="Sections Written"
+        value={summary?.analysis?.sections || 0}
+        subtitle="content generated"
       />
     </div>
     

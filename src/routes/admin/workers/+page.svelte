@@ -88,10 +88,6 @@
                 <span class="value">{worker.machine || 'Unknown'}</span>
               </div>
               <div class="info-row">
-                <span class="label">Task:</span>
-                <span class="value">{worker.current_task || 'idle'}</span>
-              </div>
-              <div class="info-row">
                 <span class="label">Last Seen:</span>
                 <span class="value">{formatSecondsAgo(worker.seconds_ago)}</span>
               </div>
