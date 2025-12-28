@@ -31,7 +31,10 @@
   import StrategyModal from '$lib/components/StrategyModal.svelte';
   import ArticleModal from '$lib/components/ArticleModal.svelte';
   import PdfExportModal from '$lib/components/PdfExportModal.svelte';
-  import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail } from '$lib/api/strategies';
+  import EntityHeader from '$lib/components/EntityHeader.svelte';
+  import AnalysisDisplay from '$lib/components/AnalysisDisplay.svelte';
+  import FindingsCards from '$lib/components/FindingsCards.svelte';
+  import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail, type Finding } from '$lib/api/strategies';
   import { invalidateAll } from '$app/navigation';
 
   // --- STRATEGY MODAL STATE ---
@@ -267,81 +270,8 @@
     loadDashboardQuestions();
   });
 
-  // --- Tabbed Report/Article State ---
-  type Tab = {
-    type: 'report' | 'article',
-    id: string,
-    label: string,
-    content: string,
-    loading: boolean
-  };
-
-  let tabs: Tab[] = [
-    { type: 'report', id: '', label: 'Report', content: '', loading: false }
-  ];
-  let activeTabIdx = 0;
-
-  // Helper: open or focus a tab
-  // Open a new tab or focus an existing one for articles only
-async function openTab(type: 'article', id: string, label: string) {
-    const idx = tabs.findIndex(t => t.type === type && t.id === id);
-    if (idx !== -1) {
-      activeTabIdx = idx;
-      return;
-    }
-    // Add new tab
-    tabs = [...tabs, { type, id, label, content: '', loading: true }];
-    activeTabIdx = tabs.length - 1;
-    // Fetch content
-    try {
-      if (type === 'article') {
-        const data = await getArticle(id);
-        // Enhanced article rendering with proper styling
-        let articleHtml = `
-          <div class="article-card">
-            <div class="article-section">
-              <h1 class="section-title-main">${data.title}</h1>
-            </div>
-            
-            ${data.summary ? `
-            <div class="article-section">
-              <h3 class="section-title"><strong>Summary</strong></h3>
-              <div class="summary-content">${data.summary}</div>
-            </div>` : ''}
-            
-            <div class="article-section">
-              <h3 class="section-title"><strong>Article Details</strong></h3>
-              ${data.url ? `<div class="metadata-row"><strong>URL:</strong> <a href="${data.url}" target="_blank" rel="noopener">${data.url}</a></div>` : ''}
-              ${data.published_date ? `<div class="metadata-row"><strong>Published:</strong> ${new Date(data.published_date).toLocaleDateString()}</div>` : ''}
-            </div>
-          </div>
-        `;
-        tabs[activeTabIdx].content = articleHtml;
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to load tab content:', e);
-      tabs[activeTabIdx].content = 'Failed to load content.';
-    } finally {
-      tabs[activeTabIdx].loading = false;
-      tabs = [...tabs]; // trigger reactivity
-    }
-  }
-
-  function closeTab(idx: number) {
-    if (idx === 0) return; // Don't close Report
-    tabs = tabs.slice(0, idx).concat(tabs.slice(idx + 1));
-    if (activeTabIdx >= idx) {
-      activeTabIdx = Math.max(0, activeTabIdx - 1);
-    }
-  }
-
-  function selectTab(idx: number) {
-    activeTabIdx = idx;
-  }
-
-  // Intercept clicks on article links in markdown
-function handleTabLinkClick(event: MouseEvent) {
+  // Intercept clicks on article links in markdown to open ArticleModal
+function handleArticleLinkClick(event: MouseEvent) {
   let target = event.target as HTMLElement;
   // Traverse up in case the click is on a <b> or child inside <a>
   while (target && target !== event.currentTarget) {
@@ -464,10 +394,17 @@ function handleTabLinkClick(event: MouseEvent) {
     
     <div class="scrollable-section">
       <div class="themes-section">
-        <!-- STRATEGIES SECTION -->
+        <!-- WATCHLISTS SECTION -->
         <div class="section-header">
-          <h3 class="section-title">Strategies</h3>
-          <button class="add-button" on:click={openCreateStrategyModal} aria-label="Create new strategy" style="margin-right: 1.25rem;">
+          <h3 class="section-title">
+            Watchlists
+            <span class="info-tooltip" title="Your investment positions and theses. Add macro-level positions you're tracking, and Saga's AI agents will monitor risks, opportunities, and relevant news for each one.">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </span>
+          </h3>
+          <button class="add-button" on:click={openCreateStrategyModal} aria-label="Create new watchlist" style="margin-right: 1.25rem;">
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
@@ -496,16 +433,23 @@ function handleTabLinkClick(event: MouseEvent) {
               </li>
             {/each}
           {:else}
-            <li class="empty-state">No strategies yet</li>
+            <li class="empty-state">No watchlists yet</li>
           {/if}
         </ul>
         
         <!-- DIVIDER -->
         <div class="section-divider"></div>
         
-        <!-- ASSETS/INTERESTS SECTION -->
+        <!-- TOPICS SECTION -->
         <div class="section-header">
-          <h3 class="section-title">Assets</h3>
+          <h3 class="section-title">
+            Topics
+            <span class="info-tooltip" title="Broader market themes and areas of interest. Track macro topics like 'Fed Policy' or 'AI Semiconductors' to stay informed on developments that may impact your positions.">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </span>
+          </h3>
           <div style="width: 24px; margin-right: 1.25rem;"></div>
         </div>
         
@@ -574,104 +518,37 @@ function handleTabLinkClick(event: MouseEvent) {
       <ThemeReview theme={themeForDisplay} />
     {:else if currentSelection.type === 'interest'}
       <section class="strategy-detail-box">
-        <!-- Topic Info Card - matches strategy view -->
-        <div class="strategy-info-card">
-          <div class="strategy-header-buttons">
-            <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-              </svg>
-              Back
-            </button>
-          </div>
-          
-          <div class="strategy-header">
-            <h2 class="strategy-title">{data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}</h2>
-            <div class="strategy-meta">
-              <span class="meta-item"><strong>Type:</strong> Research Topic</span>
-            </div>
-            <p class="strategy-hint">Click this topic or any strategy on the left to explore details and talk to Saga about it in the chat.</p>
-          </div>
-        </div>
+        <!-- Entity Header Component for Topics -->
+        <EntityHeader
+          title={data?.interests?.find(i => i?.id === currentSelection?.value)?.name || 'No topic'}
+          metadata={[{ label: 'Type', value: 'Research Topic' }]}
+          hint="Click this topic or any watchlist on the left to explore details and talk to Saga about it in the chat."
+          showBack={true}
+          on:back={() => currentSelection = { type: 'nav', value: 'dashboard' }}
+        />
 
-        <!-- Tab bar -->
-        <div class="topic-tab-bar">
-          {#each tabs as tab, idx}
-            <button
-              class="topic-tab-button {activeTabIdx === idx ? 'active' : ''}"
-              on:click={() => selectTab(idx)}
-            >
-              {tab.label}
-              {#if idx !== 0}
-                <span
-                  class="tab-close-btn"
-                  on:click|stopPropagation={() => closeTab(idx)}
-                  aria-label="Close tab"
-                >×</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-
-        <!-- Report content - MATCHES STRATEGY VIEW EXACTLY -->
-        {#if tabs[activeTabIdx].type === 'report'}
-          {#await getReport(currentSelection.value) then report}
-            {@const heroSection = report.sections?.executive_summary ? 'executive_summary' : (report.sections?.house_view ? 'house_view' : null)}
-            {#if report.sections && Object.keys(report.sections).length > 0}
-              <!-- Hero Section (always expanded) - uses executive_summary OR house_view -->
-              {#if heroSection && report.sections[heroSection]}
-                <div class="executive-summary-section">
-                  <h3 class="section-heading">{formatSectionTitle(heroSection)}</h3>
-                  <div class="executive-summary-content" on:click={handleTabLinkClick}>
-                    {#each report.sections[heroSection].split('\n') as line}
-                      {@html linkifyIds(simpleMarkdown(line))}
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-
-              <!-- Analysis Sections Container - SAME AS STRATEGY -->
-              <div class="analysis-sections-container">
-                <div class="analysis-sections-header">
-                  <span class="analysis-sections-label">Analysis Sections</span>
-                </div>
-                {#each Object.entries(report.sections) as [sectionName, content]}
-                  {#if sectionName !== heroSection && content && content.trim()}
-                    <details
-                      class="analysis-card"
-                      open={!!openSections[sectionName]}
-                      on:toggle={(event) => handleSectionToggle(sectionName, event.currentTarget.open)}
-                    >
-                      <summary class="analysis-card-header">
-                        <span class="analysis-card-title">{formatSectionTitle(sectionName)}</span>
-                        <span class="analysis-card-chevron">›</span>
-                      </summary>
-                      <div class="analysis-card-content" on:click={handleTabLinkClick}>
-                        {#each content.split('\n') as line}
-                          {@html linkifyIds(simpleMarkdown(line))}
-                        {/each}
-                      </div>
-                    </details>
-                  {/if}
-                {/each}
-              </div>
-            {:else}
-              <div class="topic-content-card">
-                <div class="asset-markdown-error">No report content found.</div>
-              </div>
-            {/if}
-          {:catch error}
-            <div class="topic-content-card">
-              <div class="asset-markdown-error">No report found for this topic.</div>
+        <!-- Report content using AnalysisDisplay component -->
+        {#await getReport(currentSelection.value) then report}
+          {#if report.sections && Object.keys(report.sections).length > 0}
+            <AnalysisDisplay
+              sections={report.sections}
+              heroKey="executive_summary"
+              heroFallbackKey="house_view"
+              showEditButtons={false}
+              {openSections}
+              on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}
+              on:contentClick={handleArticleLinkClick}
+            />
+          {:else}
+            <div class="no-analysis">
+              <p>No report content found for this topic.</p>
             </div>
-          {/await}
-        {:else}
-          <div class="topic-content-card">
-            <div class="tab-content" on:click={handleTabLinkClick}>
-              {@html tabs[activeTabIdx].content}
-            </div>
+          {/if}
+        {:catch error}
+          <div class="no-analysis">
+            <p>No report found for this topic.</p>
           </div>
-        {/if}
+        {/await}
       </section>
     {:else if currentSelection.type === 'strategy'}
       {#key strategyRefreshKey}
@@ -682,145 +559,63 @@ function handleTabLinkClick(event: MouseEvent) {
         </div>
       {:then strategy}
         <section class="strategy-detail-box">
-          <!-- Strategy Info Card - wraps header, meta, and thesis -->
-          <div class="strategy-info-card">
-            <div class="strategy-header-buttons">
-              <button class="back-button" on:click={() => currentSelection = { type: 'nav', value: 'dashboard' }} title="Back to Dashboard">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                </svg>
-                Back
-              </button>
-              <div class="strategy-actions">
-                {#if data.user?.is_admin}
-                  <button 
-                    class="btn-toggle-default" 
-                    on:click={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
-                  >
-                    {strategy.is_default ? 'Remove Default' : 'Make Default'}
-                  </button>
-                {/if}
+          <!-- Entity Header Component -->
+          <EntityHeader
+            title={strategy.asset.primary}
+            badge={strategy.is_default ? '📌' : null}
+            badgeTitle="Example Strategy"
+            metadata={[
+              { label: 'Target', value: strategy.user_input.target },
+              { label: 'Version', value: String(strategy.version) },
+              { label: 'Updated', value: new Date(strategy.updated_at).toLocaleDateString() }
+            ]}
+            hint="Keep this thesis high-level; use Edit to adjust it, then chat on the right about this strategy or its topics."
+            showBack={true}
+            showEdit={!strategy.is_default || data.user?.is_admin}
+            showDelete={!strategy.is_default}
+            showExport={true}
+            showToggleDefault={data.user?.is_admin}
+            isDefault={strategy.is_default || false}
+            sections={[
+              {
+                heading: 'Strategy Thesis',
+                content: strategy.user_input.strategy_text,
+                hint: strategy.is_default ? '(example text, read-only)' : '(your text – change it with Edit)'
+              },
+              ...(strategy.user_input.position_text ? [{ heading: 'Target Outlook', content: strategy.user_input.position_text }] : []),
+              ...(strategy.user_input.target ? [{ heading: 'Target', content: strategy.user_input.target }] : [])
+            ]}
+            on:back={() => currentSelection = { type: 'nav', value: 'dashboard' }}
+            on:edit={() => openEditModal(strategy)}
+            on:delete={() => handleDeleteStrategy(strategy.id)}
+            on:export={() => showPdfModal = true}
+            on:toggleDefault={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+          />
 
-                {#if !strategy.is_default || data.user?.is_admin}
-                  <button class="btn-edit" on:click={() => openEditModal(strategy)}>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                    </svg>
-                    Edit
-                  </button>
-                {/if}
+          <!-- Findings Cards (Risks & Opportunities) -->
+          {#if strategy.exploration_findings}
+            <FindingsCards
+              risks={strategy.exploration_findings.risks || []}
+              opportunities={strategy.exploration_findings.opportunities || []}
+              on:discuss={(e) => {
+                const { finding, type } = e.detail;
+                chatTriggerMessage = `Tell me more about this ${type}: "${finding.headline}"`;
+              }}
+            />
+          {/if}
 
-                {#if !strategy.is_default}
-                  <button class="btn-delete" on:click={() => handleDeleteStrategy(strategy.id)}>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                    </svg>
-                    Delete
-                  </button>
-                {/if}
-                <button class="btn-export" on:click={() => showPdfModal = true}>
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                  </svg>
-                  Export PDF
-                </button>
-              </div>
-            </div>
-            
-            <div class="strategy-header">
-              <h2 class="strategy-title">
-                {strategy.asset.primary}
-                {#if strategy.is_default}
-                  <span class="default-badge-large" title="Example Strategy">📌</span>
-                {/if}
-              </h2>
-              <div class="strategy-meta">
-                <span class="meta-item"><strong>Target:</strong> {strategy.user_input.target}</span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item"><strong>Version:</strong> {strategy.version}</span>
-                <span class="meta-divider">•</span>
-                <span class="meta-item"><strong>Updated:</strong> {new Date(strategy.updated_at).toLocaleDateString()}</span>
-              </div>
-              <p class="strategy-hint">Keep this thesis high-level; use Edit to adjust it, then chat on the right about this strategy or its topics.</p>
-            </div>
-            
-            <!-- User Input Section -->
-            <div class="strategy-section">
-              <h3 class="section-heading">
-                Strategy Thesis
-                {#if strategy.is_default}
-                  <span class="section-hint">(example text, read-only)</span>
-                {:else}
-                  <span class="section-hint">(your text – change it with Edit)</span>
-                {/if}
-              </h3>
-              <p class="section-content">{strategy.user_input.strategy_text}</p>
-            </div>
-            
-            {#if strategy.user_input.position_text}
-              <div class="strategy-section">
-                <h3 class="section-heading">Target Outlook</h3>
-                <p class="section-content">{strategy.user_input.position_text}</p>
-              </div>
-            {/if}
-            
-            {#if strategy.user_input.target}
-              <div class="strategy-section">
-                <h3 class="section-heading">Target</h3>
-                <p class="section-content">{strategy.user_input.target}</p>
-              </div>
-            {/if}
-          </div>
-          
-          <!-- Analysis Section (if exists) -->
-          {#if strategy.latest_analysis?.analyzed_at}
-            <!-- Executive Summary (always expanded) -->
-            {#if strategy.latest_analysis.final_analysis?.executive_summary}
-              <div class="executive-summary-section">
-                <h3 class="section-heading">Executive Summary</h3>
-                <div class="executive-summary-content" on:click={handleTabLinkClick}>
-                  {#each strategy.latest_analysis.final_analysis.executive_summary.split('\\n') as line}
-                    {@html linkifyIds(simpleMarkdown(line))}
-                  {/each}
-                </div>
-              </div>
-            {/if}
-
-            <div class="analysis-sections-container">
-              <div class="analysis-sections-header">
-                <span class="analysis-sections-label">Analysis Sections</span>
-                <span class="analysis-timestamp">Updated {new Date(strategy.latest_analysis.analyzed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              </div>
-
-              <!-- All other sections collapsed by default -->
-              {#if strategy.latest_analysis.final_analysis}
-                {#each Object.entries(strategy.latest_analysis.final_analysis) as [sectionKey, content]}
-                  {#if sectionKey !== 'executive_summary' && content && content.trim()}
-                    <details class="analysis-card">
-                      <summary class="analysis-card-header">
-                        <span class="analysis-card-title">{formatSectionTitle(sectionKey)}</span>
-                        <span class="analysis-card-actions">
-                          <button 
-                            type="button"
-                            class="suggest-changes-btn"
-                            on:click|stopPropagation={() => suggestChanges(sectionKey, formatSectionTitle(sectionKey), content)}
-                          >
-                            Suggest edits
-                          </button>
-                          <span class="analysis-card-chevron">›</span>
-                        </span>
-                      </summary>
-                      <div class="analysis-card-content" on:click={handleTabLinkClick}>
-                        {#each content.split('\n') as line}
-                          {@html linkifyIds(simpleMarkdown(line))}
-                        {/each}
-                      </div>
-                    </details>
-                  {/if}
-                {/each}
-              {/if}
-
-            </div>
+          <!-- Analysis Display Component -->
+          {#if strategy.latest_analysis?.analyzed_at && strategy.latest_analysis.final_analysis}
+            <AnalysisDisplay
+              sections={strategy.latest_analysis.final_analysis}
+              heroKey="executive_summary"
+              showEditButtons={true}
+              timestamp={strategy.latest_analysis.analyzed_at}
+              {openSections}
+              on:suggestEdit={(e) => suggestChanges(e.detail.section, e.detail.title, e.detail.content)}
+              on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}
+              on:contentClick={handleArticleLinkClick}
+            />
           {:else}
             <div class="no-analysis">
               <p>No AI analysis generated yet</p>
@@ -831,11 +626,11 @@ function handleTabLinkClick(event: MouseEvent) {
           {/if}
 
           {#if showPdfModal}
-            <PdfExportModal 
+            <PdfExportModal
               strategy={{
                 title: strategy.asset.primary,
                 sections: getExportableSections(strategy)
-              }} 
+              }}
               onClose={() => showPdfModal = false}
             />
           {/if}
@@ -861,13 +656,13 @@ function handleTabLinkClick(event: MouseEvent) {
         <section class="card welcome-box welcome-theme">
           <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
           <p class="welcome-subtitle">Your AI-powered strategy command center. Monitor market risks in real-time, identify emerging opportunities, and make informed decisions based on comprehensive analysis of your trading strategies.</p>
-          <p class="welcome-hint">On the left you'll see your topics and strategies (including examples). Add your own at a macro level, then click a topic or strategy to open chat with Saga or use one of the questions below.</p>
+          <p class="welcome-hint">On the left you'll see your topics and watchlists (including examples). Add your own at a macro level, then click a topic or watchlist to chat with Saga or use one of the recommended questions below.</p>
         </section>
 
         {#if !loadingQuestions && dashboardQuestions.length > 0}
           <section class="card insights-box">
-            <h3 class="insights-title">💡 Strategy Insights</h3>
-            <p class="insights-description">Based on your active strategies, here are some critical questions to consider:</p>
+            <h3 class="insights-title">🎯 Saga Recommends</h3>
+            <p class="insights-description">Our expert analyst agents identified these questions worth exploring. Click any question to discuss with Saga:</p>
             <div class="questions-grid">
               {#each dashboardQuestions as question}
                 <button class="question-card" on:click={() => startChatWithQuestion(question)}>
@@ -929,9 +724,35 @@ function handleTabLinkClick(event: MouseEvent) {
       {:else}
         <div class="chat-placeholder">
           <div class="chat-placeholder-content">
-            <h3>Start a Conversation</h3>
-            <p>Choose a <strong>strategy</strong> or <strong>topic</strong> from the sidebar to begin chatting.</p>
-            <p class="placeholder-hint">Each strategy and topic has its own dedicated conversation history that persists across sessions.</p>
+            <h3>Ask Saga Anything</h3>
+            <p>Select a <strong>watchlist</strong> or <strong>topic</strong> from the sidebar to start chatting.</p>
+            <div class="example-prompts">
+              <p class="prompts-label">Or try one of these:</p>
+              <div class="prompt-chips">
+                {#each [
+                  "What's moving BTC today?",
+                  "Risks to my position?",
+                  "Latest Fed policy news"
+                ] as prompt}
+                  <button
+                    class="prompt-chip"
+                    on:click={() => {
+                      // Find default strategy or first available
+                      const defaultStrategy = data?.strategies?.find(s => s.is_default) || data?.strategies?.[0];
+                      if (defaultStrategy) {
+                        selectStrategy(defaultStrategy);
+                        chatTriggerMessage = prompt;
+                      } else if (data?.interests?.[0]) {
+                        selectInterest(data.interests[0]);
+                        chatTriggerMessage = prompt;
+                      }
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                {/each}
+              </div>
+            </div>
           </div>
         </div>
       {/if}
@@ -991,6 +812,22 @@ function handleTabLinkClick(event: MouseEvent) {
     letter-spacing: 0.06em;
     color: var(--text-muted, #86868b);
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .info-tooltip {
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    color: var(--text-muted, #86868b);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .info-tooltip:hover {
+    opacity: 1;
   }
 
   .summary-content {
@@ -1008,36 +845,6 @@ function handleTabLinkClick(event: MouseEvent) {
     font-weight: 700;
     margin-right: 0.5rem;
   }
-
-  /* Make all h3 headings in asset-markdown-box (insight/markdown sections) bold and spaced */
-  /* Simple, direct styling for insight content headings like 'Current Thesis' */
-  :global(.tab-content h3) {
-    font-weight: 800; /* BOLD */
-    margin-top: 2.5rem; /* SPACE ABOVE */
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  /* Global styles for article content */
-  :global(.tab-content .section-title-main) {
-    font-size: 1.8rem !important;
-    font-weight: 700 !important;
-    color: var(--text-primary, #222) !important;
-    margin-top: 0.8rem !important;
-    margin-bottom: 2.1rem !important;
-    letter-spacing: -0.01em !important;
-    line-height: 1.3 !important;
-    display: block !important;
-  }
-
-  :global(.tab-content .section-title) {
-    font-size: 1.6rem !important;
-    font-weight: 700 !important;
-    color: var(--text-primary, #222) !important;
-    margin: 1.5rem 0 1rem 0 !important;
-  }
-
-
 
   .summary-content {
     font-size: 1.15rem;
@@ -1504,22 +1311,6 @@ function handleTabLinkClick(event: MouseEvent) {
       padding: 1rem !important;
       margin: 0 0 0.625rem 0 !important;
       border-radius: 10px !important;
-    }
-
-    /* Topic content cards */
-    .topic-content-card {
-      border-radius: 10px !important;
-      padding: 1rem !important;
-    }
-
-    .topic-tab-bar {
-      padding: 0 0.25rem;
-    }
-
-    .topic-tab-button {
-      padding: 0.5rem 0.625rem;
-      font-size: 0.8125rem;
-      border-radius: 6px 6px 0 0;
     }
 
     /* Chat wrapper - MUST have position:relative for absolute child positioning */
@@ -2609,110 +2400,6 @@ function handleTabLinkClick(event: MouseEvent) {
   font-size: 0.75rem;
 }
 
-/* Topic Tab Bar */
-.topic-tab-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0;
-  padding: 0 0.25rem;
-}
-
-.topic-tab-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--surface-variant, #f5f5f7);
-  border: 1px solid var(--border-color, #e5e5e7);
-  border-bottom: none;
-  border-radius: 14px 14px 0 0;
-  color: var(--text-muted, #86868b);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  margin-bottom: -1px;
-}
-
-.topic-tab-button.active {
-  background: var(--card-bg, #ffffff);
-  color: var(--text-color, #1d1d1f);
-  border-color: var(--border-color, #e5e5e7);
-  font-weight: 600;
-  z-index: 2;
-}
-
-.topic-tab-button:hover:not(.active) {
-  background: var(--hover-bg, #e8e8ed);
-  color: var(--text-color, #1d1d1f);
-}
-
-.tab-close-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  font-size: 1rem;
-  line-height: 1;
-  color: var(--text-muted, #86868b);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.tab-close-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--text-color, #1d1d1f);
-}
-
-:global(.dark) .topic-tab-button {
-  background: var(--surface-variant, #2c2c2e);
-  border-color: var(--border-color, #38383a);
-}
-
-:global(.dark) .topic-tab-button.active {
-  background: var(--card-bg, #1c1c1e);
-  color: var(--text-color, #f5f5f7);
-}
-
-:global(.dark) .topic-tab-button:hover:not(.active) {
-  background: var(--hover-bg, #3a3a3c);
-}
-
-:global(.dark) .tab-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-color, #f5f5f7);
-}
-
-/* Topic Content Card */
-.topic-content-card {
-  background: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e5e5e7);
-  border-radius: 0 20px 20px 20px;
-  padding: 2rem 2.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.topic-content-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-color, #1d1d1f);
-  margin: 0 0 1.5rem 0;
-  letter-spacing: -0.02em;
-}
-
-:global(.dark) .topic-content-card {
-  background: var(--card-bg, #1c1c1e);
-  border-color: var(--border-color, #38383a);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark) .topic-content-title {
-  color: var(--text-color, #f5f5f7);
-}
-
 .strategy-section {
   margin-bottom: 1.75rem;
 }
@@ -3411,6 +3098,66 @@ function handleTabLinkClick(event: MouseEvent) {
   font-size: 0.8125rem;
   color: var(--text-muted, #86868b);
   font-style: italic;
+}
+
+.example-prompts {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e5e5e7);
+}
+
+.prompts-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #86868b);
+  margin-bottom: 0.5rem;
+}
+
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.prompt-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  background: var(--surface-variant, #f5f5f7);
+  border: 1px solid var(--border-color, #e5e5e7);
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-color, #1d1d1f);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prompt-chip:hover {
+  background: var(--primary, #007aff);
+  border-color: var(--primary, #007aff);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+:global(.dark) .example-prompts {
+  border-color: var(--border-color, #38383a);
+}
+
+:global(.dark) .prompt-chip {
+  background: var(--surface-variant, #2c2c2e);
+  border-color: var(--border-color, #48484a);
+  color: var(--text-color, #f5f5f7);
+}
+
+:global(.dark) .prompt-chip:hover {
+  background: #0a84ff;
+  border-color: #0a84ff;
+  color: white;
 }
 
 :global(.dark) .chat-placeholder {

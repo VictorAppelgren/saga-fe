@@ -20,8 +20,7 @@
   let messages: Message[] = [];
   let inputText = '';
   let chatContainer: HTMLElement;
-  let currentChatKey: string | null = null;
-  let isInitialized = false;
+  let conversationId: string | null = null;
 
   export let feedbackContext: {
     section: string;
@@ -67,7 +66,6 @@
       timestamp: new Date()
     };
     messages = [...messages, userMessage];
-    saveChat();
     console.log('✅ User message added, total messages:', messages.length);
     scrollToBottom();
 
@@ -90,106 +88,27 @@
 
   // Track last processed trigger to avoid duplicates
   let lastProcessedTrigger: string | null = null;
-  
-  // Generate chat key based on context
-  function getChatKey(): string | null {
-    if (strategy_id) return `chat_strategy_${strategy_id}`;
-    if (topic_id) return `chat_topic_${topic_id}`;
-    return null;
-  }
-  
-  // Save messages to localStorage with proper Date serialization
-  function saveChat() {
-    const key = getChatKey();
-    if (!key) return;
-    
-    try {
-      // Serialize messages with ISO timestamp strings (Date objects don't serialize)
-      const serializable = messages.map(m => ({
-        id: m.id,
-        text: m.text,
-        isUser: m.isUser,
-        timestamp: m.timestamp.toISOString()
-      }));
-      
-      localStorage.setItem(key, JSON.stringify(serializable));
-      console.log(`💾 Saved ${messages.length} messages to ${key}`);
-    } catch (e) {
-      console.error('❌ Failed to save chat history:', e);
-      // Continue gracefully - don't break the app
-    }
-  }
-  
-  // Load messages from localStorage with proper Date deserialization
-  function loadChat() {
-    const key = getChatKey();
-    if (!key) {
-      messages = [];
-      console.log('📭 No chat key - clearing messages');
-      return;
-    }
-    
-    try {
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Deserialize with proper Date objects
-        messages = parsed.map((m: any) => ({
-          id: m.id,
-          text: m.text,
-          isUser: m.isUser,
-          timestamp: new Date(m.timestamp)
-        }));
-        console.log(`📂 Loaded ${messages.length} messages from ${key}`);
-        scrollToBottom();
-      } else {
-        messages = [];
-        console.log(`📭 No saved messages for ${key}`);
-      }
-    } catch (e) {
-      console.error('❌ Failed to load chat history:', e);
-      messages = [];
-    }
-  }
-  
-  // Clear chat history for current context
+
+  // Clear chat - starts fresh conversation (next message will create new one)
   function clearChat() {
-    const key = getChatKey();
-    if (key && confirm('Clear this conversation? This cannot be undone.')) {
-      try {
-        localStorage.removeItem(key);
-        messages = [];
-        console.log(`🗑️ Cleared chat: ${key}`);
-      } catch (e) {
-        console.error('❌ Failed to clear chat:', e);
-      }
+    if (confirm('Clear this conversation? This cannot be undone.')) {
+      messages = [];
+      conversationId = null;
+      console.log('🗑️ Cleared chat - next message starts fresh');
     }
   }
-  
-  // Initialize on mount
+
+  // Initialize on mount - messages come from backend on first chat
   onMount(() => {
-    currentChatKey = getChatKey();
-    loadChat();
-    isInitialized = true;
-    console.log(`🚀 Chat mounted with key: ${currentChatKey}`);
+    console.log('🚀 Chat mounted - backend manages conversation state');
   });
-  
-  // Watch for context changes and reload chat (only after initialization)
-  $: if (isInitialized) {
-    const newKey = getChatKey();
-    if (newKey !== currentChatKey) {
-      console.log(`🔄 Context changed: ${currentChatKey} → ${newKey}`);
-      currentChatKey = newKey;
-      loadChat();
-    }
-  }
-  
+
   // Watch for triggerMessage changes from dashboard
   $: if (triggerMessage && triggerMessage !== lastProcessedTrigger) {
     console.log('💬 Chat received trigger message:', triggerMessage);
     lastProcessedTrigger = triggerMessage;
-    
-    // Add message to conversation
+
+    // Optimistically add user message
     const userMessage: Message = {
       id: generateId(),
       text: triggerMessage,
@@ -197,70 +116,64 @@
       timestamp: new Date()
     };
     messages = [...messages, userMessage];
-    saveChat();
-    console.log('📝 Message added to conversation, total messages:', messages.length);
     scrollToBottom();
-    
+
     // Send to backend
     sendMessage(triggerMessage);
   }
 
-  // Separate function to send message to backend
+  // Send message to backend - backend manages conversation state
   async function sendMessage(messageText: string) {
     console.log('📤 sendMessage called with:', messageText);
     loading = true;
     errorMsg = '';
 
     try {
-      // Prepare message history for backend
-      const history = messages.map(m => ({
-        role: m.isUser ? 'user' : 'assistant',
-        content: m.text
-      }));
-      
-      // Build request payload
-      const body: any = { 
-        message: messageText,
-        history
-      };
-      
-      if (topic_id) {
-        body.topic_id = topic_id;
-      }
-      
-      if (strategy_id) {
-        body.strategy_id = strategy_id;
-        if (username) {
-          body.username = username;
-        }
-      }
-      
-      console.log('🌐 Sending to:', API_BASE + '/chat', 'with body:', body);
-      
+      // Build request payload - no history needed, backend manages it
+      const body: any = { message: messageText };
+
+      if (topic_id) body.topic_id = topic_id;
+      if (strategy_id) body.strategy_id = strategy_id;
+      if (username) body.username = username;
+
+      console.log('🌐 Sending to:', API_BASE + '/chat');
+
       const resp = await fetch(API_BASE + '/chat', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'X-API-Key': API_KEY
         },
         body: JSON.stringify(body)
       });
-      
-      console.log('📨 Response status:', resp.status);
+
       if (!resp.ok) throw new Error('Server error: ' + resp.status);
-      
+
       const data = await resp.json();
-      console.log('✅ Response data:', data);
-      
-      const botMessage: Message = {
-        id: generateId(),
-        text: data.response,
-        isUser: false,
-        timestamp: new Date()
-      };
-      messages = [...messages, botMessage];
-      saveChat();
-      console.log('🤖 Bot message added, total messages:', messages.length);
+      console.log('✅ Response:', data.conversation_id);
+
+      // Store conversation ID for reference
+      conversationId = data.conversation_id;
+
+      // Backend returns visible messages - use them as source of truth
+      if (data.messages && Array.isArray(data.messages)) {
+        messages = data.messages.map((m: any) => ({
+          id: generateId(),
+          text: m.content,
+          isUser: m.role === 'user',
+          timestamp: new Date(m.timestamp)
+        }));
+      } else {
+        // Fallback: just add bot response
+        const botMessage: Message = {
+          id: generateId(),
+          text: data.response,
+          isUser: false,
+          timestamp: new Date()
+        };
+        messages = [...messages, botMessage];
+      }
+
       scrollToBottom();
     } catch (err: any) {
       console.error('❌ Error in sendMessage:', err);
@@ -272,11 +185,9 @@
         timestamp: new Date()
       };
       messages = [...messages, botMessage];
-      saveChat();
       scrollToBottom();
     } finally {
       loading = false;
-      console.log('✅ sendMessage complete, loading:', loading);
     }
   }
 
@@ -300,7 +211,6 @@
       timestamp: new Date()
     };
     messages = [...messages, workingMessage];
-    saveChat();
     scrollToBottom();
 
     loading = true;
@@ -347,7 +257,6 @@
         timestamp: new Date()
       };
       messages = [...messages, confirmation];
-      saveChat();
       scrollToBottom();
     } catch (err: any) {
       const errorText = err?.message || 'Failed to rewrite section.';
@@ -358,7 +267,6 @@
         timestamp: new Date()
       };
       messages = [...messages, failure];
-      saveChat();
       scrollToBottom();
     } finally {
       loading = false;
@@ -395,6 +303,18 @@
         </div>
       </div>
     {/each}
+
+    <!-- Typing indicator when loading -->
+    {#if loading}
+      <div class="message bot">
+        <div class="message-sender">Saga</div>
+        <div class="message-bubble typing-indicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="input-container">
@@ -579,6 +499,49 @@
 
   :global(.dark) .message-time {
     color: var(--text-muted, #98989d);
+  }
+
+  /* Typing indicator animation */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.875rem 1.25rem !important;
+  }
+
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-muted, #86868b);
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+  }
+
+  .typing-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typingBounce {
+    0%, 80%, 100% {
+      transform: scale(0.6);
+      opacity: 0.4;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  :global(.dark) .typing-dot {
+    background: var(--text-muted, #98989d);
   }
 
   .input-container {

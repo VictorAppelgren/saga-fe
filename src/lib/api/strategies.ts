@@ -24,6 +24,21 @@ export interface StrategyLatestAnalysis {
   final_analysis?: Record<string, string>;
 }
 
+// Finding structure for risks and opportunities
+export interface Finding {
+  headline: string;
+  rationale?: string;
+  confidence?: string; // "high" | "medium" | "low"
+  flow_path?: string;
+  evidence?: string;
+  added_at?: string;
+}
+
+export interface ExplorationFindings {
+  risks: Finding[];
+  opportunities: Finding[];
+}
+
 export interface StrategyDetail {
   id: string;
   created_at: string;
@@ -52,6 +67,8 @@ export interface StrategyDetail {
   };
   // New analysis container used by the current pipeline
   latest_analysis?: StrategyLatestAnalysis;
+  // Exploration findings (risks and opportunities)
+  exploration_findings?: ExplorationFindings;
 }
 
 export interface CreateStrategyRequest {
