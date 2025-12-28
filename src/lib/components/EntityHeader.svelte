@@ -147,6 +147,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-color, #e5e5e7);
@@ -157,18 +159,9 @@
   }
 
   .back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
     background: var(--surface-variant, #f5f5f7);
     border: 1px solid var(--border-color, #e5e5e7);
-    border-radius: 10px;
     color: var(--text-color, #1d1d1f);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
   }
 
   .back-button:hover {
@@ -188,10 +181,12 @@
 
   .entity-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
   }
 
+  .back-button,
   .btn-toggle-default,
   .btn-edit,
   .btn-delete,
@@ -200,12 +195,14 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.5rem 1rem;
+    height: 36px;
     border-radius: 8px;
     font-size: 0.8125rem;
     font-weight: 500;
     border: none;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .btn-toggle-default {

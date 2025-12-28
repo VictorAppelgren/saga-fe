@@ -530,10 +530,21 @@ function handleArticleLinkClick(event: MouseEvent) {
         <!-- Report content using AnalysisDisplay component -->
         {#await getReport(currentSelection.value) then report}
           {#if report.sections && Object.keys(report.sections).length > 0}
+            <!-- Findings Cards (Risks & Opportunities) for Topics -->
+            {#if report.exploration_findings}
+              <FindingsCards
+                risks={report.exploration_findings.risks || []}
+                opportunities={report.exploration_findings.opportunities || []}
+                on:discuss={(e) => {
+                  const msg = `Tell me more about this ${e.detail.type}: ${e.detail.finding.headline}`;
+                  chatTriggerMessage = msg;
+                }}
+              />
+            {/if}
+
             <AnalysisDisplay
               sections={report.sections}
-              heroKey="executive_summary"
-              heroFallbackKey="house_view"
+              heroKey="house_view"
               showEditButtons={false}
               {openSections}
               on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}

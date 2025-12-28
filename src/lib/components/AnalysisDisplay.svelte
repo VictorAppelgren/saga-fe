@@ -6,8 +6,7 @@
 
   // Props
   export let sections: Record<string, string> = {};
-  export let heroKey: string = 'executive_summary';
-  export let heroFallbackKey: string | null = null; // e.g., 'house_view' for topics
+  export let heroKey: string = 'executive_summary'; // Single hero key - caller decides which section is the hero
   export let showEditButtons: boolean = false;
   export let timestamp: string | null = null;
   export let openSections: Record<string, boolean> = {};
@@ -53,8 +52,8 @@
     dispatch('contentClick', event);
   }
 
-  // Determine which section is the hero
-  $: activeHeroKey = sections[heroKey] ? heroKey : (heroFallbackKey && sections[heroFallbackKey] ? heroFallbackKey : null);
+  // Hero is shown if it exists in sections
+  $: hasHero = sections[heroKey] && sections[heroKey].trim();
 
   // Format timestamp
   $: formattedTimestamp = timestamp
@@ -64,11 +63,11 @@
 
 {#if sections && Object.keys(sections).length > 0}
   <!-- Hero Section (always expanded) -->
-  {#if activeHeroKey && sections[activeHeroKey]}
+  {#if hasHero}
     <div class="executive-summary-section">
-      <h3 class="section-heading">{formatSectionTitle(activeHeroKey)}</h3>
+      <h3 class="section-heading">{formatSectionTitle(heroKey)}</h3>
       <div class="executive-summary-content" on:click={handleContentClick}>
-        {#each sections[activeHeroKey].split('\n') as line}
+        {#each sections[heroKey].split('\n') as line}
           {@html linkifyIds(simpleMarkdown(line))}
         {/each}
       </div>
@@ -84,9 +83,9 @@
       {/if}
     </div>
 
-    <!-- Collapsible sections -->
+    <!-- Collapsible sections (everything except the hero) -->
     {#each Object.entries(sections) as [sectionKey, content]}
-      {#if sectionKey !== activeHeroKey && content && content.trim()}
+      {#if sectionKey !== heroKey && content && content.trim()}
         <details
           class="analysis-card"
           open={!!openSections[sectionKey]}
