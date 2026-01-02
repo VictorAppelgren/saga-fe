@@ -112,22 +112,22 @@
 	</nav>
 
 	<!-- Hero Section - Clean & Impactful -->
-	<section class="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
+	<section class="relative min-h-[90vh] flex items-center pt-16 sm:pt-20 overflow-hidden">
 		<!-- Subtle gradient background -->
 		<div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-white pointer-events-none"></div>
 
-		<div class="relative max-w-7xl mx-auto pl-10 md:pl-16 lg:pl-24 pr-6 md:pr-8 py-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+		<div class="relative max-w-7xl mx-auto px-5 sm:px-8 md:px-12 lg:pl-24 lg:pr-8 py-12 sm:py-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-8 items-center">
 			<!-- Left: Text Content -->
-			<div class="text-left">
-				<h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold mb-5 leading-[1.1] tracking-tight text-gray-900">
+			<div class="text-center lg:text-left order-2 lg:order-1">
+				<h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 sm:mb-5 leading-[1.15] tracking-tight text-gray-900">
 					Your Judgment. Amplified Beyond Human Scale.
 				</h1>
 
-				<p class="text-base md:text-lg mb-3 text-gray-900 font-medium max-w-xl leading-relaxed">
+				<p class="text-base sm:text-lg mb-3 text-gray-900 font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
 					Every angle checked. Every risk exposed. Nothing missed.
 				</p>
 
-				<p class="text-sm md:text-base text-gray-500 max-w-lg mb-7">
+				<p class="text-sm sm:text-base text-gray-500 max-w-lg mx-auto lg:mx-0 mb-6 sm:mb-7">
 					Walk into every decision certain — before the market catches up.
 				</p>
 
@@ -141,9 +141,9 @@
 			</div>
 
 			<!-- Right: Animated Globe -->
-			<div class="flex justify-center lg:justify-end">
-				<div class="relative">
-					<!-- Globe SVG - slightly smaller -->
+			<div class="flex justify-center order-1 lg:order-2">
+				<div class="relative w-[280px] sm:w-[320px] md:w-[380px]">
+					<!-- Globe SVG - responsive sizing -->
 					<GlobeAnimation size={380} accentColor={accentColor} />
 					<!-- Glow effect behind globe -->
 					<div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10"></div>
@@ -152,8 +152,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- SHOWCASE: GOD-TIER ANIMATIONS -->
-	<section class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 overflow-hidden">
+	<section class="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 overflow-hidden">
 		<div class="text-center mb-12 sm:mb-16">
 			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">How It Works</p>
 			<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
@@ -214,8 +221,16 @@
 
 	<!-- HOME TAB CONTENT -->
 	{#if activeTab === 'home'}
+
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- The Problem We Solve - Clean & Direct -->
-	<section class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<!-- Subtle network background -->
 		<div class="absolute inset-0 opacity-20">
 			<NetworkBackground opacity={0.08} color={accentColor} />
@@ -274,9 +289,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
 
 	<!-- Two Ways We Strengthen You - Minimal Cards -->
-	<section id="platform" class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
+	<section id="platform" class="relative max-w-5xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
 			Two Ways We Strengthen You
@@ -313,8 +334,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- Certainty Section -->
-	<section class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
+	<section class="relative max-w-5xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="relative grid lg:grid-cols-[1fr_auto] gap-12 items-center">
 			<!-- Left: Content -->
 			<div>
@@ -366,8 +394,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- The Category Opportunity -->
-	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
 			The Category No One Has Built
@@ -407,8 +442,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- Who This Is For -->
-	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">Who This Is For</h2>
 		<p class="text-lg text-center mb-20 text-gray-500">
@@ -459,8 +501,15 @@
 		</div>
 	</section>
 
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- Your AI Research Team -->
-	<section class="relative max-w-7xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+	<section class="relative max-w-7xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="grid lg:grid-cols-2 gap-16 items-center">
 			<!-- Left: Globe Animation -->
 			<div class="hidden lg:flex justify-center order-2 lg:order-1">
