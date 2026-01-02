@@ -63,8 +63,8 @@
       y: Math.random() * 100,
       vx: (Math.random() - 0.5) * 0.02,
       vy: (Math.random() - 0.5) * 0.02,
-      size: Math.random() * 2 + 1.5,
-      opacity: Math.random() * 0.5 + 0.3
+      size: Math.random() * 2.5 + 2,
+      opacity: Math.random() * 0.4 + 0.5
     }));
 
     // Create connections between nearby nodes
@@ -78,11 +78,11 @@
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 25) {
+        if (dist < 30) {
           connections.push({
             from: nodes[i].id,
             to: nodes[j].id,
-            opacity: Math.max(0, 1 - dist / 25) * 0.3
+            opacity: Math.max(0, 1 - dist / 30) * 0.5
           });
         }
       }
@@ -164,7 +164,7 @@
         x2={toNode.x}
         y2={toNode.y}
         stroke={accentColor}
-        stroke-width="0.15"
+        stroke-width="0.25"
         opacity={conn.opacity}
       />
     {/if}
@@ -195,9 +195,9 @@
     <circle
       cx={pos.x}
       cy={pos.y}
-      r="1.2"
+      r="1.8"
       fill={accentColor}
-      opacity={1 - pulse.progress}
+      opacity={(1 - pulse.progress) * 0.9}
       filter="url(#glow)"
     />
   {/each}
