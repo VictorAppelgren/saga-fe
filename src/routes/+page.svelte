@@ -108,7 +108,7 @@
 		<!-- Subtle gradient background -->
 		<div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-white pointer-events-none"></div>
 
-		<div class="relative max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
+		<div class="relative max-w-7xl mx-auto px-8 md:px-12 lg:px-16 py-16 grid lg:grid-cols-2 gap-12 items-center">
 			<!-- Left: Text Content -->
 			<div class="text-left">
 				<h1 class="text-5xl md:text-6xl lg:text-7xl font-semibold mb-8 leading-[1.1] tracking-tight text-gray-900">
