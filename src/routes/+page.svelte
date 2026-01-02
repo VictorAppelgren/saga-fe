@@ -152,7 +152,12 @@
 	<!-- HOME TAB CONTENT -->
 	{#if activeTab === 'home'}
 	<!-- The Problem We Solve - Clean & Direct -->
-	<section class="max-w-4xl mx-auto px-6 py-32">
+	<section class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Subtle network background -->
+		<div class="absolute inset-0 opacity-20">
+			<NetworkBackground opacity={0.08} color={accentColor} />
+		</div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
 			The Blind Spots That Cost You
 		</h2>
@@ -203,6 +208,7 @@
 		<p class="text-2xl font-medium text-center mt-16 text-gray-900">
 			Walk into every decision knowing what others will discover too late.
 		</p>
+		</div>
 	</section>
 
 
@@ -283,7 +289,13 @@
 	</section>
 
 	<!-- The Category Opportunity -->
-	<section class="max-w-4xl mx-auto px-6 py-32 border-t border-gray-100">
+	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+		<!-- Network animation background -->
+		<div class="absolute inset-0 opacity-25">
+			<NetworkAnimation nodeCount={20} accentColor={accentColor} />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/80 pointer-events-none"></div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
 			The Category No One Has Built
 		</h2>
@@ -319,10 +331,16 @@
 				The funds that adopt this will compound their advantage.
 			</p>
 		</div>
+		</div>
 	</section>
 
 	<!-- Who This Is For -->
-	<section class="max-w-4xl mx-auto px-6 py-32 border-t border-gray-100">
+	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+		<!-- Subtle network background -->
+		<div class="absolute inset-0 opacity-15">
+			<NetworkBackground opacity={0.1} color={accentColor} />
+		</div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">Who This Is For</h2>
 		<p class="text-lg text-center mb-20 text-gray-500">
 			For funds, institutions, and strategic teams making decisions that matter.
@@ -368,6 +386,7 @@
 					Understand how decisions cascade through interconnected systems before you commit.
 				</p>
 			</div>
+		</div>
 		</div>
 	</section>
 
@@ -610,7 +629,12 @@
 
 	<!-- INVESTORS TAB CONTENT -->
 	{#if activeTab === 'investors'}
-	<section data-tab="investors" class="max-w-4xl mx-auto px-6 py-32">
+	<section data-tab="investors" class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Subtle network background -->
+		<div class="absolute inset-0 opacity-15">
+			<NetworkBackground opacity={0.1} color={accentColor} />
+		</div>
+		<div class="relative">
 		<!-- Hero -->
 		<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
 			The Category-Defining Opportunity
@@ -943,12 +967,19 @@
 			</button>
 			<p class="text-sm text-gray-400 mt-6">info@saga-labs.com</p>
 		</div>
+		</div>
 	</section>
 	{/if}
 
 	<!-- EXAMPLES TAB CONTENT -->
 	{#if activeTab === 'examples'}
-	<section data-tab="examples" class="max-w-4xl mx-auto px-6 py-32">
+	<section data-tab="examples" class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Network animation background -->
+		<div class="absolute inset-0 opacity-20">
+			<NetworkAnimation nodeCount={25} accentColor={accentColor} />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/90 pointer-events-none"></div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
 			Chain Reactions Made Visible
 		</h2>
@@ -1105,6 +1136,7 @@
 					We'd be happy to show you what this looks like for your specific exposures.
 				</p>
 			</div>
+		</div>
 		</div>
 	</section>
 	{/if}
