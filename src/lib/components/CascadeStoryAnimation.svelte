@@ -436,8 +436,7 @@
   {/each}
 
   <!-- SAGA at center - PROMINENT -->
-  {@const sagaNode = nodes.find(n => n.type === 'saga')}
-  {#if sagaNode}
+  {#each nodes.filter(n => n.type === 'saga') as sagaNode}
     {@const pulseOffset = Math.sin(sagaNode.pulsePhase) * 5}
 
     <!-- Outer pulse rings -->
@@ -458,7 +457,7 @@
 
     <!-- "All-seeing" text -->
     <text x={centerX} y={centerY + sagaRadius + 20} text-anchor="middle" font-size="8" fill={accentColor} opacity="0.5" font-weight="500">KNOWLEDGE GRAPH</text>
-  {/if}
+  {/each}
 </svg>
 
 <style>

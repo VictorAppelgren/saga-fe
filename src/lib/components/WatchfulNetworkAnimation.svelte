@@ -385,11 +385,10 @@
   />
 
   <!-- SAGA ring pulse -->
-  {@const pulseOffset = Math.sin(centerPulse) * 4}
   <circle
     cx={centerX}
     cy={centerY}
-    r={sagaRingRadius + 15 + pulseOffset + sagaActivity * 8}
+    r={sagaRingRadius + 15 + Math.sin(centerPulse) * 4 + sagaActivity * 8}
     fill="none"
     stroke={accentColor}
     stroke-width="1"
@@ -398,7 +397,7 @@
   <circle
     cx={centerX}
     cy={centerY}
-    r={sagaRingRadius + 28 + pulseOffset * 0.6 + sagaActivity * 12}
+    r={sagaRingRadius + 28 + Math.sin(centerPulse) * 4 * 0.6 + sagaActivity * 12}
     fill="none"
     stroke={accentColor}
     stroke-width="0.5"
