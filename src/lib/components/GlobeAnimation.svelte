@@ -8,114 +8,136 @@
   let rotation = 0;
   let pulsePhase = 0;
 
-  // Major cities/financial centers spread across the globe
-  // Adjusted longitudes to ensure good initial distribution
+  const radius = size * 0.38;
+  const centerX = size / 2;
+  const centerY = size / 2;
+
+  // Financial centers distributed evenly around the globe
+  // Using longitude spread across full 360 degrees for even distribution
   const cities = [
-    // Americas
-    { name: 'New York', lat: 40.7, lng: -74, size: 4 },
-    { name: 'Sao Paulo', lat: -23.5, lng: -46.6, size: 3 },
-    { name: 'Toronto', lat: 43.7, lng: -79.4, size: 2.5 },
-    { name: 'Chicago', lat: 41.9, lng: -87.6, size: 2.5 },
-    { name: 'Mexico City', lat: 19.4, lng: -99.1, size: 2 },
-    // Europe & Middle East
-    { name: 'London', lat: 51.5, lng: 0, size: 4 },
-    { name: 'Frankfurt', lat: 50.1, lng: 8.7, size: 3 },
-    { name: 'Paris', lat: 48.9, lng: 2.3, size: 3 },
-    { name: 'Zurich', lat: 47.4, lng: 8.5, size: 2.5 },
-    { name: 'Dubai', lat: 25.3, lng: 55.3, size: 3 },
-    { name: 'Moscow', lat: 55.8, lng: 37.6, size: 2.5 },
-    // Asia Pacific
-    { name: 'Tokyo', lat: 35.7, lng: 139.7, size: 4 },
-    { name: 'Singapore', lat: 1.3, lng: 103.8, size: 3 },
-    { name: 'Hong Kong', lat: 22.3, lng: 114.2, size: 3 },
-    { name: 'Shanghai', lat: 31.2, lng: 121.5, size: 3 },
-    { name: 'Mumbai', lat: 19.1, lng: 72.9, size: 2.5 },
-    { name: 'Sydney', lat: -33.9, lng: 151.2, size: 3 },
-    { name: 'Seoul', lat: 37.6, lng: 127, size: 2.5 },
+    // Row 1: Northern high latitude (~55°)
+    { name: 'London', lat: 52, lng: -10, size: 4 },
+    { name: 'Moscow', lat: 56, lng: 50, size: 3 },
+    { name: 'Vancouver', lat: 49, lng: -130, size: 2.5 },
+
+    // Row 2: Northern mid latitude (~40°)
+    { name: 'New York', lat: 41, lng: -74, size: 4 },
+    { name: 'Madrid', lat: 40, lng: -4, size: 2.5 },
+    { name: 'Beijing', lat: 40, lng: 116, size: 3.5 },
+    { name: 'Tokyo', lat: 36, lng: 140, size: 4 },
+    { name: 'San Francisco', lat: 38, lng: -122, size: 3 },
+
+    // Row 3: Tropical/Equatorial (~20° to ~5°)
+    { name: 'Mumbai', lat: 19, lng: 73, size: 3 },
+    { name: 'Hong Kong', lat: 22, lng: 114, size: 3.5 },
+    { name: 'Singapore', lat: 1, lng: 104, size: 3 },
+    { name: 'Dubai', lat: 25, lng: 55, size: 3 },
+    { name: 'Mexico City', lat: 19, lng: -99, size: 2.5 },
+    { name: 'Lagos', lat: 6, lng: 3, size: 2 },
+
+    // Row 4: Southern latitude (~-25° to -35°)
+    { name: 'Sao Paulo', lat: -24, lng: -47, size: 3 },
+    { name: 'Sydney', lat: -34, lng: 151, size: 3 },
+    { name: 'Johannesburg', lat: -26, lng: 28, size: 2.5 },
+    { name: 'Buenos Aires', lat: -35, lng: -58, size: 2.5 },
   ];
 
-  // Connections between financial centers (indices into cities array)
+  // Create connections that span across the globe
   const connections = [
-    // Americas internal
-    [0, 2], [0, 3], [0, 1], [1, 4],
-    // Americas to Europe
-    [0, 5], [0, 7], [2, 5],
-    // Europe internal
-    [5, 6], [5, 7], [6, 8], [7, 8], [5, 10],
-    // Europe to Middle East/Asia
-    [5, 9], [9, 15], [10, 9],
-    // Asia internal
-    [11, 14], [11, 17], [12, 13], [13, 14], [12, 16], [15, 12],
-    // Trans-Pacific
-    [0, 11], [11, 16], [16, 12],
+    // Trans-Atlantic
+    [0, 3], [0, 4], [3, 4],
+    // Europe to Asia
+    [0, 1], [1, 11], [0, 11],
+    // Asia connections
+    [5, 6], [6, 9], [9, 10], [8, 10], [8, 11],
+    // Pacific connections
+    [6, 7], [7, 3],
+    // Americas
+    [3, 12], [7, 12], [3, 14], [14, 17],
+    // Southern hemisphere
+    [14, 15], [15, 16], [16, 17],
+    // Cross connections
+    [10, 15], [13, 16], [2, 7],
+    // More global links
+    [0, 13], [1, 5], [11, 8],
   ];
 
   // Convert lat/lng to 3D coordinates on sphere
-  function latLngTo3D(lat: number, lng: number, radius: number) {
+  function latLngTo3D(lat: number, lng: number, r: number) {
     const phi = (90 - lat) * (Math.PI / 180);
     const theta = (lng + rotation) * (Math.PI / 180);
     return {
-      x: radius * Math.sin(phi) * Math.cos(theta),
-      y: radius * Math.cos(phi),
-      z: radius * Math.sin(phi) * Math.sin(theta),
+      x: r * Math.sin(phi) * Math.cos(theta),
+      y: r * Math.cos(phi),
+      z: r * Math.sin(phi) * Math.sin(theta),
     };
   }
 
-  // Project 3D to 2D with perspective
+  // Project 3D to 2D - orthographic projection (no perspective distortion)
   function project(x: number, y: number, z: number) {
-    const perspective = 400;
-    const scale = perspective / (perspective + z);
-    const radius = size * 0.35;
+    // Orthographic projection - simpler, shows full hemisphere evenly
     return {
-      x: x * scale + size / 2,
-      y: y * scale + size / 2,
-      scale,
-      // Show more of the globe - adjusted threshold for better visibility
-      visible: z < radius * 0.6,
-      // Depth factor for opacity (front = brighter, back = dimmer)
-      depth: 1 - (z / radius + 1) / 2,
+      x: x + centerX,
+      y: y + centerY,
+      z: z,
+      // Show front hemisphere (z < 0 means facing us)
+      visible: z < radius * 0.15,
+      // Depth for opacity: closer to front = higher value
+      depth: Math.max(0, 1 - (z / radius + 1) / 2),
     };
   }
 
   // Get projected city positions
   $: projectedCities = cities.map((city) => {
-    const pos3d = latLngTo3D(city.lat, city.lng, size * 0.35);
+    const pos3d = latLngTo3D(city.lat, city.lng, radius);
     const proj = project(pos3d.x, pos3d.y, pos3d.z);
-    return { ...city, ...proj, z: pos3d.z };
+    return { ...city, ...proj };
   });
 
-  // Generate globe grid lines (latitude/longitude)
+  // Generate globe grid lines
   function generateGridLines() {
     const lines: { points: string; opacity: number }[] = [];
-    const radius = size * 0.35;
 
-    // Latitude lines
+    // Latitude lines (horizontal circles)
     for (let lat = -60; lat <= 60; lat += 30) {
-      let points = [];
-      for (let lng = 0; lng <= 360; lng += 10) {
+      let points: string[] = [];
+      let lastVisible = false;
+
+      for (let lng = 0; lng <= 360; lng += 5) {
         const pos3d = latLngTo3D(lat, lng, radius);
         const proj = project(pos3d.x, pos3d.y, pos3d.z);
+
         if (proj.visible) {
-          points.push(`${proj.x},${proj.y}`);
+          points.push(`${proj.x.toFixed(1)},${proj.y.toFixed(1)}`);
+          lastVisible = true;
+        } else if (lastVisible) {
+          // End current segment
+          if (points.length > 2) {
+            lines.push({ points: points.join(' '), opacity: 0.12 });
+          }
+          points = [];
+          lastVisible = false;
         }
       }
       if (points.length > 2) {
-        lines.push({ points: points.join(' '), opacity: 0.15 });
+        lines.push({ points: points.join(' '), opacity: 0.12 });
       }
     }
 
-    // Longitude lines
+    // Longitude lines (vertical arcs)
     for (let lng = 0; lng < 360; lng += 30) {
-      let points = [];
-      for (let lat = -80; lat <= 80; lat += 5) {
+      let points: string[] = [];
+
+      for (let lat = -90; lat <= 90; lat += 5) {
         const pos3d = latLngTo3D(lat, lng, radius);
         const proj = project(pos3d.x, pos3d.y, pos3d.z);
+
         if (proj.visible) {
-          points.push(`${proj.x},${proj.y}`);
+          points.push(`${proj.x.toFixed(1)},${proj.y.toFixed(1)}`);
         }
       }
       if (points.length > 2) {
-        lines.push({ points: points.join(' '), opacity: 0.15 });
+        lines.push({ points: points.join(' '), opacity: 0.12 });
       }
     }
 
@@ -125,35 +147,36 @@
   $: gridLines = generateGridLines();
 
   // Traveling data pulses along connections
-  let pulses: { connection: number; progress: number; active: boolean }[] = [];
+  let pulses: { connection: number; progress: number }[] = [];
 
   onMount(() => {
     mounted = true;
 
-    // Slow rotation - start at position showing Americas/Europe
-    rotation = -30;
+    // Start showing Atlantic/Americas view
+    rotation = 60;
 
+    // Smooth rotation
     const rotationInterval = setInterval(() => {
-      rotation = (rotation + 0.2) % 360;
-    }, 50);
+      rotation = (rotation + 0.15) % 360;
+    }, 40);
 
-    // Pulse phase for breathing effect
+    // Breathing effect
     const pulseInterval = setInterval(() => {
-      pulsePhase = (pulsePhase + 0.1) % (Math.PI * 2);
-    }, 50);
+      pulsePhase = (pulsePhase + 0.08) % (Math.PI * 2);
+    }, 40);
 
-    // Create traveling pulses
+    // Create traveling pulses more frequently
     const pulseCreator = setInterval(() => {
       const connectionIndex = Math.floor(Math.random() * connections.length);
-      pulses = [...pulses, { connection: connectionIndex, progress: 0, active: true }];
-    }, 500);
+      pulses = [...pulses, { connection: connectionIndex, progress: 0 }];
+    }, 400);
 
     // Animate pulses
     const pulseAnimator = setInterval(() => {
       pulses = pulses
-        .map(p => ({ ...p, progress: p.progress + 0.025 }))
+        .map(p => ({ ...p, progress: p.progress + 0.02 }))
         .filter(p => p.progress < 1);
-    }, 30);
+    }, 25);
 
     return () => {
       clearInterval(rotationInterval);
@@ -198,13 +221,13 @@
 
   <!-- Globe outline -->
   <circle
-    cx={size / 2}
-    cy={size / 2}
-    r={size * 0.35}
+    cx={centerX}
+    cy={centerY}
+    r={radius}
     fill="url(#globeGradient)"
     stroke={accentColor}
-    stroke-width="1"
-    opacity="0.3"
+    stroke-width="1.5"
+    opacity="0.35"
   />
 
   <!-- Grid lines -->
@@ -230,8 +253,8 @@
         x2={city2.x}
         y2={city2.y}
         stroke={accentColor}
-        stroke-width={1.5 * avgDepth + 0.5}
-        opacity={(0.35 + Math.sin(pulsePhase + i * 0.5) * 0.15) * avgDepth}
+        stroke-width={1.2 + avgDepth * 0.8}
+        opacity={(0.25 + Math.sin(pulsePhase + i * 0.4) * 0.12) * avgDepth + 0.1}
       />
     {/if}
   {/each}
@@ -255,32 +278,32 @@
     {/if}
   {/each}
 
-  <!-- Cities - sorted by z so further ones render first -->
+  <!-- Cities - sorted by z so further ones render first (higher z = further back) -->
   {#each projectedCities.filter(c => c.visible).sort((a, b) => b.z - a.z) as city}
     <!-- Outer glow -->
     <circle
       cx={city.x}
       cy={city.y}
-      r={city.size * city.scale * 2.5}
+      r={city.size * 3}
       fill={accentColor}
-      opacity={(0.2 + Math.sin(pulsePhase) * 0.08) * city.depth}
+      opacity={(0.15 + Math.sin(pulsePhase) * 0.06) * city.depth}
     />
     <!-- City dot -->
     <circle
       cx={city.x}
       cy={city.y}
-      r={city.size * city.scale * 1.2}
+      r={city.size * 1.5}
       fill={accentColor}
       filter="url(#cityGlow)"
-      opacity={0.6 + city.depth * 0.3}
+      opacity={0.5 + city.depth * 0.4}
     />
     <!-- Bright center -->
     <circle
       cx={city.x}
       cy={city.y}
-      r={city.size * city.scale * 0.5}
+      r={city.size * 0.6}
       fill="white"
-      opacity={0.7 + city.depth * 0.25}
+      opacity={0.6 + city.depth * 0.35}
     />
   {/each}
 </svg>

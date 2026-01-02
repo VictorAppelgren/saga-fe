@@ -213,7 +213,13 @@
 
 
 	<!-- Two Ways We Strengthen You - Minimal Cards -->
-	<section id="platform" class="max-w-5xl mx-auto px-6 py-32">
+	<section id="platform" class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Dynamic network animation background -->
+		<div class="absolute inset-0 opacity-20">
+			<NetworkAnimation nodeCount={18} accentColor={accentColor} />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/85 pointer-events-none"></div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
 			Two Ways We Strengthen You
 		</h2>
@@ -246,10 +252,17 @@
 				</p>
 			</div>
 		</div>
+		</div>
 	</section>
 
 	<!-- Certainty Section -->
-	<section class="max-w-4xl mx-auto px-6 py-32">
+	<section class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Animated network clusters -->
+		<div class="absolute inset-0 opacity-25">
+			<NetworkAnimation nodeCount={22} accentColor={accentColor} />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/90 via-white/75 to-white/90 pointer-events-none"></div>
+		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
 			Thesis Confirmed. Or Risks Exposed First.
 		</h2>
@@ -286,6 +299,7 @@
 		<p class="text-2xl font-medium text-center mt-16 text-gray-900">
 			Same judgment. Complete conviction.
 		</p>
+		</div>
 	</section>
 
 	<!-- The Category Opportunity -->
@@ -336,10 +350,11 @@
 
 	<!-- Who This Is For -->
 	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
-		<!-- Subtle network background -->
-		<div class="absolute inset-0 opacity-15">
-			<NetworkBackground opacity={0.1} color={accentColor} />
+		<!-- Animated network clusters -->
+		<div class="absolute inset-0 opacity-20">
+			<NetworkAnimation nodeCount={16} accentColor={accentColor} />
 		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/85 pointer-events-none"></div>
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">Who This Is For</h2>
 		<p class="text-lg text-center mb-20 text-gray-500">
@@ -464,10 +479,11 @@
 
 	<!-- Simple CTA Section -->
 	<section class="relative max-w-3xl mx-auto px-6 py-32 text-center overflow-hidden">
-		<!-- Subtle network background -->
+		<!-- Animated network clusters -->
 		<div class="absolute inset-0 opacity-30">
-			<NetworkBackground opacity={0.1} color={accentColor} />
+			<NetworkAnimation nodeCount={20} accentColor={accentColor} />
 		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/80 pointer-events-none"></div>
 		<div class="relative">
 			<h2 class="text-3xl md:text-4xl font-semibold mb-6 leading-tight">
 				Every angle checked. Every risk exposed. Nothing missed.
