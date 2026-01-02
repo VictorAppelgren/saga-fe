@@ -170,13 +170,13 @@
 				<div class="lg:w-2/5 text-left">
 					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Chain Reaction Detection</p>
 					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
-						One Event. Cascading Impact. Caught Before It Hits.
+						Events Cascade Through Our Knowledge Graph
 					</h3>
 					<p class="text-gray-600 mb-4">
-						A Taiwan drought seems like distant news. But Saga traces the chain reaction: TSMC supply cuts → Apple & Nvidia shortages → Consumer electronics impact → Your portfolio exposure.
+						Policy shifts, supply disruptions, market moves, credit events — each triggers cascading effects through 50M+ connected entities. Saga traces every path to your portfolio exposure.
 					</p>
 					<p class="text-gray-900 font-medium">
-						We surface these connections weeks before they hit prices — so you can act, not react.
+						See the chain reactions forming — before they hit prices.
 					</p>
 				</div>
 				<div class="lg:w-3/5">
@@ -193,13 +193,13 @@
 				<div class="lg:w-2/5 text-left">
 					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Multi-Agent Intelligence</p>
 					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
-						Every Angle Checked. Every Signal Correlated.
+						Every Sector Watched. Every Signal Captured.
 					</h3>
 					<p class="text-gray-600 mb-4">
-						Thousands of specialized AI agents watch different sectors: Policy, Supply Chains, Markets, Credit, Macro, Geopolitics. When disparate signals correlate, they connect — synthesizing insights no human could assemble alone.
+						Specialized AI agents continuously scan Policy, Supply, Markets, Credit, Macro, and Geopolitical signals. When they detect relevant events, intelligence flows to Saga for synthesis.
 					</p>
 					<p class="text-gray-900 font-medium">
-						What took a team of 50 analysts weeks, Saga does continuously — 24/7, across the entire world.
+						Continuous monitoring. Continuous intelligence. Nothing missed.
 					</p>
 				</div>
 				<div class="lg:w-3/5">
