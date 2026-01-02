@@ -4,6 +4,9 @@
 	import NetworkAnimation from '$lib/components/NetworkAnimation.svelte';
 	import NetworkBackground from '$lib/components/NetworkBackground.svelte';
 	import GlobeAnimation from '$lib/components/GlobeAnimation.svelte';
+	import DataFlowAnimation from '$lib/components/DataFlowAnimation.svelte';
+	import RadarScanAnimation from '$lib/components/RadarScanAnimation.svelte';
+	import TimelineGraphAnimation from '$lib/components/TimelineGraphAnimation.svelte';
 
 	let mobileMenuOpen = $state(false);
 	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
@@ -108,24 +111,24 @@
 		<!-- Subtle gradient background -->
 		<div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-white pointer-events-none"></div>
 
-		<div class="relative max-w-7xl mx-auto px-8 md:px-12 lg:px-16 py-16 grid lg:grid-cols-2 gap-12 items-center">
+		<div class="relative max-w-7xl mx-auto pl-10 md:pl-16 lg:pl-24 pr-6 md:pr-8 py-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
 			<!-- Left: Text Content -->
 			<div class="text-left">
-				<h1 class="text-5xl md:text-6xl lg:text-7xl font-semibold mb-8 leading-[1.1] tracking-tight text-gray-900">
-					Your Judgment.<br/>Amplified Beyond Human Scale.
+				<h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold mb-5 leading-[1.1] tracking-tight text-gray-900">
+					Your Judgment. Amplified Beyond Human Scale.
 				</h1>
 
-				<p class="text-xl md:text-2xl mb-6 text-gray-900 font-medium max-w-xl leading-relaxed">
+				<p class="text-base md:text-lg mb-3 text-gray-900 font-medium max-w-xl leading-relaxed">
 					Every angle checked. Every risk exposed. Nothing missed.
 				</p>
 
-				<p class="text-lg text-gray-500 max-w-lg mb-10">
+				<p class="text-sm md:text-base text-gray-500 max-w-lg mb-7">
 					Walk into every decision certain — before the market catches up.
 				</p>
 
 				<button
 					onclick={() => showContactModal = true}
-					class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
+					class="group relative px-7 py-3.5 bg-blue-600 text-white text-sm font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 				>
 					<span class="relative z-10">Get in touch</span>
 					<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
@@ -135,8 +138,8 @@
 			<!-- Right: Animated Globe -->
 			<div class="flex justify-center lg:justify-end">
 				<div class="relative">
-					<!-- Globe SVG -->
-					<GlobeAnimation size={450} accentColor={accentColor} />
+					<!-- Globe SVG - slightly smaller -->
+					<GlobeAnimation size={380} accentColor={accentColor} />
 					<!-- Glow effect behind globe -->
 					<div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10"></div>
 				</div>
@@ -246,49 +249,55 @@
 	</section>
 
 	<!-- Certainty Section -->
-	<section class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
-		<!-- Animated network clusters -->
-		<div class="absolute inset-0 opacity-55">
-			<NetworkAnimation nodeCount={22} accentColor={accentColor} />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-b from-white/65 via-white/45 to-white/65 pointer-events-none"></div>
-		<div class="relative">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
-			Thesis Confirmed. Or Risks Exposed First.
-		</h2>
+	<section class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
+		<div class="relative grid lg:grid-cols-[1fr_auto] gap-12 items-center">
+			<!-- Left: Content -->
+			<div>
+				<h2 class="text-4xl md:text-5xl font-semibold mb-8 leading-tight">
+					Thesis Confirmed. Or Risks Exposed First.
+				</h2>
 
-		<div class="space-y-8 text-lg text-gray-600 leading-relaxed text-center">
-			<p>
-				Your judgment is sharp. But there's always that question: What am I missing? What's building that I haven't seen?
-			</p>
+				<div class="space-y-6 text-lg text-gray-600 leading-relaxed">
+					<p>
+						Your judgment is sharp. But there's always that question: What am I missing? What's building that I haven't seen?
+					</p>
 
-			<p class="text-2xl font-medium text-gray-900">
-				Saga gives you certainty.
-			</p>
+					<p class="text-xl font-medium text-gray-900">
+						Saga gives you certainty.
+					</p>
 
-			<p>
-				Thousands of AI agents checking every angle — confirming your thesis or exposing risks you'd never have found alone.
-			</p>
-		</div>
+					<p>
+						Thousands of AI agents checking every angle — confirming your thesis or exposing risks you'd never have found alone.
+					</p>
+				</div>
 
-		<div class="mt-16 grid md:grid-cols-3 gap-8 text-center">
-			<div class="group">
-				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">10,000+</p>
-				<p class="text-sm text-gray-500">sources monitored</p>
+				<div class="mt-12 grid grid-cols-3 gap-6">
+					<div class="group">
+						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">10,000+</p>
+						<p class="text-xs md:text-sm text-gray-500">sources monitored</p>
+					</div>
+					<div class="group">
+						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">50M</p>
+						<p class="text-xs md:text-sm text-gray-500">relationships mapped</p>
+					</div>
+					<div class="group">
+						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">24/7</p>
+						<p class="text-xs md:text-sm text-gray-500">continuous monitoring</p>
+					</div>
+				</div>
+
+				<p class="text-xl font-medium mt-10 text-gray-900">
+					Same judgment. Complete conviction.
+				</p>
 			</div>
-			<div class="group">
-				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">50M</p>
-				<p class="text-sm text-gray-500">relationships mapped</p>
-			</div>
-			<div class="group">
-				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">24/7</p>
-				<p class="text-sm text-gray-500">continuous monitoring</p>
-			</div>
-		</div>
 
-		<p class="text-2xl font-medium text-center mt-16 text-gray-900">
-			Same judgment. Complete conviction.
-		</p>
+			<!-- Right: Small Globe -->
+			<div class="hidden lg:block">
+				<div class="relative">
+					<GlobeAnimation size={280} accentColor={accentColor} />
+					<div class="absolute inset-0 bg-blue-500/8 blur-2xl rounded-full -z-10"></div>
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -1136,6 +1145,51 @@
 		</div>
 	</section>
 	{/if}
+
+	<!-- TEMPORARY TEST SECTION - NEW SVG ANIMATIONS -->
+	<section class="max-w-6xl mx-auto px-6 py-20 border-t-4 border-dashed border-red-300 bg-red-50/30">
+		<div class="text-center mb-12">
+			<p class="text-sm font-bold text-red-500 uppercase tracking-wide mb-2">TEMPORARY TEST SECTION</p>
+			<h2 class="text-3xl font-semibold text-gray-900 mb-4">New SVG Animations</h2>
+			<p class="text-gray-500">Evaluate these 3 new animations for potential use across the site</p>
+		</div>
+
+		<div class="grid lg:grid-cols-3 gap-8">
+			<!-- Data Flow Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">1. Data Flow Streams</h3>
+				<p class="text-sm text-gray-500 mb-4">Particles flowing along wave paths - represents continuous data processing</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<DataFlowAnimation width={350} height={220} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: ingestion sections, "continuous monitoring", data pipelines</p>
+			</div>
+
+			<!-- Radar Scan Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">2. Radar / Scan Effect</h3>
+				<p class="text-sm text-gray-500 mb-4">Sweeping radar detecting entities - represents surveillance/monitoring</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<RadarScanAnimation size={250} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: risk monitoring, threat detection, "nothing missed" messaging</p>
+			</div>
+
+			<!-- Timeline Graph Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">3. Timeline + Graph DB</h3>
+				<p class="text-sm text-gray-500 mb-4">Events on timeline triggering entity connections - shows change over time</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<TimelineGraphAnimation width={350} height={250} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: chain reactions, causality mapping, "how events cascade"</p>
+			</div>
+		</div>
+
+		<div class="mt-12 text-center">
+			<p class="text-sm text-red-400 font-medium">This section will be removed - just for evaluation purposes</p>
+		</div>
+	</section>
 
 	<!-- Footer - Clean & Minimal -->
 	<footer class="border-t border-gray-100 py-12">

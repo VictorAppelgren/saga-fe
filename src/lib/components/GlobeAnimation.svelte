@@ -19,18 +19,28 @@
     const points: { x: number; y: number; z: number; size: number }[] = [];
     const goldenRatio = (1 + Math.sqrt(5)) / 2;
 
+    // Use seeded random for consistent but varied positions
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
+      return x - Math.floor(x);
+    };
+
     for (let i = 0; i < n; i++) {
-      // Fibonacci spiral distribution
-      const theta = 2 * Math.PI * i / goldenRatio;
-      const phi = Math.acos(1 - 2 * (i + 0.5) / n);
+      // Fibonacci spiral distribution with HIGH randomness
+      const jitter = 0.35; // Amount of randomness (0 = perfect spiral, higher = more random)
+      const thetaOffset = (seededRandom(i * 7) - 0.5) * jitter * Math.PI * 1.5;
+      const phiOffset = (seededRandom(i * 13) - 0.5) * jitter * 1.2;
+
+      const theta = 2 * Math.PI * i / goldenRatio + thetaOffset;
+      const phi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * (i + 0.5) / n + phiOffset)));
 
       // Convert to Cartesian (on unit sphere)
       const x = Math.sin(phi) * Math.cos(theta);
       const y = Math.cos(phi); // Y is up
       const z = Math.sin(phi) * Math.sin(theta);
 
-      // Vary sizes - larger for "major hubs"
-      const size = 2 + Math.random() * 2.5;
+      // Vary sizes - larger for "major hubs", using seeded random for consistency
+      const size = 1.8 + seededRandom(i * 31) * 2.8;
 
       points.push({ x, y, z, size });
     }
@@ -186,13 +196,17 @@
       pulsePhase = (pulsePhase + 0.06) % (Math.PI * 2);
     }, 40);
 
-    // Create data pulses - more frequent with more connections
+    // Create data pulses - VERY high frequency for busy network feel
     const pulseCreator = setInterval(() => {
-      // Add 2 pulses at a time for denser activity
-      const idx1 = Math.floor(Math.random() * connections.length);
-      const idx2 = Math.floor(Math.random() * connections.length);
-      pulses = [...pulses, { connection: idx1, progress: 0 }, { connection: idx2, progress: 0 }];
-    }, 280);
+      // Add 4-5 pulses at a time for dense activity with randomness
+      const numPulses = 4 + Math.floor(Math.random() * 2);
+      const newPulses = [];
+      for (let i = 0; i < numPulses; i++) {
+        const idx = Math.floor(Math.random() * connections.length);
+        newPulses.push({ connection: idx, progress: Math.random() * 0.15 });
+      }
+      pulses = [...pulses, ...newPulses];
+    }, 100);
 
     // Animate pulses
     const pulseAnimator = setInterval(() => {

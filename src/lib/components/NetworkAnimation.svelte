@@ -31,23 +31,26 @@
     initializeNodes();
     animate();
 
-    // Add pulses periodically
+    // Add pulses frequently for busy network feel
     const pulseInterval = setInterval(() => {
       if (connections.length > 0) {
-        const randomConn = connections[Math.floor(Math.random() * connections.length)];
-        const fromNode = nodes.find(n => n.id === randomConn.from);
-        const toNode = nodes.find(n => n.id === randomConn.to);
-        if (fromNode && toNode) {
-          pulses = [...pulses, {
-            x: fromNode.x,
-            y: fromNode.y,
-            targetX: toNode.x,
-            targetY: toNode.y,
-            progress: 0
-          }];
+        // Add 2 pulses at a time
+        for (let p = 0; p < 2; p++) {
+          const randomConn = connections[Math.floor(Math.random() * connections.length)];
+          const fromNode = nodes.find(n => n.id === randomConn.from);
+          const toNode = nodes.find(n => n.id === randomConn.to);
+          if (fromNode && toNode) {
+            pulses = [...pulses, {
+              x: fromNode.x,
+              y: fromNode.y,
+              targetX: toNode.x,
+              targetY: toNode.y,
+              progress: 0
+            }];
+          }
         }
       }
-    }, 800);
+    }, 300);
 
     return () => {
       cancelAnimationFrame(animationFrame);
