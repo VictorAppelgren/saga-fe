@@ -34,6 +34,7 @@
   import EntityHeader from '$lib/components/EntityHeader.svelte';
   import AnalysisDisplay from '$lib/components/AnalysisDisplay.svelte';
   import FindingsCards from '$lib/components/FindingsCards.svelte';
+  import GlobeAnimation from '$lib/components/GlobeAnimation.svelte';
   import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail, type Finding } from '$lib/api/strategies';
   import { invalidateAll } from '$app/navigation';
 
@@ -665,15 +666,17 @@ function handleArticleLinkClick(event: MouseEvent) {
           <h1>Dashboard</h1>
         </div>
         <section class="card welcome-box welcome-theme">
-          <h2 class="welcome-title">Welcome, {data.user?.username || 'there'}!</h2>
-          <p class="welcome-subtitle">Your AI-powered strategy command center. Monitor market risks in real-time, identify emerging opportunities, and make informed decisions based on comprehensive analysis of your trading strategies.</p>
-          <p class="welcome-hint">On the left you'll see your topics and watchlists (including examples). Add your own at a macro level, then click a topic or watchlist to chat with Saga or use one of the recommended questions below.</p>
+          <p class="welcome-label">Your Command Center</p>
+          <h2 class="welcome-title">Welcome back, {data.user?.username || 'there'}</h2>
+          <p class="welcome-subtitle">We're here to amplify your judgment. Monitor risks, spot opportunities, and walk into every decision with certainty.</p>
+          <p class="welcome-hint">Select a watchlist or topic on the left to explore insights, or use Saga's recommended questions below.</p>
         </section>
 
         {#if !loadingQuestions && dashboardQuestions.length > 0}
           <section class="card insights-box">
-            <h3 class="insights-title">🎯 Saga Recommends</h3>
-            <p class="insights-description">Our expert analyst agents identified these questions worth exploring. Click any question to discuss with Saga:</p>
+            <p class="insights-label">Recommended</p>
+            <h3 class="insights-title">Questions Worth Exploring</h3>
+            <p class="insights-description">Our AI agents identified these insights. Click any question to discuss with Saga:</p>
             <div class="questions-grid">
               {#each dashboardQuestions as question}
                 <button class="question-card" on:click={() => startChatWithQuestion(question)}>
@@ -687,6 +690,11 @@ function handleArticleLinkClick(event: MouseEvent) {
             </div>
           </section>
         {/if}
+
+        <!-- Subtle globe decoration at bottom -->
+        <div class="dashboard-globe-container">
+          <GlobeAnimation size={180} accentColor="#2563eb" />
+        </div>
       {:else}
         <div class="content-section">
           <p>Select a strategy or asset to view details.</p>
@@ -951,7 +959,7 @@ function handleArticleLinkClick(event: MouseEvent) {
     --card-bg: #1c1c1e;
     --border-color: #38383a;
     --hover-bg: #2c2c2e;
-    --primary: #0a84ff;
+    --primary: #2563eb;
     --surface-variant: #2c2c2e;
   }
 
@@ -962,7 +970,7 @@ function handleArticleLinkClick(event: MouseEvent) {
     --card-bg: #ffffff;
     --border-color: #d2d2d7;
     --hover-bg: #f5f5f7;
-    --primary: #007aff;
+    --primary: #2563eb;
     --surface-variant: #f5f5f7;
   }
 
@@ -2043,6 +2051,16 @@ function handleArticleLinkClick(event: MouseEvent) {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
 
+.welcome-label,
+.insights-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
 .welcome-title {
   margin-bottom: 0.75rem;
   font-size: 1.75rem;
@@ -2081,6 +2099,15 @@ function handleArticleLinkClick(event: MouseEvent) {
 
 :global(.dark) .welcome-title {
   color: var(--text-color, #f5f5f7);
+}
+
+.dashboard-globe-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 3rem auto 2rem auto;
+  opacity: 0.35;
+  max-width: 180px;
 }
 
 .markdown-root {
