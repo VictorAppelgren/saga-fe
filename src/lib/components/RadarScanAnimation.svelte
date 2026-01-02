@@ -89,8 +89,8 @@
 <svg
   class="radar-animation"
   viewBox="0 0 {size} {size}"
-  {width}={size}
-  {height}={size}
+  width={size}
+  height={size}
 >
   <defs>
     <!-- Radar sweep gradient -->
