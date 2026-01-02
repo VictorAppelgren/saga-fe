@@ -227,8 +227,9 @@
 <svg
   class="globe-animation"
   viewBox="0 0 {size} {size}"
-  width={size}
-  height={size}
+  width="100%"
+  height="100%"
+  preserveAspectRatio="xMidYMid meet"
 >
   <defs>
     <radialGradient id="globeGradient" cx="35%" cy="35%">
