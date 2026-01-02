@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { Network, Brain, TrendingUp, Shield, Globe, Zap, Target, Eye, Menu, X, ChevronRight } from 'lucide-svelte';
-	
+	import ContactModal from '$lib/components/ContactModal.svelte';
+
 	let mobileMenuOpen = $state(false);
 	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
+	let showContactModal = $state(false);
 
 	function setTab(tab: 'home' | 'technology' | 'investors' | 'examples') {
 		activeTab = tab;
@@ -111,37 +113,37 @@
 			</div>
 
 			<h1 class="text-5xl md:text-6xl font-bold mb-4 leading-tight tracking-tight">
-				Saga — The Unfair Advantage
+				Your Judgment. Amplified Beyond Human Scale.
 			</h1>
 
 			<p class="text-xl md:text-2xl mb-6 text-gray-900 font-semibold max-w-4xl mx-auto">
-				Strategic Due Diligence. Continuous Risk Intelligence.
+				What happens when human intuition meets infinite reach?
 			</p>
 
 			<div class="text-lg md:text-xl leading-relaxed max-w-4xl mx-auto mb-8 space-y-4">
 				<p class="text-gray-700">
-					The risks you can't see are the ones that hurt you — not because you're not smart enough, but because there's too much to see.
+					You see patterns others miss. That's your edge. But there's a ceiling on how much one person can monitor. Saga removes that ceiling — giving your judgment the raw material it deserves.
 				</p>
-				
+
 				<div class="border-l-2 border-gray-300 pl-6 pr-4 py-4 space-y-3">
 					<p class="font-semibold text-gray-900">
-						Saga scales human intuition beyond human limits. Thousands of AI agents mapping the world continuously — so you see chain reactions others miss.
+						AI can't do what you do. You can't do what AI does. Together, you're unstoppable.
 					</p>
-					
+
 					<p class="font-semibold text-gray-900">
-						We don't replace your judgment. We amplify it. You see more. You understand more. You're prepared for more.
+						Your judgment is irreplaceable. Your reach wasn't. Until now.
 					</p>
 				</div>
 			</div>
 
 			<div class="flex gap-4 justify-center flex-wrap">
-				<a
-					href="/login"
-					class="group px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition-all rounded-full"
+				<button
+					onclick={() => showContactModal = true}
+					class="group px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition-all rounded-full cursor-pointer"
 				>
-					Request Early Access
+					Interested? Let's talk
 					<span class="inline-block group-hover:translate-x-1 transition-transform">→</span>
-				</a>
+				</button>
 				<a
 					href="/dashboard"
 					class="px-8 py-4 border border-gray-300 text-gray-900 text-lg font-semibold hover:bg-gray-50 transition-all rounded-full"
@@ -279,36 +281,37 @@
 			<img src="/connected_world.png" alt="" class="w-full h-full object-contain" style="filter: grayscale(30%);" />
 		</div>
 		<h2 class="relative text-4xl font-bold mb-6 text-center">
-			AI Scales Human Intuition. It Doesn't Replace It.
+			You're Probably Right. But Are You Certain?
 		</h2>
 
 		<div class="relative bg-gradient-to-br from-gray-50 to-blue-50/60 rounded-2xl p-10 border border-gray-100">
 			<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
-				<p>
-					The best decisions still require human judgment — pattern recognition born from experience, intuition honed over decades, the ability to weigh what can't be quantified.
+				<p class="text-center text-gray-700">
+					Your judgment is sharp. But there's always that question: <strong>What am I missing? What's building that I haven't seen?</strong>
 				</p>
-				<p class="font-semibold text-2xl">
-					Your mental model of the world is your edge.<br/>
-					Saga makes it bigger.
+
+				<p class="font-semibold text-2xl text-center">
+					Saga gives you certainty.
 				</p>
-				
+
+				<p class="text-center text-gray-700">
+					Thousands of AI agents checking everything — confirming your thesis or surfacing the risks you'd never have found alone.
+				</p>
+
 				<div class="bg-white/85 rounded-2xl p-8 my-8 border border-gray-100">
 					<div class="space-y-4">
-						<p class="font-semibold text-gray-900">You can't read 10,000 sources daily. <span class="text-gray-500 font-medium">Our agents can.</span></p>
-						<p class="font-semibold text-gray-900">You can't map 50 million entity relationships. <span class="text-gray-500 font-medium">Our graph does.</span></p>
-						<p class="font-semibold text-gray-900">You can't simulate how six policy changes cascade. <span class="text-gray-500 font-medium">Our engines do.</span></p>
+						<p class="font-semibold text-gray-900">They read 10,000+ sources daily. <span class="text-gray-500 font-medium">So nothing slips through.</span></p>
+						<p class="font-semibold text-gray-900">They map 50 million entity relationships. <span class="text-gray-500 font-medium">So you see the chain reactions.</span></p>
+						<p class="font-semibold text-gray-900">They simulate how events cascade. <span class="text-gray-500 font-medium">So you're prepared for what's coming.</span></p>
 					</div>
 				</div>
 
-				<p class="font-semibold text-xl">
-					Saga handles the scale problem — the sheer volume of information no human can process.
+				<p class="font-semibold text-xl text-center">
+					Either they confirm your thesis — or they find the holes before the market does.
 				</p>
-				<p class="font-semibold text-xl">
-					You handle what AI can't — the judgment, the wisdom, the final call.
-				</p>
+
 				<p class="font-bold text-2xl text-center mt-8">
-					Together: decisions that neither could make alone.<br/>
-					A mental model that spans the entire world.
+					Same judgment. Complete conviction.
 				</p>
 			</div>
 		</div>
@@ -317,10 +320,10 @@
 	<!-- The Category Opportunity -->
 	<section class="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200">
 		<h2 class="text-4xl font-bold mb-6 text-center">
-			The Category Opportunity
+			The Category No One Has Built
 		</h2>
 		<p class="text-2xl text-center mb-12 text-gray-600">
-			A Category Worth Hundreds of Billions — With No Financial Markets Leader
+			Where human judgment still matters most
 		</p>
 
 		<div class="grid md:grid-cols-2 gap-6 mb-10">
@@ -331,11 +334,11 @@
 					</div>
 					<div>
 						<h3 class="text-xl font-bold mb-2">Recorded Future</h3>
-						<p class="text-lg text-gray-700">$2.7B exit mapping <strong>cyber threats</strong></p>
+						<p class="text-lg text-gray-700">$2.7B exit — intelligence infrastructure for <strong>cybersecurity</strong></p>
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 				<div class="flex items-start gap-4">
 					<div class="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -343,23 +346,24 @@
 					</div>
 					<div>
 						<h3 class="text-xl font-bold mb-2">Palantir</h3>
-						<p class="text-lg text-gray-700">$400B+ mapping <strong>defense intelligence</strong></p>
+						<p class="text-lg text-gray-700">$400B+ — intelligence infrastructure for <strong>governments</strong></p>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="bg-gray-900 text-white rounded-2xl p-10 mb-10">
-			<p class="text-2xl font-bold mb-4 text-center">No one has built this for financial markets, corporate strategy, and risk.</p>
-			<div class="text-lg space-y-3 mt-6 max-w-3xl mx-auto">
-				<p>The tools exist for cyber threats. For defense intelligence. For government.</p>
-				<p class="font-semibold text-xl">But the $100 trillion in institutional capital making investment decisions?<br/>They're still flying blind on chain reactions.</p>
+			<p class="text-2xl font-bold mb-4 text-center">No one has built this for the trillions in institutional capital making investment decisions.</p>
+			<div class="text-lg space-y-3 mt-6 max-w-3xl mx-auto text-center">
+				<p>The infrastructure exists for cyber threats. For defense. For government.</p>
+				<p class="font-semibold text-xl">But for investment decisions — where human judgment still matters most?</p>
+				<p class="font-semibold text-xl">Nothing. Until now.</p>
 			</div>
 		</div>
 
 		<div class="text-xl leading-relaxed space-y-6 max-w-4xl mx-auto">
-			<p>
-				We combine Palantir's intelligence depth with Recorded Future's data breadth — purpose-built for investments, M&A, and continuous risk monitoring.
+			<p class="text-center">
+				We didn't build AI to replace analysts. We built it to make the best analysts even better.
 			</p>
 			<p class="font-bold text-2xl text-center">
 				The funds that adopt this will compound their advantage.
@@ -436,24 +440,24 @@
 	<section class="relative max-w-6xl mx-auto px-6 py-24 border-t border-gray-200 overflow-hidden">
 		<!-- Subtle background map -->
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-			<img 
-				src="/connected_world.png" 
-				alt="" 
+			<img
+				src="/connected_world.png"
+				alt=""
 				class="w-full max-w-5xl opacity-[0.08] object-contain"
 				style="filter: grayscale(30%);"
 			/>
 		</div>
 		<h2 class="relative text-4xl font-bold mb-6 text-center">
-			The Agentic Intelligence Layer
+			Your AI Research Team
 		</h2>
 		<p class="relative text-2xl text-center mb-16 text-gray-600">
-			How Thousands of AI Agents Scale Your Understanding
+			How thousands of specialized agents extend your reach
 		</p>
 
 		<div class="relative bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 rounded-3xl p-12 border border-gray-100 shadow-sm mb-12">
 			<div class="text-xl leading-relaxed space-y-4 mb-12 max-w-4xl mx-auto text-center">
 				<p class="font-semibold">Traditional AI: One model trying to do everything.</p>
-				<p class="font-bold text-2xl">Saga: A coordinated network of specialized agents, each doing what it does best.</p>
+				<p class="font-bold text-2xl">Saga: A coordinated team of specialized agents, each doing what it does best — for you.</p>
 			</div>
 
 			<div class="grid md:grid-cols-2 gap-8">
@@ -523,14 +527,14 @@
 			</div>
 
 			<div class="mt-12 bg-gray-900 text-white rounded-2xl p-10">
-				<h4 class="text-2xl font-bold mb-4 text-center">Orchestration Layer</h4>
+				<h4 class="text-2xl font-bold mb-4 text-center">Working Together</h4>
 				<p class="text-lg text-center">
-					Coordinating all agents into coherent intelligence. Not chaos — a symphony of specialized expertise. Working for you, 24/7, across the entire world.
+					All agents coordinated into coherent intelligence. Not chaos — a team of specialized expertise. Working for you, 24/7, across the entire world.
 				</p>
 			</div>
 
 			<p class="text-2xl font-bold text-center mt-10">
-				This is what "scaling human intuition" actually means.
+				This is what "amplifying human judgment" actually looks like.
 			</p>
 		</div>
 	</section>
@@ -539,9 +543,9 @@
 	<section class="relative max-w-4xl mx-auto px-6 py-24 text-center overflow-hidden">
 		<!-- Subtle background map -->
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-			<img 
-				src="/connected_world.png" 
-				alt="" 
+			<img
+				src="/connected_world.png"
+				alt=""
 				class="w-full max-w-3xl opacity-[0.10] object-contain"
 				style="filter: grayscale(25%);"
 			/>
@@ -552,12 +556,17 @@
 		<p class="relative text-2xl text-gray-700 mb-8">
 			Saga finds them before they find you — and reveals the opportunities that emerge from the dislocations.
 		</p>
-		<a
-			href="/login"
-			class="relative inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
-		>
-			Request Early Access
-		</a>
+		<div class="relative space-y-4">
+			<button
+				onclick={() => showContactModal = true}
+				class="px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full cursor-pointer"
+			>
+				Interested? Let's talk
+			</button>
+			<p class="text-gray-600">
+				We work with a limited number of partners during this phase.
+			</p>
+		</div>
 	</section>
 
 	{/if}
@@ -781,14 +790,17 @@
 		<div class="mt-16 text-center">
 			<h3 class="text-3xl font-bold mb-6">See It In Action</h3>
 			<p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-				Request a technical demo to see how Saga maps risk across your specific portfolio exposures.
+				Reach out to discuss how Saga could fit your workflow.
 			</p>
-			<a
-				href="/login"
-				class="inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
-			>
-				Request Demo
-			</a>
+			<div class="space-y-4">
+				<button
+					onclick={() => showContactModal = true}
+					class="px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full cursor-pointer"
+				>
+					Get in touch
+				</button>
+				<p class="text-gray-600">info@saga-labs.com</p>
+			</div>
 		</div>
 	</section>
 	{/if}
@@ -799,16 +811,16 @@
 		<!-- Hero -->
 		<h2 class="text-5xl font-bold mb-6 text-center">The Category-Defining Opportunity</h2>
 		<p class="text-2xl text-center mb-8 text-gray-600 max-w-4xl mx-auto font-semibold">
-			Infrastructure that scales human intelligence for financial markets
+			Infrastructure that amplifies human intelligence for financial markets
 		</p>
-		
+
 		<div class="text-xl text-center mb-16 text-gray-700 max-w-4xl mx-auto space-y-4">
 			<p>
 				Recorded Future built a $2.7B business scaling threat intelligence for cyber.<br/>
 				Palantir is worth $400B+ scaling intelligence for defense.
 			</p>
 			<p class="font-semibold text-2xl">
-				No one has built this for the $100T+ in institutional capital making investment decisions with human-scale mental models.
+				No one has built this for the trillions in institutional capital making investment decisions — where human judgment still matters most.
 			</p>
 			<p class="font-bold text-2xl">
 				That's the opportunity. We're building it.
@@ -1171,14 +1183,14 @@
 			<p class="text-2xl font-bold mb-10">
 				We're building it.
 			</p>
-			
+
 			<div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-				<a
-					href="/login"
-					class="px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg"
+				<button
+					onclick={() => showContactModal = true}
+					class="px-8 py-4 bg-black text-white text-lg font-semibold hover:bg-gray-800 transition rounded-lg shadow-lg cursor-pointer"
 				>
-					Request Early Access
-				</a>
+					Interested? Let's talk
+				</button>
 				<a
 					href="/dashboard"
 					class="px-8 py-4 border-2 border-black text-black text-lg font-semibold hover:bg-gray-50 transition rounded-lg"
@@ -1186,9 +1198,9 @@
 					See the Platform
 				</a>
 			</div>
-			
+
 			<p class="text-lg text-gray-600">
-				<a href="mailto:info@saga-labs.com" class="underline font-semibold hover:text-black transition">info@saga-labs.com</a>
+				<button onclick={() => showContactModal = true} class="underline font-semibold hover:text-black transition cursor-pointer bg-transparent border-none">info@saga-labs.com</button>
 			</p>
 		</div>
 	</section>
@@ -1370,14 +1382,14 @@
 			</div>
 			
 			<div class="text-center">
-				<a
-					href="/login"
-					class="inline-block px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full"
+				<button
+					onclick={() => showContactModal = true}
+					class="px-8 py-4 bg-gray-900 text-white text-lg font-semibold hover:bg-black transition rounded-full cursor-pointer"
 				>
-					Request a Demo
-				</a>
+					Interested? Let's talk
+				</button>
 				<p class="text-lg mt-4 text-gray-600">
-					See what risks might be forming in your positions.
+					We'd be happy to show you what this looks like for your specific exposures.
 				</p>
 			</div>
 		</div>
@@ -1392,8 +1404,11 @@
 		</div>
 		<p class="relative text-lg font-semibold mb-2">Saga Labs AB</p>
 		<p class="relative text-lg mb-2">
-			<a href="mailto:info@saga-labs.com" class="underline">info@saga-labs.com</a>
+			<button onclick={() => showContactModal = true} class="underline cursor-pointer bg-transparent border-none text-lg">info@saga-labs.com</button>
 		</p>
-		<p class="relative text-lg italic">The unfair advantage in portfolio intelligence.</p>
+		<p class="relative text-lg italic">Your judgment. Infinite reach.</p>
 	</footer>
+
+	<!-- Contact Modal -->
+	<ContactModal bind:open={showContactModal} />
 </div>
