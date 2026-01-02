@@ -116,9 +116,9 @@
 		<!-- Subtle gradient background -->
 		<div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-white pointer-events-none"></div>
 
-		<div class="relative max-w-7xl mx-auto px-5 sm:px-8 md:px-12 lg:pl-24 lg:pr-8 py-12 sm:py-16 grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-8 items-center">
-			<!-- Left: Text Content -->
-			<div class="text-center lg:text-left order-2 lg:order-1">
+		<div class="relative max-w-7xl mx-auto px-5 sm:px-8 md:px-12 lg:pl-24 lg:pr-8 py-12 sm:py-16 flex flex-col lg:grid lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-8 items-center">
+			<!-- Text Content - FIRST on mobile -->
+			<div class="text-center lg:text-left">
 				<h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 sm:mb-5 leading-[1.15] tracking-tight text-gray-900">
 					Your Judgment. Amplified Beyond Human Scale.
 				</h1>
@@ -140,10 +140,10 @@
 				</button>
 			</div>
 
-			<!-- Right: Animated Globe -->
-			<div class="flex justify-center order-1 lg:order-2">
-				<div class="relative w-[280px] sm:w-[320px] md:w-[380px]">
-					<!-- Globe SVG - responsive sizing -->
+			<!-- Globe - SECOND on mobile, centered -->
+			<div class="flex justify-center w-full lg:justify-end">
+				<div class="relative w-[260px] sm:w-[300px] md:w-[340px] lg:w-[380px] aspect-square">
+					<!-- Globe SVG - responsive sizing with aspect-square to prevent overflow -->
 					<GlobeAnimation size={380} accentColor={accentColor} />
 					<!-- Glow effect behind globe -->
 					<div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10"></div>
