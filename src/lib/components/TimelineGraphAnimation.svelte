@@ -11,129 +11,128 @@
     y: number;
     size: number;
     label: string;
-    activity: number; // 0-1 for glow intensity
+    activity: number;
   }
 
   interface Connection {
     from: number;
     to: number;
     strength: number;
-    active: boolean;
   }
 
-  interface TimeEvent {
-    x: number;
-    y: number;
-    age: number;
-    targetEntity: number;
+  interface ChainReaction {
     id: number;
+    path: number[]; // entity IDs in order
+    currentStep: number;
+    progress: number; // 0-1 within current step
   }
 
   let entities: Entity[] = [];
   let connections: Connection[] = [];
-  let timeEvents: TimeEvent[] = [];
-  let currentTime = 0;
+  let chainReactions: ChainReaction[] = [];
   let animationFrame: number;
-  let eventId = 0;
+  let reactionId = 0;
 
-  // Timeline position
-  const timelineY = height - 40;
-  const graphAreaHeight = height - 80;
-  const graphAreaTop = 30;
+  const timelineY = height - 35;
+  const graphTop = 25;
+  const graphHeight = height - 70;
 
-  // Seeded random
   const seededRandom = (seed: number) => {
     const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
     return x - Math.floor(x);
   };
 
+  // Find path through graph using BFS
+  function findPath(start: number, depth: number): number[] {
+    const path = [start];
+    let current = start;
+
+    for (let d = 0; d < depth; d++) {
+      const neighbors = connections
+        .filter(c => c.from === current || c.to === current)
+        .map(c => c.from === current ? c.to : c.from)
+        .filter(n => !path.includes(n));
+
+      if (neighbors.length === 0) break;
+      const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+      path.push(next);
+      current = next;
+    }
+    return path;
+  }
+
   onMount(() => {
-    // Create entity nodes (graph DB style)
-    const entityCount = 12;
-    const layers = 3;
-    const entitiesPerLayer = Math.ceil(entityCount / layers);
+    // Create entities in a more organic layout
+    const labels = ['TSMC', 'Apple', 'Chile', 'LiMiner', 'EV', 'Policy', 'Supply', 'Market', 'Risk', 'Trade'];
 
-    entities = Array.from({ length: entityCount }, (_, i) => {
-      const layer = Math.floor(i / entitiesPerLayer);
-      const indexInLayer = i % entitiesPerLayer;
-      const layerWidth = width - 100;
-      const layerHeight = graphAreaHeight / layers;
-
+    entities = labels.map((label, i) => {
+      const angle = (i / labels.length) * Math.PI * 2 + seededRandom(i * 7) * 0.5;
+      const radius = 80 + seededRandom(i * 13) * 50;
       return {
         id: i,
-        x: 50 + (indexInLayer / (entitiesPerLayer - 1 || 1)) * layerWidth + (seededRandom(i * 7) - 0.5) * 40,
-        y: graphAreaTop + layer * layerHeight + layerHeight / 2 + (seededRandom(i * 13) - 0.5) * 30,
-        size: 8 + seededRandom(i * 19) * 8,
-        label: ['Co', 'Mkt', 'Pol', 'Sup', 'Reg', 'Eco', 'Geo', 'Fin', 'Ind', 'Com', 'Gov', 'Res'][i] || 'E',
-        activity: 0.3 + seededRandom(i * 31) * 0.4
+        x: width / 2 + Math.cos(angle) * radius * (width / 400),
+        y: graphTop + graphHeight / 2 + Math.sin(angle) * radius * 0.6,
+        size: 12 + seededRandom(i * 19) * 8,
+        label,
+        activity: 0.3
       };
     });
 
-    // Create connections between entities
+    // Create connections
     connections = [];
     for (let i = 0; i < entities.length; i++) {
       for (let j = i + 1; j < entities.length; j++) {
-        const dx = entities[i].x - entities[j].x;
-        const dy = entities[i].y - entities[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 180 && seededRandom(i * 100 + j) > 0.4) {
+        if (seededRandom(i * 100 + j * 7) > 0.55) {
           connections.push({
             from: i,
             to: j,
-            strength: 0.2 + seededRandom(i * 50 + j * 3) * 0.5,
-            active: false
+            strength: 0.3 + seededRandom(i * 50 + j) * 0.4
           });
         }
       }
     }
 
-    // Generate time events periodically
-    const eventInterval = setInterval(() => {
-      const targetEntity = Math.floor(Math.random() * entities.length);
-      const entity = entities[targetEntity];
+    // Start chain reactions periodically
+    const reactionInterval = setInterval(() => {
+      const startEntity = Math.floor(Math.random() * entities.length);
+      const path = findPath(startEntity, 3 + Math.floor(Math.random() * 3));
 
-      timeEvents = [...timeEvents, {
-        x: currentTime,
-        y: timelineY,
-        age: 0,
-        targetEntity,
-        id: eventId++
-      }];
-
-      // Activate connections to this entity
-      connections = connections.map(c => ({
-        ...c,
-        active: c.from === targetEntity || c.to === targetEntity ? true : c.active
-      }));
-
-      // Boost entity activity
-      entities = entities.map((e, i) =>
-        i === targetEntity ? { ...e, activity: Math.min(1, e.activity + 0.4) } : e
-      );
-
-      // Deactivate after delay
-      setTimeout(() => {
-        connections = connections.map(c => ({
-          ...c,
-          active: false
-        }));
-      }, 800);
-    }, 400);
+      if (path.length > 1) {
+        chainReactions = [...chainReactions, {
+          id: reactionId++,
+          path,
+          currentStep: 0,
+          progress: 0
+        }];
+      }
+    }, 800);
 
     const animate = () => {
-      currentTime = (currentTime + 0.8) % (width - 60);
+      // Animate chain reactions
+      chainReactions = chainReactions
+        .map(r => {
+          const newProgress = r.progress + 0.04;
+          if (newProgress >= 1) {
+            // Move to next step
+            if (r.currentStep < r.path.length - 2) {
+              return { ...r, currentStep: r.currentStep + 1, progress: 0 };
+            }
+            return null; // Finished
+          }
+          return { ...r, progress: newProgress };
+        })
+        .filter((r): r is ChainReaction => r !== null);
 
-      // Age events and remove old ones
-      timeEvents = timeEvents
-        .map(e => ({ ...e, age: e.age + 1 }))
-        .filter(e => e.age < 150);
-
-      // Decay entity activity
-      entities = entities.map(e => ({
-        ...e,
-        activity: Math.max(0.2, e.activity * 0.995)
-      }));
+      // Update entity activity based on active chain reactions
+      entities = entities.map((e, i) => {
+        const isActive = chainReactions.some(r =>
+          r.path[r.currentStep] === i || r.path[r.currentStep + 1] === i
+        );
+        return {
+          ...e,
+          activity: isActive ? Math.min(1, e.activity + 0.15) : Math.max(0.3, e.activity * 0.96)
+        };
+      });
 
       animationFrame = requestAnimationFrame(animate);
     };
@@ -142,100 +141,106 @@
 
     return () => {
       cancelAnimationFrame(animationFrame);
-      clearInterval(eventInterval);
+      clearInterval(reactionInterval);
     };
   });
+
+  function getConnectionOpacity(from: number, to: number): number {
+    const isActive = chainReactions.some(r => {
+      const fromIdx = r.path.indexOf(from);
+      const toIdx = r.path.indexOf(to);
+      return (fromIdx !== -1 && toIdx !== -1 && Math.abs(fromIdx - toIdx) === 1 &&
+              (r.path[r.currentStep] === from || r.path[r.currentStep] === to));
+    });
+    return isActive ? 0.9 : 0.15;
+  }
 </script>
 
 <svg
   class="timeline-graph-animation"
   viewBox="0 0 {width} {height}"
-  {width}
-  {height}
+  width={width}
+  height={height}
 >
   <defs>
-    <!-- Entity glow -->
-    <filter id="entityGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="blur" />
+    <filter id="chainGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
 
-    <!-- Connection gradient -->
-    <linearGradient id="connGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color={accentColor} stop-opacity="0.2" />
-      <stop offset="50%" stop-color={accentColor} stop-opacity="0.6" />
-      <stop offset="100%" stop-color={accentColor} stop-opacity="0.2" />
-    </linearGradient>
-
-    <!-- Event pulse -->
-    <radialGradient id="eventPulse">
-      <stop offset="0%" stop-color={accentColor} stop-opacity="0.8" />
+    <linearGradient id="timelineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color={accentColor} stop-opacity="0" />
+      <stop offset="50%" stop-color={accentColor} stop-opacity="0.5" />
       <stop offset="100%" stop-color={accentColor} stop-opacity="0" />
-    </radialGradient>
+    </linearGradient>
   </defs>
 
-  <!-- Background grid -->
-  {#each Array(Math.floor(width / 50)) as _, i}
+  <!-- Connections -->
+  {#each connections as conn}
+    {@const from = entities[conn.from]}
+    {@const to = entities[conn.to]}
+    {@const opacity = getConnectionOpacity(conn.from, conn.to)}
     <line
-      x1={i * 50}
-      y1="0"
-      x2={i * 50}
-      y2={timelineY - 20}
+      x1={from.x}
+      y1={from.y}
+      x2={to.x}
+      y2={to.y}
       stroke={accentColor}
-      stroke-width="0.5"
-      opacity="0.05"
-    />
-  {/each}
-  {#each Array(Math.floor(graphAreaHeight / 50)) as _, i}
-    <line
-      x1="0"
-      y1={graphAreaTop + i * 50}
-      x2={width}
-      y2={graphAreaTop + i * 50}
-      stroke={accentColor}
-      stroke-width="0.5"
-      opacity="0.05"
+      stroke-width={opacity > 0.5 ? 2.5 : 1}
+      opacity={opacity}
     />
   {/each}
 
-  <!-- Connections between entities -->
-  {#each connections as conn}
-    {@const fromEntity = entities[conn.from]}
-    {@const toEntity = entities[conn.to]}
-    <line
-      x1={fromEntity.x}
-      y1={fromEntity.y}
-      x2={toEntity.x}
-      y2={toEntity.y}
-      stroke={accentColor}
-      stroke-width={conn.active ? 2 : 1}
-      opacity={conn.active ? 0.8 : conn.strength * 0.4}
-    />
-    {#if conn.active}
-      <!-- Animated pulse along connection -->
-      <circle r="3" fill={accentColor} opacity="0.9">
-        <animateMotion
-          dur="0.5s"
-          repeatCount="1"
-          path="M {fromEntity.x} {fromEntity.y} L {toEntity.x} {toEntity.y}"
-        />
-      </circle>
+  <!-- Chain reaction pulses -->
+  {#each chainReactions as reaction}
+    {@const fromEntity = entities[reaction.path[reaction.currentStep]]}
+    {@const toEntity = entities[reaction.path[reaction.currentStep + 1]]}
+    {#if fromEntity && toEntity}
+      {@const px = fromEntity.x + (toEntity.x - fromEntity.x) * reaction.progress}
+      {@const py = fromEntity.y + (toEntity.y - fromEntity.y) * reaction.progress}
+
+      <!-- Pulse trail -->
+      <line
+        x1={fromEntity.x}
+        y1={fromEntity.y}
+        x2={px}
+        y2={py}
+        stroke={accentColor}
+        stroke-width="3"
+        opacity="0.6"
+      />
+
+      <!-- Main pulse -->
+      <circle
+        cx={px}
+        cy={py}
+        r="6"
+        fill={accentColor}
+        filter="url(#chainGlow)"
+        opacity="0.95"
+      />
+      <circle
+        cx={px}
+        cy={py}
+        r="3"
+        fill="white"
+        opacity="0.9"
+      />
     {/if}
   {/each}
 
   <!-- Entity nodes -->
   {#each entities as entity}
-    <!-- Outer glow based on activity -->
+    <!-- Outer glow -->
     <circle
       cx={entity.x}
       cy={entity.y}
-      r={entity.size * 1.8}
+      r={entity.size * 1.5}
       fill={accentColor}
-      opacity={entity.activity * 0.4}
-      filter="url(#entityGlow)"
+      opacity={entity.activity * 0.35}
     />
     <!-- Main node -->
     <circle
@@ -243,120 +248,62 @@
       cy={entity.y}
       r={entity.size}
       fill={accentColor}
-      opacity={0.4 + entity.activity * 0.5}
+      opacity={0.5 + entity.activity * 0.4}
     />
-    <!-- Inner bright core -->
+    <!-- Bright center -->
     <circle
       cx={entity.x}
       cy={entity.y}
-      r={entity.size * 0.5}
+      r={entity.size * 0.45}
       fill="white"
-      opacity={0.5 + entity.activity * 0.4}
+      opacity={0.6 + entity.activity * 0.3}
     />
     <!-- Label -->
     <text
       x={entity.x}
-      y={entity.y + 3}
+      y={entity.y + entity.size + 12}
       text-anchor="middle"
-      font-size="8"
+      font-size="9"
       fill={accentColor}
-      opacity={0.6 + entity.activity * 0.4}
-      font-weight="600"
+      opacity={0.7 + entity.activity * 0.3}
+      font-weight="500"
     >
       {entity.label}
     </text>
   {/each}
 
-  <!-- Timeline base -->
+  <!-- Timeline at bottom -->
   <line
-    x1="30"
+    x1="20"
     y1={timelineY}
-    x2={width - 30}
+    x2={width - 20}
     y2={timelineY}
-    stroke={accentColor}
+    stroke="url(#timelineGrad)"
     stroke-width="2"
-    opacity="0.3"
   />
 
-  <!-- Timeline tick marks -->
-  {#each Array(10) as _, i}
-    <line
-      x1={30 + i * ((width - 60) / 9)}
-      y1={timelineY - 5}
-      x2={30 + i * ((width - 60) / 9)}
-      y2={timelineY + 5}
-      stroke={accentColor}
-      stroke-width="1"
-      opacity="0.3"
-    />
-  {/each}
-
-  <!-- Current time indicator (moving marker) -->
-  <line
-    x1={30 + currentTime}
-    y1={timelineY - 15}
-    x2={30 + currentTime}
-    y2={timelineY + 15}
-    stroke={accentColor}
-    stroke-width="2"
-    opacity="0.8"
-  />
-  <circle
-    cx={30 + currentTime}
-    cy={timelineY}
-    r="5"
-    fill={accentColor}
-    opacity="0.9"
-  />
-
-  <!-- Time events (ripples from timeline to entities) -->
-  {#each timeEvents as event}
-    {@const targetEntity = entities[event.targetEntity]}
-    {@const progress = Math.min(1, event.age / 30)}
-    {@const fadeOpacity = Math.max(0, 1 - event.age / 150)}
-
-    {#if progress < 1}
-      <!-- Rising connection from timeline to entity -->
-      <line
-        x1={30 + event.x}
-        y1={timelineY}
-        x2={30 + event.x + (targetEntity.x - 30 - event.x) * progress}
-        y2={timelineY + (targetEntity.y - timelineY) * progress}
-        stroke={accentColor}
-        stroke-width="1.5"
-        opacity={fadeOpacity * 0.6}
-        stroke-dasharray="4 2"
-      />
-    {/if}
-
-    <!-- Event marker on timeline -->
+  <!-- Active reaction indicators on timeline -->
+  {#each chainReactions as reaction, i}
+    {@const xPos = 40 + (i * 30) % (width - 80)}
     <circle
-      cx={30 + event.x}
+      cx={xPos}
       cy={timelineY}
-      r={3 + event.age * 0.1}
-      fill="url(#eventPulse)"
-      opacity={fadeOpacity * 0.5}
-    />
+      r="4"
+      fill={accentColor}
+      opacity="0.8"
+    >
+      <animate
+        attributeName="r"
+        values="4;6;4"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </circle>
   {/each}
 
   <!-- Labels -->
-  <text
-    x="15"
-    y={timelineY + 4}
-    font-size="10"
-    fill={accentColor}
-    opacity="0.5"
-  >
-    t
-  </text>
-  <text
-    x={width - 25}
-    y={timelineY + 4}
-    font-size="10"
-    fill={accentColor}
-    opacity="0.5"
-  >
-    now
+  <text x="25" y={timelineY + 15} font-size="9" fill={accentColor} opacity="0.5">
+    Chain Reactions
   </text>
 </svg>
 

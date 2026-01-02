@@ -5,79 +5,79 @@
   export let height = 300;
   export let accentColor = '#2563eb';
 
-  interface Particle {
+  interface DataPacket {
     id: number;
     x: number;
     y: number;
     speed: number;
     size: number;
-    opacity: number;
     lane: number;
+    type: 'news' | 'filing' | 'trade' | 'policy' | 'earnings';
   }
 
-  interface StreamLine {
+  interface ProcessingNode {
+    x: number;
     y: number;
-    opacity: number;
-    amplitude: number;
-    frequency: number;
-    phase: number;
+    label: string;
+    activity: number;
   }
 
-  let particles: Particle[] = [];
-  let streamLines: StreamLine[] = [];
-  let animationFrame: number;
-  let time = 0;
-  let particleId = 0;
+  const sourceLabels = ['News', 'SEC', 'Trade', 'Policy', 'Earnings'];
+  const laneCount = 5;
+  const laneHeight = (height - 60) / laneCount;
 
-  // Seeded random for consistent patterns
-  const seededRandom = (seed: number) => {
-    const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
-    return x - Math.floor(x);
-  };
+  let packets: DataPacket[] = [];
+  let processingNodes: ProcessingNode[] = [];
+  let animationFrame: number;
+  let packetId = 0;
+
+  // Processing zone on the right
+  const processZoneX = width - 80;
 
   onMount(() => {
-    // Initialize stream lines (horizontal flowing paths)
-    const numStreams = 8;
-    streamLines = Array.from({ length: numStreams }, (_, i) => ({
-      y: (height / (numStreams + 1)) * (i + 1),
-      opacity: 0.15 + seededRandom(i * 7) * 0.2,
-      amplitude: 8 + seededRandom(i * 13) * 12,
-      frequency: 0.02 + seededRandom(i * 19) * 0.015,
-      phase: seededRandom(i * 31) * Math.PI * 2
-    }));
+    // Initialize processing nodes (where data gets analyzed)
+    processingNodes = [
+      { x: processZoneX, y: 50, label: 'Analyze', activity: 0.3 },
+      { x: processZoneX + 30, y: height / 2, label: 'Map', activity: 0.3 },
+      { x: processZoneX, y: height - 50, label: 'Alert', activity: 0.3 }
+    ];
 
-    // Spawn particles regularly with randomness
+    // Spawn packets
     const spawnInterval = setInterval(() => {
       const numToSpawn = 2 + Math.floor(Math.random() * 3);
       for (let i = 0; i < numToSpawn; i++) {
-        const laneIndex = Math.floor(Math.random() * streamLines.length);
-        particles = [...particles, {
-          id: particleId++,
-          x: -10 - Math.random() * 30,
-          y: streamLines[laneIndex].y,
-          speed: 1.5 + Math.random() * 2,
-          size: 2 + Math.random() * 3,
-          opacity: 0.5 + Math.random() * 0.5,
-          lane: laneIndex
+        const lane = Math.floor(Math.random() * laneCount);
+        const types: DataPacket['type'][] = ['news', 'filing', 'trade', 'policy', 'earnings'];
+        packets = [...packets, {
+          id: packetId++,
+          x: -20 - Math.random() * 40,
+          y: 30 + lane * laneHeight + laneHeight / 2,
+          speed: 2 + Math.random() * 2.5,
+          size: 3 + Math.random() * 3,
+          lane,
+          type: types[lane]
         }];
       }
-    }, 80);
+    }, 120);
 
     const animate = () => {
-      time += 0.03;
+      // Move packets
+      packets = packets
+        .map(p => ({ ...p, x: p.x + p.speed }))
+        .filter(p => p.x < width + 30);
 
-      // Update particles
-      particles = particles
-        .map(p => {
-          const stream = streamLines[p.lane];
-          const waveY = stream.y + Math.sin(p.x * stream.frequency + stream.phase + time) * stream.amplitude;
-          return {
-            ...p,
-            x: p.x + p.speed,
-            y: waveY
-          };
-        })
-        .filter(p => p.x < width + 20);
+      // Update processing node activity based on nearby packets
+      processingNodes = processingNodes.map(node => {
+        const nearbyPackets = packets.filter(p =>
+          Math.abs(p.x - node.x) < 40 && Math.abs(p.y - node.y) < 60
+        );
+        return {
+          ...node,
+          activity: nearbyPackets.length > 0
+            ? Math.min(1, node.activity + 0.15)
+            : Math.max(0.3, node.activity * 0.95)
+        };
+      });
 
       animationFrame = requestAnimationFrame(animate);
     };
@@ -90,26 +90,19 @@
     };
   });
 
-  // Generate wave path for stream line
-  function getStreamPath(stream: StreamLine): string {
-    const points: string[] = [];
-    for (let x = 0; x <= width; x += 5) {
-      const y = stream.y + Math.sin(x * stream.frequency + stream.phase + time) * stream.amplitude;
-      points.push(x === 0 ? `M ${x} ${y}` : `L ${x} ${y}`);
-    }
-    return points.join(' ');
+  function getPacketColor(type: DataPacket['type']): string {
+    return accentColor; // Keep unified color, vary by opacity/size
   }
 </script>
 
 <svg
   class="data-flow-animation"
   viewBox="0 0 {width} {height}"
-  {width}
-  {height}
+  width={width}
+  height={height}
 >
   <defs>
-    <!-- Glow filter for particles -->
-    <filter id="dataGlow" x="-50%" y="-50%" width="200%" height="200%">
+    <filter id="dataPacketGlow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="2" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
@@ -117,92 +110,140 @@
       </feMerge>
     </filter>
 
-    <!-- Gradient for stream lines -->
-    <linearGradient id="streamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color={accentColor} stop-opacity="0" />
-      <stop offset="20%" stop-color={accentColor} stop-opacity="1" />
-      <stop offset="80%" stop-color={accentColor} stop-opacity="1" />
-      <stop offset="100%" stop-color={accentColor} stop-opacity="0" />
+    <linearGradient id="laneGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color={accentColor} stop-opacity="0.1" />
+      <stop offset="80%" stop-color={accentColor} stop-opacity="0.3" />
+      <stop offset="100%" stop-color={accentColor} stop-opacity="0.1" />
     </linearGradient>
 
-    <!-- Gradient for particles (comet tail effect) -->
-    <linearGradient id="particleGradient" x1="100%" y1="0%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color={accentColor} stop-opacity="1" />
+    <linearGradient id="packetTrail" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color={accentColor} stop-opacity="0.8" />
       <stop offset="100%" stop-color={accentColor} stop-opacity="0" />
     </linearGradient>
   </defs>
 
-  <!-- Background subtle grid -->
-  {#each Array(Math.floor(width / 40)) as _, i}
-    <line
-      x1={i * 40}
-      y1="0"
-      x2={i * 40}
-      y2={height}
-      stroke={accentColor}
-      stroke-width="0.5"
-      opacity="0.05"
-    />
-  {/each}
-
-  <!-- Stream lines (flowing paths) -->
-  {#each streamLines as stream}
-    <path
-      d={getStreamPath(stream)}
-      fill="none"
-      stroke="url(#streamGradient)"
-      stroke-width="1"
-      opacity={stream.opacity}
-    />
-  {/each}
-
-  <!-- Particles with tails -->
-  {#each particles as particle}
-    <!-- Tail -->
-    <ellipse
-      cx={particle.x - particle.size * 2}
-      cy={particle.y}
-      rx={particle.size * 4}
-      ry={particle.size * 0.6}
-      fill="url(#particleGradient)"
-      opacity={particle.opacity * 0.4}
-    />
-    <!-- Main particle -->
-    <circle
-      cx={particle.x}
-      cy={particle.y}
-      r={particle.size}
+  <!-- Source labels on left -->
+  {#each sourceLabels as label, i}
+    <text
+      x="8"
+      y={30 + i * laneHeight + laneHeight / 2 + 3}
+      font-size="8"
       fill={accentColor}
-      opacity={particle.opacity}
-      filter="url(#dataGlow)"
+      opacity="0.6"
+      font-weight="500"
+    >
+      {label}
+    </text>
+  {/each}
+
+  <!-- Lane lines -->
+  {#each Array(laneCount) as _, i}
+    <line
+      x1="50"
+      y1={30 + i * laneHeight + laneHeight / 2}
+      x2={processZoneX - 20}
+      y2={30 + i * laneHeight + laneHeight / 2}
+      stroke={accentColor}
+      stroke-width="1"
+      opacity="0.15"
+      stroke-dasharray="4 4"
+    />
+  {/each}
+
+  <!-- Processing zone background -->
+  <rect
+    x={processZoneX - 30}
+    y="20"
+    width="90"
+    height={height - 40}
+    rx="8"
+    fill={accentColor}
+    opacity="0.05"
+  />
+
+  <!-- Data packets with trails -->
+  {#each packets as packet}
+    <!-- Trail -->
+    <ellipse
+      cx={packet.x - packet.size * 3}
+      cy={packet.y}
+      rx={packet.size * 5}
+      ry={packet.size * 0.5}
+      fill="url(#packetTrail)"
+      opacity="0.4"
+    />
+    <!-- Main packet -->
+    <circle
+      cx={packet.x}
+      cy={packet.y}
+      r={packet.size}
+      fill={accentColor}
+      filter="url(#dataPacketGlow)"
+      opacity="0.9"
     />
     <!-- Bright core -->
     <circle
-      cx={particle.x}
-      cy={particle.y}
-      r={particle.size * 0.4}
+      cx={packet.x}
+      cy={packet.y}
+      r={packet.size * 0.4}
       fill="white"
-      opacity={particle.opacity * 0.8}
+      opacity="0.8"
     />
   {/each}
 
-  <!-- Entry/exit indicators -->
-  <rect
-    x="0"
-    y="0"
-    width="3"
-    height={height}
+  <!-- Processing nodes -->
+  {#each processingNodes as node}
+    <!-- Glow -->
+    <circle
+      cx={node.x}
+      cy={node.y}
+      r={18 * node.activity}
+      fill={accentColor}
+      opacity={node.activity * 0.3}
+    />
+    <!-- Main node -->
+    <circle
+      cx={node.x}
+      cy={node.y}
+      r="10"
+      fill={accentColor}
+      opacity={0.5 + node.activity * 0.4}
+    />
+    <!-- Core -->
+    <circle
+      cx={node.x}
+      cy={node.y}
+      r="4"
+      fill="white"
+      opacity={0.6 + node.activity * 0.3}
+    />
+    <!-- Label -->
+    <text
+      x={node.x}
+      y={node.y + 20}
+      text-anchor="middle"
+      font-size="8"
+      fill={accentColor}
+      opacity="0.7"
+      font-weight="500"
+    >
+      {node.label}
+    </text>
+  {/each}
+
+  <!-- "Saga" output indicator -->
+  <text
+    x={width - 25}
+    y={height / 2}
+    font-size="10"
     fill={accentColor}
-    opacity="0.15"
-  />
-  <rect
-    x={width - 3}
-    y="0"
-    width="3"
-    height={height}
-    fill={accentColor}
-    opacity="0.15"
-  />
+    opacity="0.8"
+    font-weight="600"
+    text-anchor="middle"
+    transform="rotate(90, {width - 25}, {height / 2})"
+  >
+    SAGA
+  </text>
 </svg>
 
 <style>
