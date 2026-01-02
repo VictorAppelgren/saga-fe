@@ -33,11 +33,7 @@
       submitted = true;
     } catch (err) {
       console.error('Contact form error:', err);
-      // Fallback to mailto if API fails
-      const subject = encodeURIComponent(`Saga Labs Inquiry from ${name} at ${company}`);
-      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCompany: ${company}\n\nMessage:\n${message}`);
-      window.location.href = `mailto:info@saga-labs.com?subject=${subject}&body=${body}`;
-      submitted = true;
+      error = 'Something went wrong. Please try again or email us directly.';
     } finally {
       submitting = false;
     }
@@ -145,6 +141,10 @@
               placeholder="Tell us briefly about your interest..."
             ></textarea>
           </div>
+
+          {#if error}
+            <p class="text-red-600 text-sm">{error}</p>
+          {/if}
 
           <button
             type="submit"

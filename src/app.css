@@ -11,17 +11,17 @@
   --text-color: #1d1d1f;
   --text-muted: #86868b;
   --card-bg: #ffffff;
-  --border-color: #d2d2d7;
+  --border-color: #e5e5e5;
   --hover-bg: #f5f5f7;
-  --primary: #007aff;
-  --primary-hover: #0066d6;
+  --primary: #000000;
+  --primary-hover: #1d1d1f;
   --surface-variant: #f5f5f7;
   --success: #34c759;
   --warning: #ff9500;
   --error: #ff3b30;
-  
-  /* Typography */
-  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Typography - Inter for premium feel */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   
   /* Spacing (8px grid) */
   --space-1: 0.25rem;   /* 4px */
@@ -85,7 +85,24 @@ body {
   font-family: var(--font-family);
   background: var(--bg-color);
   color: var(--text-color);
-  line-height: 1.5;
+  line-height: 1.6;
+  font-feature-settings: 'cv11', 'ss01';  /* Inter stylistic sets */
+  text-rendering: optimizeLegibility;
+}
+
+/* Premium headline typography */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  font-weight: 600;
+}
+
+h1 {
+  letter-spacing: -0.03em;
+}
+
+/* Smooth transitions globally */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Focus States - Apple style */

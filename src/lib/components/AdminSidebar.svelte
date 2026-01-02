@@ -3,6 +3,7 @@
   
   const links = [
     { href: '/admin', label: 'Dashboard', icon: '📊' },
+    { href: '/admin/leads', label: 'Leads', icon: '📬' },
     { href: '/admin/topics', label: 'Topics', icon: '🏷️' },
     { href: '/admin/distribution', label: 'Distribution', icon: '📈' },
     { href: '/admin/workers', label: 'Workers', icon: '⚙️' }
