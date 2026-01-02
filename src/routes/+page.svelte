@@ -153,58 +153,58 @@
 	</section>
 
 	<!-- SHOWCASE: GOD-TIER ANIMATIONS -->
-	<section class="relative max-w-7xl mx-auto px-6 py-24 overflow-hidden">
-		<div class="text-center mb-16">
-			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">See How It Works</p>
-			<h2 class="text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
-				Thousands of AI Agents. Watching Everything. Missing Nothing.
+	<section class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 overflow-hidden">
+		<div class="text-center mb-12 sm:mb-16">
+			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">How It Works</p>
+			<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
+				Your Judgment. Amplified Beyond Human Scale.
 			</h2>
-			<p class="text-lg text-gray-500 max-w-2xl mx-auto">
-				Saga's agents continuously scan global signals, detect hidden correlations, and surface actionable intelligence before risks materialize.
+			<p class="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
+				Saga extends your reach across the entire world — checking every angle, exposing every risk, so you walk into every decision with certainty.
 			</p>
 		</div>
 
-		<!-- Animation 1: The Cascade -->
-		<div class="mb-20">
-			<div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-				<div class="lg:w-2/5 text-left">
-					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Chain Reaction Detection</p>
-					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
-						Events Cascade Through Our Knowledge Graph
+		<!-- Animation 1: The Knowledge Graph -->
+		<div class="mb-16 sm:mb-20">
+			<div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+				<div class="lg:w-2/5 text-left px-2">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Knowledge Graph</p>
+					<h3 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-900">
+						50M+ Entities. Every Connection Mapped.
 					</h3>
 					<p class="text-gray-600 mb-4">
-						Policy shifts, supply disruptions, market moves, credit events — each triggers cascading effects through 50M+ connected entities. Saga traces every path to your portfolio exposure.
+						Events don't happen in isolation. A policy shift cascades through supply chains, sectors, and markets. Saga maps every path — so you see where risk is building before it hits your portfolio.
 					</p>
 					<p class="text-gray-900 font-medium">
-						See the chain reactions forming — before they hit prices.
+						Chain reactions made visible. Nothing missed.
 					</p>
 				</div>
-				<div class="lg:w-3/5">
-					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20">
-						<CascadeStoryAnimation width={650} height={380} accentColor={accentColor} />
+				<div class="lg:w-3/5 w-full">
+					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20 aspect-[16/10] bg-[#0a0a0f]">
+						<CascadeStoryAnimation width={700} height={438} accentColor={accentColor} />
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Animation 2: The Watchful Network -->
+		<!-- Animation 2: Your Research Team -->
 		<div>
-			<div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
-				<div class="lg:w-2/5 text-left">
-					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Multi-Agent Intelligence</p>
-					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
-						Every Sector Watched. Every Signal Captured.
+			<div class="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-10">
+				<div class="lg:w-2/5 text-left px-2">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Your AI Research Team</p>
+					<h3 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-900">
+						Thousands of Agents. Working for You.
 					</h3>
 					<p class="text-gray-600 mb-4">
-						Specialized AI agents continuously scan Policy, Supply, Markets, Credit, Macro, and Geopolitical signals. When they detect relevant events, intelligence flows to Saga for synthesis.
+						Your judgment is irreplaceable. But your reach had limits — until now. Saga's agents scan every sector continuously, confirming your thesis or surfacing risks you'd never find alone.
 					</p>
 					<p class="text-gray-900 font-medium">
-						Continuous monitoring. Continuous intelligence. Nothing missed.
+						Same judgment. Complete conviction.
 					</p>
 				</div>
-				<div class="lg:w-3/5">
-					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20">
-						<WatchfulNetworkAnimation width={650} height={380} accentColor={accentColor} />
+				<div class="lg:w-3/5 w-full">
+					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20 aspect-[16/10] bg-[#0a0a0f]">
+						<WatchfulNetworkAnimation width={700} height={438} accentColor={accentColor} />
 					</div>
 				</div>
 			</div>
