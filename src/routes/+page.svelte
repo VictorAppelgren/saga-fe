@@ -7,6 +7,9 @@
 	import DataFlowAnimation from '$lib/components/DataFlowAnimation.svelte';
 	import RadarScanAnimation from '$lib/components/RadarScanAnimation.svelte';
 	import TimelineGraphAnimation from '$lib/components/TimelineGraphAnimation.svelte';
+	import AlertPulseAnimation from '$lib/components/AlertPulseAnimation.svelte';
+	import EntityClusterAnimation from '$lib/components/EntityClusterAnimation.svelte';
+	import SignalStrengthAnimation from '$lib/components/SignalStrengthAnimation.svelte';
 
 	let mobileMenuOpen = $state(false);
 	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
@@ -1151,38 +1154,74 @@
 		<div class="text-center mb-12">
 			<p class="text-sm font-bold text-red-500 uppercase tracking-wide mb-2">TEMPORARY TEST SECTION</p>
 			<h2 class="text-3xl font-semibold text-gray-900 mb-4">New SVG Animations</h2>
-			<p class="text-gray-500">Evaluate these 3 new animations for potential use across the site</p>
+			<p class="text-gray-500">Evaluate these 6 animations for potential use across the site</p>
 		</div>
 
-		<div class="grid lg:grid-cols-3 gap-8">
+		<!-- ROW 1 -->
+		<p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Row 1 - Original 3 (Improved)</p>
+		<div class="grid lg:grid-cols-3 gap-8 mb-12">
 			<!-- Data Flow Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-				<h3 class="text-lg font-semibold mb-2 text-gray-900">1. Data Flow Streams</h3>
-				<p class="text-sm text-gray-500 mb-4">Particles flowing along wave paths - represents continuous data processing</p>
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">1. Data Ingestion Flow</h3>
+				<p class="text-sm text-gray-500 mb-4">Sources feeding into Saga's processing pipeline</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<DataFlowAnimation width={350} height={220} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: ingestion sections, "continuous monitoring", data pipelines</p>
+				<p class="text-xs text-gray-400 mt-3">Good for: "10,000+ sources", ingestion pipeline, continuous monitoring</p>
 			</div>
 
 			<!-- Radar Scan Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-				<h3 class="text-lg font-semibold mb-2 text-gray-900">2. Radar / Scan Effect</h3>
-				<p class="text-sm text-gray-500 mb-4">Sweeping radar detecting entities - represents surveillance/monitoring</p>
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">2. Risk Radar</h3>
+				<p class="text-sm text-gray-500 mb-4">Scanning for risks across sectors with labeled detections</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<RadarScanAnimation size={250} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: risk monitoring, threat detection, "nothing missed" messaging</p>
+				<p class="text-xs text-gray-400 mt-3">Good for: "nothing missed", risk monitoring, threat detection</p>
 			</div>
 
 			<!-- Timeline Graph Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-				<h3 class="text-lg font-semibold mb-2 text-gray-900">3. Timeline + Graph DB</h3>
-				<p class="text-sm text-gray-500 mb-4">Events on timeline triggering entity connections - shows change over time</p>
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">3. Chain Reactions</h3>
+				<p class="text-sm text-gray-500 mb-4">Events cascading through entity relationships</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<TimelineGraphAnimation width={350} height={250} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: chain reactions, causality mapping, "how events cascade"</p>
+				<p class="text-xs text-gray-400 mt-3">Good for: causality mapping, "how events cascade", TSMC/Apple scenarios</p>
+			</div>
+		</div>
+
+		<!-- ROW 2 -->
+		<p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Row 2 - New 3</p>
+		<div class="grid lg:grid-cols-3 gap-8">
+			<!-- Alert Pulse Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">4. Alert Pulses</h3>
+				<p class="text-sm text-gray-500 mb-4">Concentric rings pulsing from detected risk events</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<AlertPulseAnimation width={350} height={220} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: alert systems, real-time detection, "risks exposed"</p>
+			</div>
+
+			<!-- Entity Cluster Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">5. Entity Clusters</h3>
+				<p class="text-sm text-gray-500 mb-4">Floating clusters of related entities with cross-connections</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<EntityClusterAnimation width={350} height={220} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: "50M relationships", knowledge graph, entity mapping</p>
+			</div>
+
+			<!-- Signal Strength Animation -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+				<h3 class="text-lg font-semibold mb-2 text-gray-900">6. Signal Monitor</h3>
+				<p class="text-sm text-gray-500 mb-4">Real-time signal strength bars with alert thresholds</p>
+				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
+					<SignalStrengthAnimation width={350} height={220} accentColor={accentColor} />
+				</div>
+				<p class="text-xs text-gray-400 mt-3">Good for: dashboard feel, monitoring metrics, quantified intelligence</p>
 			</div>
 		</div>
 

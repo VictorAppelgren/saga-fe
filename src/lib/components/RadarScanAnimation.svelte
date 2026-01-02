@@ -9,67 +9,63 @@
   const maxRadius = size * 0.42;
 
   let sweepAngle = 0;
-  let detectedBlips: { x: number; y: number; age: number; size: number; id: number }[] = [];
-  let rings: { radius: number; opacity: number }[] = [];
+  let detectedRisks: { x: number; y: number; age: number; size: number; id: number; label: string }[] = [];
   let animationFrame: number;
-  let blipId = 0;
+  let riskId = 0;
 
-  // Seeded random for consistent blip positions
   const seededRandom = (seed: number) => {
     const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
     return x - Math.floor(x);
   };
 
-  // Generate static target points (entities being monitored)
-  const staticTargets = Array.from({ length: 18 }, (_, i) => {
+  // Sector labels around the radar
+  const sectors = ['Tech', 'Energy', 'Finance', 'Healthcare', 'Commodities', 'Policy'];
+
+  // Monitored entities (risks to detect)
+  const monitoredEntities = Array.from({ length: 24 }, (_, i) => {
     const angle = seededRandom(i * 7) * Math.PI * 2;
-    const dist = 0.25 + seededRandom(i * 13) * 0.65;
+    const dist = 0.3 + seededRandom(i * 13) * 0.6;
+    const riskLabels = ['Supply', 'Policy', 'Credit', 'Tariff', 'Rate', 'Margin', 'FX', 'Demand'];
     return {
       x: centerX + Math.cos(angle) * maxRadius * dist,
       y: centerY + Math.sin(angle) * maxRadius * dist,
-      angle: angle,
-      size: 2 + seededRandom(i * 19) * 3
+      angle,
+      size: 2 + seededRandom(i * 19) * 2.5,
+      label: riskLabels[i % riskLabels.length]
     };
   });
 
   onMount(() => {
-    // Initialize concentric rings
-    rings = [0.25, 0.5, 0.75, 1].map(r => ({
-      radius: maxRadius * r,
-      opacity: 0.15
-    }));
-
     const animate = () => {
-      // Rotate sweep
-      sweepAngle = (sweepAngle + 1.2) % 360;
+      sweepAngle = (sweepAngle + 1.5) % 360;
       const sweepRad = sweepAngle * (Math.PI / 180);
 
-      // Check if sweep passes over any targets
-      staticTargets.forEach((target, i) => {
-        const angleDiff = Math.abs(target.angle - sweepRad) % (Math.PI * 2);
+      // Detect entities when sweep passes
+      monitoredEntities.forEach((entity, i) => {
+        const angleDiff = Math.abs(entity.angle - sweepRad) % (Math.PI * 2);
         const normalizedDiff = Math.min(angleDiff, Math.PI * 2 - angleDiff);
 
-        if (normalizedDiff < 0.1) {
-          // Add blip when sweep passes
-          const existingBlip = detectedBlips.find(b =>
-            Math.abs(b.x - target.x) < 5 && Math.abs(b.y - target.y) < 5 && b.age < 100
+        if (normalizedDiff < 0.12) {
+          const existingRisk = detectedRisks.find(r =>
+            Math.abs(r.x - entity.x) < 8 && Math.abs(r.y - entity.y) < 8 && r.age < 80
           );
-          if (!existingBlip) {
-            detectedBlips = [...detectedBlips, {
-              x: target.x,
-              y: target.y,
+          if (!existingRisk) {
+            detectedRisks = [...detectedRisks, {
+              x: entity.x,
+              y: entity.y,
               age: 0,
-              size: target.size,
-              id: blipId++
+              size: entity.size,
+              id: riskId++,
+              label: entity.label
             }];
           }
         }
       });
 
-      // Age and fade blips
-      detectedBlips = detectedBlips
-        .map(b => ({ ...b, age: b.age + 1 }))
-        .filter(b => b.age < 180);
+      // Age and fade risks
+      detectedRisks = detectedRisks
+        .map(r => ({ ...r, age: r.age + 1 }))
+        .filter(r => r.age < 150);
 
       animationFrame = requestAnimationFrame(animate);
     };
@@ -81,7 +77,6 @@
     };
   });
 
-  // Calculate sweep gradient end point
   $: sweepEndX = centerX + Math.cos(sweepAngle * Math.PI / 180) * maxRadius;
   $: sweepEndY = centerY + Math.sin(sweepAngle * Math.PI / 180) * maxRadius;
 </script>
@@ -93,21 +88,7 @@
   height={size}
 >
   <defs>
-    <!-- Radar sweep gradient -->
-    <linearGradient id="sweepGradient" gradientUnits="userSpaceOnUse"
-      x1={centerX} y1={centerY} x2={sweepEndX} y2={sweepEndY}>
-      <stop offset="0%" stop-color={accentColor} stop-opacity="0.8" />
-      <stop offset="100%" stop-color={accentColor} stop-opacity="0" />
-    </linearGradient>
-
-    <!-- Cone sweep gradient -->
-    <radialGradient id="coneGradient" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color={accentColor} stop-opacity="0.3" />
-      <stop offset="100%" stop-color={accentColor} stop-opacity="0" />
-    </radialGradient>
-
-    <!-- Blip glow -->
-    <filter id="blipGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <filter id="riskGlow" x="-100%" y="-100%" width="300%" height="300%">
       <feGaussianBlur stdDeviation="3" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
@@ -115,69 +96,68 @@
       </feMerge>
     </filter>
 
-    <!-- Sweep cone clip path -->
-    <clipPath id="sweepCone">
-      <path d="
-        M {centerX} {centerY}
-        L {centerX + Math.cos((sweepAngle - 30) * Math.PI / 180) * maxRadius * 1.2} {centerY + Math.sin((sweepAngle - 30) * Math.PI / 180) * maxRadius * 1.2}
-        A {maxRadius * 1.2} {maxRadius * 1.2} 0 0 1 {centerX + Math.cos(sweepAngle * Math.PI / 180) * maxRadius * 1.2} {centerY + Math.sin(sweepAngle * Math.PI / 180) * maxRadius * 1.2}
-        Z
-      " />
-    </clipPath>
+    <radialGradient id="radarBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color={accentColor} stop-opacity="0.08" />
+      <stop offset="100%" stop-color={accentColor} stop-opacity="0.02" />
+    </radialGradient>
   </defs>
 
-  <!-- Background circle -->
+  <!-- Background -->
   <circle
     cx={centerX}
     cy={centerY}
     r={maxRadius}
-    fill={accentColor}
-    opacity="0.03"
+    fill="url(#radarBg)"
   />
 
   <!-- Concentric rings -->
-  {#each rings as ring}
+  {#each [0.25, 0.5, 0.75, 1] as ringRatio}
     <circle
       cx={centerX}
       cy={centerY}
-      r={ring.radius}
+      r={maxRadius * ringRatio}
       fill="none"
       stroke={accentColor}
       stroke-width="1"
-      opacity={ring.opacity}
+      opacity="0.15"
     />
   {/each}
 
-  <!-- Cross hairs -->
-  <line
-    x1={centerX - maxRadius}
-    y1={centerY}
-    x2={centerX + maxRadius}
-    y2={centerY}
-    stroke={accentColor}
-    stroke-width="0.5"
-    opacity="0.2"
-  />
-  <line
-    x1={centerX}
-    y1={centerY - maxRadius}
-    x2={centerX}
-    y2={centerY + maxRadius}
-    stroke={accentColor}
-    stroke-width="0.5"
-    opacity="0.2"
-  />
+  <!-- Sector dividers and labels -->
+  {#each sectors as sector, i}
+    {@const angle = (i / sectors.length) * Math.PI * 2 - Math.PI / 2}
+    <line
+      x1={centerX}
+      y1={centerY}
+      x2={centerX + Math.cos(angle) * maxRadius}
+      y2={centerY + Math.sin(angle) * maxRadius}
+      stroke={accentColor}
+      stroke-width="0.5"
+      opacity="0.2"
+    />
+    <text
+      x={centerX + Math.cos(angle + Math.PI / sectors.length) * (maxRadius + 15)}
+      y={centerY + Math.sin(angle + Math.PI / sectors.length) * (maxRadius + 15)}
+      text-anchor="middle"
+      font-size="9"
+      fill={accentColor}
+      opacity="0.5"
+      font-weight="500"
+    >
+      {sector}
+    </text>
+  {/each}
 
   <!-- Sweep cone (fading trail) -->
   <path
     d="
       M {centerX} {centerY}
-      L {centerX + Math.cos((sweepAngle - 45) * Math.PI / 180) * maxRadius} {centerY + Math.sin((sweepAngle - 45) * Math.PI / 180) * maxRadius}
-      A {maxRadius} {maxRadius} 0 0 1 {centerX + Math.cos(sweepAngle * Math.PI / 180) * maxRadius} {centerY + Math.sin(sweepAngle * Math.PI / 180) * maxRadius}
+      L {centerX + Math.cos((sweepAngle - 40) * Math.PI / 180) * maxRadius} {centerY + Math.sin((sweepAngle - 40) * Math.PI / 180) * maxRadius}
+      A {maxRadius} {maxRadius} 0 0 1 {sweepEndX} {sweepEndY}
       Z
     "
     fill={accentColor}
-    opacity="0.15"
+    opacity="0.12"
   />
 
   <!-- Main sweep line -->
@@ -188,67 +168,82 @@
     y2={sweepEndY}
     stroke={accentColor}
     stroke-width="2"
-    opacity="0.8"
+    opacity="0.85"
   />
 
-  <!-- Center point -->
+  <!-- Static entity markers (faint) -->
+  {#each monitoredEntities as entity}
+    <circle
+      cx={entity.x}
+      cy={entity.y}
+      r={entity.size * 0.6}
+      fill={accentColor}
+      opacity="0.12"
+    />
+  {/each}
+
+  <!-- Detected risks (bright, fading) -->
+  {#each detectedRisks as risk}
+    {@const fadeOpacity = Math.max(0, 1 - risk.age / 150)}
+    {@const pulseScale = 1 + (risk.age < 20 ? (20 - risk.age) * 0.03 : 0)}
+    <!-- Outer glow -->
+    <circle
+      cx={risk.x}
+      cy={risk.y}
+      r={risk.size * 2.5 * pulseScale}
+      fill={accentColor}
+      opacity={fadeOpacity * 0.25}
+      filter="url(#riskGlow)"
+    />
+    <!-- Main risk dot -->
+    <circle
+      cx={risk.x}
+      cy={risk.y}
+      r={risk.size * pulseScale}
+      fill={accentColor}
+      opacity={fadeOpacity * 0.9}
+    />
+    <!-- Bright center -->
+    <circle
+      cx={risk.x}
+      cy={risk.y}
+      r={risk.size * 0.4 * pulseScale}
+      fill="white"
+      opacity={fadeOpacity * 0.8}
+    />
+    <!-- Risk label (only show for recent detections) -->
+    {#if risk.age < 60}
+      <text
+        x={risk.x}
+        y={risk.y - risk.size - 5}
+        text-anchor="middle"
+        font-size="7"
+        fill={accentColor}
+        opacity={fadeOpacity * 0.7}
+        font-weight="500"
+      >
+        {risk.label}
+      </text>
+    {/if}
+  {/each}
+
+  <!-- Center hub -->
   <circle
     cx={centerX}
     cy={centerY}
-    r="4"
+    r="6"
     fill={accentColor}
     opacity="0.9"
   />
   <circle
     cx={centerX}
     cy={centerY}
-    r="2"
+    r="3"
     fill="white"
     opacity="0.8"
   />
 
-  <!-- Static target markers (faint) -->
-  {#each staticTargets as target}
-    <circle
-      cx={target.x}
-      cy={target.y}
-      r={target.size * 0.5}
-      fill={accentColor}
-      opacity="0.1"
-    />
-  {/each}
-
-  <!-- Detected blips (fade over time) -->
-  {#each detectedBlips as blip}
-    {@const fadeOpacity = Math.max(0, 1 - blip.age / 180)}
-    <!-- Outer glow -->
-    <circle
-      cx={blip.x}
-      cy={blip.y}
-      r={blip.size * 2}
-      fill={accentColor}
-      opacity={fadeOpacity * 0.3}
-      filter="url(#blipGlow)"
-    />
-    <!-- Main blip -->
-    <circle
-      cx={blip.x}
-      cy={blip.y}
-      r={blip.size}
-      fill={accentColor}
-      opacity={fadeOpacity * 0.9}
-    />
-    <!-- Bright center -->
-    <circle
-      cx={blip.x}
-      cy={blip.y}
-      r={blip.size * 0.4}
-      fill="white"
-      opacity={fadeOpacity * 0.7}
-    />
-  {/each}
-
-  <!-- Outer ring (border) -->
+  <!-- Outer ring border -->
   <circle
     cx={centerX}
     cy={centerY}
@@ -258,6 +253,19 @@
     stroke-width="2"
     opacity="0.4"
   />
+
+  <!-- Title -->
+  <text
+    x={centerX}
+    y={size - 8}
+    text-anchor="middle"
+    font-size="10"
+    fill={accentColor}
+    opacity="0.6"
+    font-weight="600"
+  >
+    RISK MONITORING
+  </text>
 </svg>
 
 <style>
