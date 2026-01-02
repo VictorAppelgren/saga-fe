@@ -180,14 +180,14 @@
 					</p>
 				</div>
 				<div class="lg:w-3/5 w-full">
-					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20 aspect-[16/10] bg-[#0a0a0f]">
-						<CascadeStoryAnimation width={700} height={438} accentColor={accentColor} />
+					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20 aspect-[4/3] bg-[#0a0a0f]">
+						<CascadeStoryAnimation width={700} height={525} accentColor={accentColor} />
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Animation 2: Your Research Team -->
+		<!-- HIDDEN: Animation 2: Your Research Team (code preserved)
 		<div>
 			<div class="flex flex-col lg:flex-row-reverse items-center gap-6 lg:gap-10">
 				<div class="lg:w-2/5 text-left px-2">
@@ -209,6 +209,7 @@
 				</div>
 			</div>
 		</div>
+		END HIDDEN Animation 2 -->
 	</section>
 
 	<!-- HOME TAB CONTENT -->
