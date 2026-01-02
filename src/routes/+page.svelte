@@ -1,16 +1,22 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Network, Brain, TrendingUp, Shield, Globe, Zap, Target, Eye, Menu, X, ChevronRight } from 'lucide-svelte';
 	import ContactModal from '$lib/components/ContactModal.svelte';
+	import NetworkAnimation from '$lib/components/NetworkAnimation.svelte';
+	import NetworkBackground from '$lib/components/NetworkBackground.svelte';
 
 	let mobileMenuOpen = $state(false);
 	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
 	let showContactModal = $state(false);
 
+	// Accent color - elegant deep blue
+	const accentColor = '#2563eb';
+
 	function setTab(tab: 'home' | 'technology' | 'investors' | 'examples') {
 		activeTab = tab;
 		mobileMenuOpen = false;
 		console.log('Tab changed to:', tab);
-		
+
 		// Scroll to top for home
 		if (tab === 'home') {
 			window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -25,6 +31,27 @@
 			}, 50);
 		}
 	}
+
+	// Scroll-triggered animations
+	onMount(() => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('animate-in');
+					}
+				});
+			},
+			{ threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+		);
+
+		// Observe all elements with the fade-up class
+		document.querySelectorAll('.fade-up').forEach((el) => {
+			observer.observe(el);
+		});
+
+		return () => observer.disconnect();
+	});
 </script>
 
 <div class="bg-white text-gray-900">
@@ -41,29 +68,36 @@
 				<div class="hidden md:flex items-center gap-10">
 					<button
 						onclick={() => setTab('home')}
-						class="text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'home' ? 'text-gray-900' : ''}"
+						class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'home' ? 'text-gray-900' : ''}"
 					>
 						Home
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full {activeTab === 'home' ? 'w-full' : ''}"></span>
 					</button>
 					<button
 						onclick={() => setTab('technology')}
-						class="text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'technology' ? 'text-gray-900' : ''}"
+						class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'technology' ? 'text-gray-900' : ''}"
 					>
 						Technology
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full {activeTab === 'technology' ? 'w-full' : ''}"></span>
 					</button>
 					<button
 						onclick={() => setTab('investors')}
-						class="text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'investors' ? 'text-gray-900' : ''}"
+						class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'investors' ? 'text-gray-900' : ''}"
 					>
 						For Investors
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full {activeTab === 'investors' ? 'w-full' : ''}"></span>
 					</button>
 					<button
 						onclick={() => setTab('examples')}
-						class="text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'examples' ? 'text-gray-900' : ''}"
+						class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium {activeTab === 'examples' ? 'text-gray-900' : ''}"
 					>
 						Examples
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full {activeTab === 'examples' ? 'w-full' : ''}"></span>
 					</button>
-					<a href="/login" class="text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium">Login</a>
+					<a href="/login" class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium">
+						Login
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+					</a>
 				</div>
 
 				<!-- Mobile Menu Button -->
@@ -90,13 +124,21 @@
 	</nav>
 
 	<!-- Hero Section - Clean & Impactful -->
-	<section class="relative min-h-[90vh] flex items-center justify-center pt-20">
-		<!-- Subtle Background -->
+	<section class="relative min-h-[90vh] flex items-center justify-center pt-20 overflow-hidden">
+		<!-- Animated Network Background -->
+		<div class="absolute inset-0">
+			<NetworkAnimation nodeCount={40} accentColor={accentColor} />
+		</div>
+
+		<!-- Gradient overlay for readability -->
+		<div class="absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/90 pointer-events-none"></div>
+
+		<!-- Original subtle image (now even more subtle) -->
 		<div class="absolute inset-0 flex items-center justify-center overflow-hidden">
 			<img
 				src="/connected_world.png"
 				alt=""
-				class="w-full max-w-6xl opacity-[0.12] object-contain pointer-events-none select-none"
+				class="w-full max-w-6xl opacity-[0.06] object-contain pointer-events-none select-none"
 				style="filter: grayscale(100%);"
 			/>
 		</div>
@@ -116,9 +158,10 @@
 
 			<button
 				onclick={() => showContactModal = true}
-				class="px-8 py-4 bg-gray-900 text-white text-base font-medium hover:bg-black transition-colors rounded-xl cursor-pointer"
+				class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 			>
-				Get in touch
+				<span class="relative z-10">Get in touch</span>
+				<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 			</button>
 		</div>
 	</section>
@@ -127,11 +170,11 @@
 	{#if activeTab === 'home'}
 	<!-- The Problem We Solve - Clean & Direct -->
 	<section class="max-w-4xl mx-auto px-6 py-32">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
+		<h2 class="fade-up text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
 			The Blind Spots That Cost You
 		</h2>
 
-		<div class="space-y-8 text-lg leading-relaxed text-gray-600">
+		<div class="fade-up space-y-8 text-lg leading-relaxed text-gray-600">
 			<p>
 				The best investment professionals spend decades building mental models of how the world connects. That's their edge — pattern recognition, intuition built from experience, knowing what matters.
 			</p>
@@ -149,7 +192,7 @@
 			</p>
 		</div>
 
-		<div class="mt-20 pt-20 border-t border-gray-100">
+		<div class="fade-up mt-20 pt-20 border-t border-gray-100">
 			<h3 class="text-2xl font-semibold mb-8 text-center">
 				Hidden Risks. Exposed Before They Hit.
 			</h3>
@@ -163,7 +206,7 @@
 			</p>
 		</div>
 
-		<div class="mt-20 bg-gray-900 text-white rounded-2xl p-10">
+		<div class="fade-up mt-20 bg-gray-900 text-white rounded-2xl p-10">
 			<h3 class="text-2xl font-semibold mb-6">Saga checks every angle. Exposes every risk.</h3>
 			<p class="text-lg text-gray-300 mb-6">
 				Thousands of AI agents doing what one expert does — but across the entire world, continuously.
@@ -182,18 +225,18 @@
 
 	<!-- Two Ways We Strengthen You - Minimal Cards -->
 	<section id="platform" class="max-w-5xl mx-auto px-6 py-32">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
+		<h2 class="fade-up text-4xl md:text-5xl font-semibold mb-6 text-center">
 			Two Ways We Strengthen You
 		</h2>
-		<p class="text-lg text-center mb-20 text-gray-500">
+		<p class="fade-up text-lg text-center mb-20 text-gray-500">
 			Deep strategic due diligence. Continuous portfolio monitoring.
 		</p>
 
 		<div class="grid md:grid-cols-2 gap-12">
 			<!-- Deep Strategic Due Diligence -->
-			<div class="space-y-6">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Before the decision</p>
-				<h3 class="text-2xl font-semibold">Deep Strategic Due Diligence</h3>
+			<div class="fade-up fade-up-delay-1 group space-y-6 p-8 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
+				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">Before the decision</p>
+				<h3 class="text-2xl font-semibold group-hover:text-blue-900 transition-colors">Deep Strategic Due Diligence</h3>
 				<p class="text-gray-600 leading-relaxed">
 					Understand all the angles — risks, opportunities, chain effects across geographies, sectors, and supply chains. Our AI agents map the entire landscape around your decision.
 				</p>
@@ -203,9 +246,9 @@
 			</div>
 
 			<!-- Continuous Portfolio & Risk Monitoring -->
-			<div class="space-y-6">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide">After the decision</p>
-				<h3 class="text-2xl font-semibold">Continuous Portfolio Monitoring</h3>
+			<div class="fade-up fade-up-delay-2 group space-y-6 p-8 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
+				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">After the decision</p>
+				<h3 class="text-2xl font-semibold group-hover:text-blue-900 transition-colors">Continuous Portfolio Monitoring</h3>
 				<p class="text-gray-600 leading-relaxed">
 					Your portfolio monitored against a living map of global events. Thousands of AI agents working continuously — reading, analyzing, connecting, simulating.
 				</p>
@@ -218,11 +261,11 @@
 
 	<!-- Certainty Section -->
 	<section class="max-w-4xl mx-auto px-6 py-32">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
+		<h2 class="fade-up text-4xl md:text-5xl font-semibold mb-12 text-center leading-tight">
 			Thesis Confirmed. Or Risks Exposed First.
 		</h2>
 
-		<div class="space-y-8 text-lg text-gray-600 leading-relaxed text-center">
+		<div class="fade-up space-y-8 text-lg text-gray-600 leading-relaxed text-center">
 			<p>
 				Your judgment is sharp. But there's always that question: What am I missing? What's building that I haven't seen?
 			</p>
@@ -237,46 +280,46 @@
 		</div>
 
 		<div class="mt-16 grid md:grid-cols-3 gap-8 text-center">
-			<div>
-				<p class="font-medium text-gray-900 mb-2">Every angle checked</p>
-				<p class="text-sm text-gray-500">10,000+ sources monitored</p>
+			<div class="fade-up fade-up-delay-1 group">
+				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">10,000+</p>
+				<p class="text-sm text-gray-500">sources monitored</p>
 			</div>
-			<div>
-				<p class="font-medium text-gray-900 mb-2">Every risk exposed</p>
-				<p class="text-sm text-gray-500">50M relationships mapped</p>
+			<div class="fade-up fade-up-delay-2 group">
+				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">50M</p>
+				<p class="text-sm text-gray-500">relationships mapped</p>
 			</div>
-			<div>
-				<p class="font-medium text-gray-900 mb-2">Nothing missed</p>
-				<p class="text-sm text-gray-500">Simulations run continuously</p>
+			<div class="fade-up fade-up-delay-3 group">
+				<p class="text-3xl font-semibold text-blue-600 mb-2 transition-transform group-hover:scale-105">24/7</p>
+				<p class="text-sm text-gray-500">continuous monitoring</p>
 			</div>
 		</div>
 
-		<p class="text-2xl font-medium text-center mt-16 text-gray-900">
+		<p class="fade-up text-2xl font-medium text-center mt-16 text-gray-900">
 			Same judgment. Complete conviction.
 		</p>
 	</section>
 
 	<!-- The Category Opportunity -->
 	<section class="max-w-4xl mx-auto px-6 py-32 border-t border-gray-100">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
+		<h2 class="fade-up text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
 			The Category No One Has Built
 		</h2>
-		<p class="text-lg text-center mb-16 text-gray-500">
+		<p class="fade-up text-lg text-center mb-16 text-gray-500">
 			Where human judgment still matters most
 		</p>
 
 		<div class="grid md:grid-cols-2 gap-8 mb-16">
-			<div class="text-center">
+			<div class="fade-up fade-up-delay-1 text-center">
 				<p class="text-2xl font-semibold mb-2">Recorded Future</p>
 				<p class="text-gray-500">$2.7B exit — cybersecurity</p>
 			</div>
-			<div class="text-center">
+			<div class="fade-up fade-up-delay-2 text-center">
 				<p class="text-2xl font-semibold mb-2">Palantir</p>
 				<p class="text-gray-500">$400B+ — governments</p>
 			</div>
 		</div>
 
-		<div class="bg-gray-900 text-white rounded-2xl p-10 mb-16">
+		<div class="fade-up bg-gray-900 text-white rounded-2xl p-10 mb-16">
 			<p class="text-xl font-medium text-center mb-6">
 				No one has built this for the trillions in institutional capital making investment decisions.
 			</p>
@@ -303,30 +346,42 @@
 		</p>
 
 		<div class="grid md:grid-cols-2 gap-x-16 gap-y-12">
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Investors & Portfolio Managers</h3>
-				<p class="text-gray-600 leading-relaxed">
+			<div class="group p-6 -m-6 rounded-xl hover:bg-gray-50 transition-all duration-300">
+				<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+					<span class="w-2 h-2 rounded-full bg-blue-600 group-hover:scale-150 transition-transform duration-300"></span>
+					Investors & Portfolio Managers
+				</h3>
+				<p class="text-gray-600 leading-relaxed pl-5">
 					See the chain reactions forming across your positions before they hit prices.
 				</p>
 			</div>
 
-			<div>
-				<h3 class="text-xl font-semibold mb-3">PE / VC / M&A Teams</h3>
-				<p class="text-gray-600 leading-relaxed">
+			<div class="group p-6 -m-6 rounded-xl hover:bg-gray-50 transition-all duration-300">
+				<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+					<span class="w-2 h-2 rounded-full bg-blue-600 group-hover:scale-150 transition-transform duration-300"></span>
+					PE / VC / M&A Teams
+				</h3>
+				<p class="text-gray-600 leading-relaxed pl-5">
 					Deep strategic due diligence that maps every angle before you commit capital.
 				</p>
 			</div>
 
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Corporate Strategy & Risk</h3>
-				<p class="text-gray-600 leading-relaxed">
+			<div class="group p-6 -m-6 rounded-xl hover:bg-gray-50 transition-all duration-300">
+				<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+					<span class="w-2 h-2 rounded-full bg-blue-600 group-hover:scale-150 transition-transform duration-300"></span>
+					Corporate Strategy & Risk
+				</h3>
+				<p class="text-gray-600 leading-relaxed pl-5">
 					Monitor your supply chain against a living map of global events. 24/7 intelligence.
 				</p>
 			</div>
 
-			<div>
-				<h3 class="text-xl font-semibold mb-3">CIOs and Allocators</h3>
-				<p class="text-gray-600 leading-relaxed">
+			<div class="group p-6 -m-6 rounded-xl hover:bg-gray-50 transition-all duration-300">
+				<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+					<span class="w-2 h-2 rounded-full bg-blue-600 group-hover:scale-150 transition-transform duration-300"></span>
+					CIOs and Allocators
+				</h3>
+				<p class="text-gray-600 leading-relaxed pl-5">
 					Understand how decisions cascade through interconnected systems before you commit.
 				</p>
 			</div>
@@ -334,155 +389,199 @@
 	</section>
 
 	<!-- Your AI Research Team -->
-	<section class="max-w-4xl mx-auto px-6 py-32 border-t border-gray-100">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
-			Your AI Research Team
-		</h2>
-		<p class="text-lg text-center mb-6 text-gray-500">
-			How thousands of specialized agents extend your reach
-		</p>
-
-		<p class="text-center text-gray-600 mb-20 max-w-2xl mx-auto">
-			Not one model trying to do everything — a coordinated team of specialized agents, each doing what it does best.
-		</p>
-
-		<div class="grid md:grid-cols-2 gap-x-16 gap-y-12">
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Reading Agents</h3>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Processing 10,000+ sources in real-time. News, filings, trade data, policy announcements.
-				</p>
-				<p class="text-sm text-gray-400">The width of understanding.</p>
-			</div>
-
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Mapping Agents</h3>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Connecting 50M+ entities into a living knowledge graph. Companies, suppliers, geographies, policies.
-				</p>
-				<p class="text-sm text-gray-400">Chain reactions become visible.</p>
-			</div>
-
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Analysis Agents</h3>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Causal inference. Pattern recognition. Anomaly detection. Applied to your specific exposures.
-				</p>
-				<p class="text-sm text-gray-400">The depth of understanding.</p>
-			</div>
-
-			<div>
-				<h3 class="text-xl font-semibold mb-3">Simulation Agents</h3>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Projecting how current events cascade forward. Stress-testing scenarios before they happen.
-				</p>
-				<p class="text-sm text-gray-400">The forward-looking edge.</p>
-			</div>
+	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
+		<!-- Subtle network background -->
+		<div class="absolute inset-0 opacity-20">
+			<NetworkBackground opacity={0.08} color={accentColor} />
 		</div>
-
-		<div class="mt-20 bg-gray-900 text-white rounded-2xl p-10 text-center">
-			<p class="text-lg text-gray-300">
-				All agents coordinated into coherent intelligence. Working for you, 24/7, across the entire world.
+		<div class="relative">
+			<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
+				Your AI Research Team
+			</h2>
+			<p class="text-lg text-center mb-6 text-gray-500">
+				How thousands of specialized agents extend your reach
 			</p>
+
+			<p class="text-center text-gray-600 mb-20 max-w-2xl mx-auto">
+				Not one model trying to do everything — a coordinated team of specialized agents, each doing what it does best.
+			</p>
+
+			<div class="grid md:grid-cols-2 gap-x-16 gap-y-12">
+				<div class="group">
+					<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+						<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">R</span>
+						Reading Agents
+					</h3>
+					<p class="text-gray-600 leading-relaxed mb-2 pl-11">
+						Processing 10,000+ sources in real-time. News, filings, trade data, policy announcements.
+					</p>
+					<p class="text-sm text-blue-600 pl-11">The width of understanding.</p>
+				</div>
+
+				<div class="group">
+					<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+						<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">M</span>
+						Mapping Agents
+					</h3>
+					<p class="text-gray-600 leading-relaxed mb-2 pl-11">
+						Connecting 50M+ entities into a living knowledge graph. Companies, suppliers, geographies, policies.
+					</p>
+					<p class="text-sm text-blue-600 pl-11">Chain reactions become visible.</p>
+				</div>
+
+				<div class="group">
+					<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+						<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">A</span>
+						Analysis Agents
+					</h3>
+					<p class="text-gray-600 leading-relaxed mb-2 pl-11">
+						Causal inference. Pattern recognition. Anomaly detection. Applied to your specific exposures.
+					</p>
+					<p class="text-sm text-blue-600 pl-11">The depth of understanding.</p>
+				</div>
+
+				<div class="group">
+					<h3 class="text-xl font-semibold mb-3 flex items-center gap-3">
+						<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">S</span>
+						Simulation Agents
+					</h3>
+					<p class="text-gray-600 leading-relaxed mb-2 pl-11">
+						Projecting how current events cascade forward. Stress-testing scenarios before they happen.
+					</p>
+					<p class="text-sm text-blue-600 pl-11">The forward-looking edge.</p>
+				</div>
+			</div>
+
+			<div class="mt-20 bg-gray-900 text-white rounded-2xl p-10 text-center">
+				<p class="text-lg text-gray-300">
+					All agents coordinated into coherent intelligence. Working for you, 24/7, across the entire world.
+				</p>
+			</div>
 		</div>
 	</section>
 
 	<!-- Simple CTA Section -->
-	<section class="max-w-3xl mx-auto px-6 py-32 text-center">
-		<h2 class="text-3xl md:text-4xl font-semibold mb-6 leading-tight">
-			Every angle checked. Every risk exposed. Nothing missed.
-		</h2>
-		<p class="text-lg text-gray-500 mb-10">
-			Walk into every decision certain — before the market catches up.
-		</p>
-		<button
-			onclick={() => showContactModal = true}
-			class="px-8 py-4 bg-gray-900 text-white text-base font-medium hover:bg-black transition-colors rounded-xl cursor-pointer"
-		>
-			Get in touch
-		</button>
-		<p class="text-sm text-gray-400 mt-6">
-			We work with a limited number of partners during this phase.
-		</p>
+	<section class="relative max-w-3xl mx-auto px-6 py-32 text-center overflow-hidden">
+		<!-- Subtle network background -->
+		<div class="absolute inset-0 opacity-30">
+			<NetworkBackground opacity={0.1} color={accentColor} />
+		</div>
+		<div class="relative">
+			<h2 class="text-3xl md:text-4xl font-semibold mb-6 leading-tight">
+				Every angle checked. Every risk exposed. Nothing missed.
+			</h2>
+			<p class="text-lg text-gray-500 mb-10">
+				Walk into every decision certain — before the market catches up.
+			</p>
+			<button
+				onclick={() => showContactModal = true}
+				class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
+			>
+				<span class="relative z-10">Get in touch</span>
+				<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+			</button>
+			<p class="text-sm text-gray-400 mt-6">
+				We work with a limited number of partners during this phase.
+			</p>
+		</div>
 	</section>
 
 	{/if}
 
 	<!-- TECHNOLOGY TAB CONTENT -->
 	{#if activeTab === 'technology'}
-	<section data-tab="technology" class="max-w-4xl mx-auto px-6 py-32">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
-			The Infrastructure That Scales Human Understanding
-		</h2>
+	<section data-tab="technology" class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+		<!-- Animated network background for tech section -->
+		<div class="absolute inset-0 opacity-40">
+			<NetworkAnimation nodeCount={25} accentColor={accentColor} />
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-b from-white/95 via-white/80 to-white/95 pointer-events-none"></div>
 
-		<p class="text-lg text-gray-600 text-center mb-6 max-w-3xl mx-auto">
-			No human can hold 50 million relationships, read 10,000 sources daily, or simulate cascading scenarios continuously.
-		</p>
+		<div class="relative">
+			<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
+				The Infrastructure That Scales Human Understanding
+			</h2>
 
-		<p class="text-xl font-medium text-center mb-20">
-			We built infrastructure that can.
-		</p>
+			<p class="text-lg text-gray-600 text-center mb-6 max-w-3xl mx-auto">
+				No human can hold 50 million relationships, read 10,000 sources daily, or simulate cascading scenarios continuously.
+			</p>
+
+			<p class="text-xl font-medium text-center mb-20">
+				We built infrastructure that can.
+			</p>
+		</div>
 
 		<!-- Why Traditional Tools Fail -->
-		<div class="mb-32">
+		<div class="relative mb-32">
 			<h3 class="text-2xl font-semibold mb-12 text-center">Why Traditional Tools Leave You Exposed</h3>
 
-			<div class="space-y-8 max-w-3xl mx-auto">
-				<div class="border-b border-gray-100 pb-8">
-					<h4 class="font-semibold mb-2">Bloomberg</h4>
-					<p class="text-gray-600">News in silos. Events in isolation. The risks that hurt you are the connections you didn't think to make.</p>
+			<div class="space-y-6 max-w-3xl mx-auto">
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+					<h4 class="font-semibold mb-2 flex items-center gap-3">
+						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
+						Bloomberg
+					</h4>
+					<p class="text-gray-600 pl-5">News in silos. Events in isolation. The risks that hurt you are the connections you didn't think to make.</p>
 				</div>
 
-				<div class="border-b border-gray-100 pb-8">
-					<h4 class="font-semibold mb-2">Traditional Risk Systems</h4>
-					<p class="text-gray-600">Backward-looking. Built on historical correlations. They measure risk that already happened.</p>
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+					<h4 class="font-semibold mb-2 flex items-center gap-3">
+						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
+						Traditional Risk Systems
+					</h4>
+					<p class="text-gray-600 pl-5">Backward-looking. Built on historical correlations. They measure risk that already happened.</p>
 				</div>
 
-				<div class="pb-8">
-					<h4 class="font-semibold mb-2">Generic AI</h4>
-					<p class="text-gray-600">No financial domain expertise. Can't tell you three unrelated events are converging to threaten your AUM.</p>
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+					<h4 class="font-semibold mb-2 flex items-center gap-3">
+						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
+						Generic AI
+					</h4>
+					<p class="text-gray-600 pl-5">No financial domain expertise. Can't tell you three unrelated events are converging to threaten your AUM.</p>
 				</div>
 			</div>
 		</div>
 
 		<!-- The Four Pillars -->
-		<h3 class="text-2xl font-semibold mb-16 text-center">The Four Pillars of Scaled Intelligence</h3>
+		<div class="relative">
+			<h3 class="text-2xl font-semibold mb-16 text-center">The Four Pillars of Scaled Intelligence</h3>
 
-		<div class="grid md:grid-cols-2 gap-x-16 gap-y-16 mb-32">
-			<div>
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Width</p>
-				<h4 class="text-xl font-semibold mb-3">Collect</h4>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					10,000+ sources processed in real-time. News, filings, trade data, policy announcements, earnings calls.
-				</p>
-				<p class="text-sm text-gray-400">One expert reads 50 sources/day. We read 10,000+.</p>
-			</div>
+			<div class="grid md:grid-cols-2 gap-8 mb-32">
+				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Width</p>
+					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Collect</h4>
+					<p class="text-gray-600 leading-relaxed mb-2">
+						10,000+ sources processed in real-time. News, filings, trade data, policy announcements, earnings calls.
+					</p>
+					<p class="text-sm text-blue-600">One expert reads 50 sources/day. We read 10,000+.</p>
+				</div>
 
-			<div>
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Depth</p>
-				<h4 class="text-xl font-semibold mb-3">Analyze</h4>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Thousands of specialized agents. Causal inference. Pattern recognition. Anomaly detection.
-				</p>
-				<p class="text-sm text-gray-400">Risk intelligence shaped to your exposures.</p>
-			</div>
+				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Depth</p>
+					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Analyze</h4>
+					<p class="text-gray-600 leading-relaxed mb-2">
+						Thousands of specialized agents. Causal inference. Pattern recognition. Anomaly detection.
+					</p>
+					<p class="text-sm text-blue-600">Risk intelligence shaped to your exposures.</p>
+				</div>
 
-			<div>
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Connection</p>
-				<h4 class="text-xl font-semibold mb-3">Map</h4>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					50M+ entities in a living knowledge graph. Companies, suppliers, geographies, policies — all linked.
-				</p>
-				<p class="text-sm text-gray-400">Chain reactions become visible.</p>
-			</div>
+				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Connection</p>
+					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Map</h4>
+					<p class="text-gray-600 leading-relaxed mb-2">
+						50M+ entities in a living knowledge graph. Companies, suppliers, geographies, policies — all linked.
+					</p>
+					<p class="text-sm text-blue-600">Chain reactions become visible.</p>
+				</div>
 
-			<div>
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Foresight</p>
-				<h4 class="text-xl font-semibold mb-3">Simulate</h4>
-				<p class="text-gray-600 leading-relaxed mb-2">
-					Projecting how events cascade forward. Stress-testing scenarios before they happen.
-				</p>
-				<p class="text-sm text-gray-400">See where risk is building first.</p>
+				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Foresight</p>
+					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Simulate</h4>
+					<p class="text-gray-600 leading-relaxed mb-2">
+						Projecting how events cascade forward. Stress-testing scenarios before they happen.
+					</p>
+					<p class="text-sm text-blue-600">See where risk is building first.</p>
+				</div>
 			</div>
 		</div>
 
@@ -509,16 +608,17 @@
 		</div>
 
 		<!-- CTA -->
-		<div class="mt-20 text-center">
+		<div class="relative mt-20 text-center">
 			<h3 class="text-2xl font-semibold mb-4">See It In Action</h3>
 			<p class="text-lg text-gray-500 mb-8">
 				Reach out to discuss how Saga could fit your workflow.
 			</p>
 			<button
 				onclick={() => showContactModal = true}
-				class="px-8 py-4 bg-gray-900 text-white text-base font-medium hover:bg-black transition-colors rounded-xl cursor-pointer"
+				class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 			>
-				Get in touch
+				<span class="relative z-10">Get in touch</span>
+				<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 			</button>
 			<p class="text-sm text-gray-400 mt-6">info@saga-labs.com</p>
 		</div>
@@ -853,9 +953,10 @@
 
 			<button
 				onclick={() => showContactModal = true}
-				class="px-8 py-4 bg-gray-900 text-white text-base font-medium hover:bg-black transition-colors rounded-xl cursor-pointer"
+				class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 			>
-				Interested? Let's talk
+				<span class="relative z-10">Interested? Let's talk</span>
+				<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 			</button>
 			<p class="text-sm text-gray-400 mt-6">info@saga-labs.com</p>
 		</div>
@@ -1012,9 +1113,10 @@
 			<div class="text-center">
 				<button
 					onclick={() => showContactModal = true}
-					class="px-8 py-4 bg-gray-900 text-white text-base font-medium hover:bg-black transition-colors rounded-xl cursor-pointer"
+					class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 				>
-					Interested? Let's talk
+					<span class="relative z-10">Interested? Let's talk</span>
+					<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 				</button>
 				<p class="text-sm text-gray-400 mt-6">
 					We'd be happy to show you what this looks like for your specific exposures.
@@ -1037,3 +1139,23 @@
 	<!-- Contact Modal -->
 	<ContactModal bind:open={showContactModal} />
 </div>
+
+<style>
+	/* Scroll-triggered fade-up animation */
+	:global(.fade-up) {
+		opacity: 0;
+		transform: translateY(30px);
+		transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+	}
+
+	:global(.fade-up.animate-in) {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	/* Staggered delays for grid items */
+	:global(.fade-up-delay-1) { transition-delay: 0.1s; }
+	:global(.fade-up-delay-2) { transition-delay: 0.2s; }
+	:global(.fade-up-delay-3) { transition-delay: 0.3s; }
+	:global(.fade-up-delay-4) { transition-delay: 0.4s; }
+</style>
