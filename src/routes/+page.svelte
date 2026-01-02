@@ -105,13 +105,8 @@
 
 	<!-- Hero Section - Clean & Impactful -->
 	<section class="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
-		<!-- Subtle Network Background -->
-		<div class="absolute inset-0 opacity-45">
-			<NetworkAnimation nodeCount={25} accentColor={accentColor} />
-		</div>
-
-		<!-- Gradient overlay for readability -->
-		<div class="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/70 pointer-events-none"></div>
+		<!-- Subtle gradient background -->
+		<div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-white pointer-events-none"></div>
 
 		<div class="relative max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
 			<!-- Left: Text Content -->
@@ -214,11 +209,6 @@
 
 	<!-- Two Ways We Strengthen You - Minimal Cards -->
 	<section id="platform" class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
-		<!-- Dynamic network animation background -->
-		<div class="absolute inset-0 opacity-50">
-			<NetworkAnimation nodeCount={18} accentColor={accentColor} />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/70 pointer-events-none"></div>
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">
 			Two Ways We Strengthen You
@@ -304,11 +294,6 @@
 
 	<!-- The Category Opportunity -->
 	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
-		<!-- Network animation background -->
-		<div class="absolute inset-0 opacity-55">
-			<NetworkAnimation nodeCount={20} accentColor={accentColor} />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/60 pointer-events-none"></div>
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
 			The Category No One Has Built
@@ -350,11 +335,6 @@
 
 	<!-- Who This Is For -->
 	<section class="relative max-w-4xl mx-auto px-6 py-32 border-t border-gray-100 overflow-hidden">
-		<!-- Animated network clusters -->
-		<div class="absolute inset-0 opacity-50">
-			<NetworkAnimation nodeCount={16} accentColor={accentColor} />
-		</div>
-		<div class="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/70 pointer-events-none"></div>
 		<div class="relative">
 		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center">Who This Is For</h2>
 		<p class="text-lg text-center mb-20 text-gray-500">

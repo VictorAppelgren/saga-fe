@@ -11,62 +11,113 @@
   const centerX = size / 2;
   const centerY = size / 2;
 
-  // 24 cities spread evenly across the globe at different latitudes
-  // Organized in 5 latitude bands with cities spread across longitudes
+  // 45 cities spread across the globe - financial and business centers
+  // Organized by latitude bands with good longitude spread
   const cities = [
-    // Band 1: Far North (~60°N) - 4 cities spread 90° apart
-    { name: 'Stockholm', lat: 59, lng: 18, size: 2.5 },
-    { name: 'Helsinki', lat: 60, lng: 25, size: 2 },
-    { name: 'Anchorage', lat: 61, lng: -150, size: 2 },
-    { name: 'Oslo', lat: 60, lng: 11, size: 2 },
+    // Band 1: Arctic/Far North (55-70°N) - 6 cities
+    { name: 'Reykjavik', lat: 64, lng: -22, size: 2 },      // 0
+    { name: 'Oslo', lat: 60, lng: 11, size: 2.5 },          // 1
+    { name: 'Stockholm', lat: 59, lng: 18, size: 2.5 },     // 2
+    { name: 'Helsinki', lat: 60, lng: 25, size: 2 },        // 3
+    { name: 'Moscow', lat: 56, lng: 37, size: 3 },          // 4
+    { name: 'Anchorage', lat: 61, lng: -150, size: 2 },     // 5
 
-    // Band 2: Northern (~45°N) - 6 cities spread ~60° apart
-    { name: 'London', lat: 51, lng: 0, size: 4 },
-    { name: 'Paris', lat: 49, lng: 2, size: 3 },
-    { name: 'New York', lat: 41, lng: -74, size: 4 },
-    { name: 'Chicago', lat: 42, lng: -88, size: 3 },
-    { name: 'Tokyo', lat: 36, lng: 140, size: 4 },
-    { name: 'Beijing', lat: 40, lng: 116, size: 3.5 },
+    // Band 2: Northern (45-55°N) - 10 cities
+    { name: 'London', lat: 51, lng: 0, size: 4 },           // 6
+    { name: 'Paris', lat: 49, lng: 2, size: 3.5 },          // 7
+    { name: 'Frankfurt', lat: 50, lng: 9, size: 3 },        // 8
+    { name: 'Zurich', lat: 47, lng: 8, size: 3 },           // 9
+    { name: 'Amsterdam', lat: 52, lng: 5, size: 2.5 },      // 10
+    { name: 'New York', lat: 41, lng: -74, size: 4.5 },     // 11
+    { name: 'Chicago', lat: 42, lng: -88, size: 3.5 },      // 12
+    { name: 'Toronto', lat: 44, lng: -79, size: 3 },        // 13
+    { name: 'Vancouver', lat: 49, lng: -123, size: 2.5 },   // 14
+    { name: 'Seattle', lat: 47, lng: -122, size: 2.5 },     // 15
 
-    // Band 3: Tropical/Equator (~15°N to 15°S) - 6 cities
-    { name: 'Mumbai', lat: 19, lng: 73, size: 3 },
-    { name: 'Singapore', lat: 1, lng: 104, size: 3.5 },
-    { name: 'Dubai', lat: 25, lng: 55, size: 3 },
-    { name: 'Lagos', lat: 6, lng: 3, size: 2.5 },
-    { name: 'Panama', lat: 9, lng: -79, size: 2 },
-    { name: 'Nairobi', lat: -1, lng: 37, size: 2.5 },
+    // Band 3: Mid-Northern (30-45°N) - 10 cities
+    { name: 'Tokyo', lat: 36, lng: 140, size: 4.5 },        // 16
+    { name: 'Beijing', lat: 40, lng: 116, size: 4 },        // 17
+    { name: 'Shanghai', lat: 31, lng: 121, size: 4 },       // 18
+    { name: 'Seoul', lat: 37, lng: 127, size: 3.5 },        // 19
+    { name: 'Los Angeles', lat: 34, lng: -118, size: 4 },   // 20
+    { name: 'San Francisco', lat: 38, lng: -122, size: 3.5 },// 21
+    { name: 'Madrid', lat: 40, lng: -4, size: 2.5 },        // 22
+    { name: 'Milan', lat: 45, lng: 9, size: 2.5 },          // 23
+    { name: 'Dubai', lat: 25, lng: 55, size: 3.5 },         // 24
+    { name: 'Tel Aviv', lat: 32, lng: 35, size: 2.5 },      // 25
 
-    // Band 4: Southern (~30°S) - 4 cities
-    { name: 'Sydney', lat: -34, lng: 151, size: 3.5 },
-    { name: 'Sao Paulo', lat: -24, lng: -47, size: 3.5 },
-    { name: 'Cape Town', lat: -34, lng: 18, size: 3 },
-    { name: 'Perth', lat: -32, lng: 116, size: 2.5 },
+    // Band 4: Tropical/Equator (15°N to 15°S) - 10 cities
+    { name: 'Mumbai', lat: 19, lng: 73, size: 3.5 },        // 26
+    { name: 'Singapore', lat: 1, lng: 104, size: 4 },       // 27
+    { name: 'Hong Kong', lat: 22, lng: 114, size: 4 },      // 28
+    { name: 'Bangkok', lat: 14, lng: 100, size: 3 },        // 29
+    { name: 'Lagos', lat: 6, lng: 3, size: 3 },             // 30
+    { name: 'Nairobi', lat: -1, lng: 37, size: 2.5 },       // 31
+    { name: 'Panama City', lat: 9, lng: -79, size: 2.5 },   // 32
+    { name: 'Mexico City', lat: 19, lng: -99, size: 3 },    // 33
+    { name: 'Miami', lat: 26, lng: -80, size: 3 },          // 34
+    { name: 'Jakarta', lat: -6, lng: 107, size: 3 },        // 35
 
-    // Band 5: Far South (~45°S) - 4 cities
-    { name: 'Buenos Aires', lat: -35, lng: -58, size: 3 },
-    { name: 'Auckland', lat: -37, lng: 175, size: 2.5 },
-    { name: 'Santiago', lat: -33, lng: -71, size: 2.5 },
-    { name: 'Melbourne', lat: -38, lng: 145, size: 3 },
+    // Band 5: Southern (25-45°S) - 9 cities
+    { name: 'Sydney', lat: -34, lng: 151, size: 4 },        // 36
+    { name: 'Melbourne', lat: -38, lng: 145, size: 3 },     // 37
+    { name: 'Perth', lat: -32, lng: 116, size: 2.5 },       // 38
+    { name: 'Auckland', lat: -37, lng: 175, size: 2.5 },    // 39
+    { name: 'Sao Paulo', lat: -24, lng: -47, size: 4 },     // 40
+    { name: 'Buenos Aires', lat: -35, lng: -58, size: 3 },  // 41
+    { name: 'Santiago', lat: -33, lng: -71, size: 2.5 },    // 42
+    { name: 'Cape Town', lat: -34, lng: 18, size: 3 },      // 43
+    { name: 'Johannesburg', lat: -26, lng: 28, size: 3 },   // 44
   ];
 
-  // Connections forming a global network
+  // Dense network of connections - financial flows between centers
   const connections = [
-    // Northern band internal
-    [0, 1], [4, 5], [6, 7], [8, 9],
-    // North to North cross
-    [4, 6], [5, 9], [6, 4], [8, 6],
-    // Northern to Tropical
-    [4, 12], [5, 10], [6, 14], [7, 14], [9, 11], [8, 11],
-    // Tropical internal
-    [10, 11], [11, 12], [12, 13], [13, 15], [14, 13],
-    // Tropical to Southern
-    [11, 16], [13, 18], [14, 17], [10, 19],
-    // Southern internal
-    [16, 19], [17, 20], [18, 22], [16, 23],
-    // Southern band
-    [20, 22], [21, 23], [21, 16],
-    // Long distance connections
-    [6, 8], [4, 17], [8, 16], [0, 6],
+    // Arctic band internal
+    [0, 1], [1, 2], [2, 3], [3, 4], [0, 5],
+    // Arctic to Northern Europe
+    [1, 6], [2, 8], [3, 4], [4, 8],
+    // Northern Europe internal (tight cluster)
+    [6, 7], [7, 8], [8, 9], [9, 10], [6, 10], [7, 9], [6, 8],
+    // North America internal
+    [11, 12], [12, 13], [13, 14], [14, 15], [11, 13], [15, 21], [20, 21],
+    // Transatlantic (major finance routes)
+    [6, 11], [7, 11], [8, 11], [6, 13], [10, 11],
+    // Asia internal (East Asia cluster)
+    [16, 17], [17, 18], [18, 19], [16, 19], [17, 19], [16, 18],
+    // Asia-Pacific connections
+    [16, 27], [18, 27], [18, 28], [28, 27], [27, 29], [28, 29],
+    // Europe to Middle East/Asia
+    [8, 24], [9, 24], [6, 24], [24, 25], [24, 26], [25, 26],
+    // Middle East to Asia
+    [24, 27], [24, 28], [26, 27], [26, 28],
+    // Tropical Asia internal
+    [27, 28], [28, 29], [27, 29], [27, 35], [29, 35],
+    // Africa internal
+    [30, 31], [31, 43], [43, 44], [30, 43],
+    // Americas internal
+    [32, 33], [33, 34], [34, 11], [32, 34], [33, 20],
+    // South America internal
+    [40, 41], [41, 42], [40, 42],
+    // Australia/NZ internal
+    [36, 37], [37, 38], [36, 39],
+    // Major global routes
+    [11, 16], [20, 16], [21, 16], // US-Japan
+    [6, 28], [6, 27], // London-Asia
+    [11, 40], [34, 40], // US-Brazil
+    [27, 36], [28, 36], // Asia-Australia
+    [36, 39], // Australia-NZ
+    [16, 36], [18, 36], // Japan/China-Australia
+    [6, 43], [6, 30], // London-Africa
+    [24, 26], [24, 31], // Dubai hub
+    [40, 30], // Brazil-Africa
+    [42, 20], // Chile-LA
+    [38, 27], // Perth-Singapore
+    // Cross-Pacific
+    [20, 18], [21, 18], [14, 16], [15, 16],
+    // More density in key hubs
+    [11, 6], [11, 7], [11, 8], // NY-Europe
+    [16, 28], [16, 27], // Tokyo-HK/Singapore
+    [27, 26], [27, 24], // Singapore hub
   ];
 
   // Convert lat/lng to 3D coordinates - standard spherical coordinates
@@ -174,11 +225,13 @@
       pulsePhase = (pulsePhase + 0.06) % (Math.PI * 2);
     }, 40);
 
-    // Create data pulses
+    // Create data pulses - more frequent with more connections
     const pulseCreator = setInterval(() => {
-      const idx = Math.floor(Math.random() * connections.length);
-      pulses = [...pulses, { connection: idx, progress: 0 }];
-    }, 350);
+      // Add 2 pulses at a time for denser activity
+      const idx1 = Math.floor(Math.random() * connections.length);
+      const idx2 = Math.floor(Math.random() * connections.length);
+      pulses = [...pulses, { connection: idx1, progress: 0 }, { connection: idx2, progress: 0 }];
+    }, 280);
 
     // Animate pulses
     const pulseAnimator = setInterval(() => {
