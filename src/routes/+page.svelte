@@ -10,6 +10,8 @@
 	import AlertPulseAnimation from '$lib/components/AlertPulseAnimation.svelte';
 	import EntityClusterAnimation from '$lib/components/EntityClusterAnimation.svelte';
 	import SignalStrengthAnimation from '$lib/components/SignalStrengthAnimation.svelte';
+	import CascadeStoryAnimation from '$lib/components/CascadeStoryAnimation.svelte';
+	import WatchfulNetworkAnimation from '$lib/components/WatchfulNetworkAnimation.svelte';
 
 	let mobileMenuOpen = $state(false);
 	let activeTab = $state<'home' | 'technology' | 'investors' | 'examples'>('home');
@@ -145,6 +147,65 @@
 					<GlobeAnimation size={380} accentColor={accentColor} />
 					<!-- Glow effect behind globe -->
 					<div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- SHOWCASE: GOD-TIER ANIMATIONS -->
+	<section class="relative max-w-7xl mx-auto px-6 py-24 overflow-hidden">
+		<div class="text-center mb-16">
+			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">See How It Works</p>
+			<h2 class="text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
+				Thousands of AI Agents. Watching Everything. Missing Nothing.
+			</h2>
+			<p class="text-lg text-gray-500 max-w-2xl mx-auto">
+				Saga's agents continuously scan global signals, detect hidden correlations, and surface actionable intelligence before risks materialize.
+			</p>
+		</div>
+
+		<!-- Animation 1: The Cascade -->
+		<div class="mb-20">
+			<div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+				<div class="lg:w-2/5 text-left">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Chain Reaction Detection</p>
+					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
+						One Event. Cascading Impact. Caught Before It Hits.
+					</h3>
+					<p class="text-gray-600 mb-4">
+						A Taiwan drought seems like distant news. But Saga traces the chain reaction: TSMC supply cuts → Apple & Nvidia shortages → Consumer electronics impact → Your portfolio exposure.
+					</p>
+					<p class="text-gray-900 font-medium">
+						We surface these connections weeks before they hit prices — so you can act, not react.
+					</p>
+				</div>
+				<div class="lg:w-3/5">
+					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20">
+						<CascadeStoryAnimation width={650} height={380} accentColor={accentColor} />
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Animation 2: The Watchful Network -->
+		<div>
+			<div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
+				<div class="lg:w-2/5 text-left">
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Multi-Agent Intelligence</p>
+					<h3 class="text-2xl font-semibold mb-4 text-gray-900">
+						Every Angle Checked. Every Signal Correlated.
+					</h3>
+					<p class="text-gray-600 mb-4">
+						Thousands of specialized AI agents watch different sectors: Policy, Supply Chains, Markets, Credit, Macro, Geopolitics. When disparate signals correlate, they connect — synthesizing insights no human could assemble alone.
+					</p>
+					<p class="text-gray-900 font-medium">
+						What took a team of 50 analysts weeks, Saga does continuously — 24/7, across the entire world.
+					</p>
+				</div>
+				<div class="lg:w-3/5">
+					<div class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20">
+						<WatchfulNetworkAnimation width={650} height={380} accentColor={accentColor} />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -1149,86 +1210,58 @@
 	</section>
 	{/if}
 
-	<!-- TEMPORARY TEST SECTION - NEW SVG ANIMATIONS -->
+	<!-- HIDDEN: TEST SECTION - 6 SVG ANIMATIONS (code preserved, section hidden)
 	<section class="max-w-6xl mx-auto px-6 py-20 border-t-4 border-dashed border-red-300 bg-red-50/30">
 		<div class="text-center mb-12">
 			<p class="text-sm font-bold text-red-500 uppercase tracking-wide mb-2">TEMPORARY TEST SECTION</p>
 			<h2 class="text-3xl font-semibold text-gray-900 mb-4">New SVG Animations</h2>
 			<p class="text-gray-500">Evaluate these 6 animations for potential use across the site</p>
 		</div>
-
-		<!-- ROW 1 -->
 		<p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Row 1 - Original 3 (Improved)</p>
 		<div class="grid lg:grid-cols-3 gap-8 mb-12">
-			<!-- Data Flow Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">1. Data Ingestion Flow</h3>
 				<p class="text-sm text-gray-500 mb-4">Sources feeding into Saga's processing pipeline</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<DataFlowAnimation width={350} height={220} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: "10,000+ sources", ingestion pipeline, continuous monitoring</p>
 			</div>
-
-			<!-- Radar Scan Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">2. Risk Radar</h3>
-				<p class="text-sm text-gray-500 mb-4">Scanning for risks across sectors with labeled detections</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<RadarScanAnimation size={250} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: "nothing missed", risk monitoring, threat detection</p>
 			</div>
-
-			<!-- Timeline Graph Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">3. Chain Reactions</h3>
-				<p class="text-sm text-gray-500 mb-4">Events cascading through entity relationships</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<TimelineGraphAnimation width={350} height={250} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: causality mapping, "how events cascade", TSMC/Apple scenarios</p>
 			</div>
 		</div>
-
-		<!-- ROW 2 -->
 		<p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Row 2 - New 3</p>
 		<div class="grid lg:grid-cols-3 gap-8">
-			<!-- Alert Pulse Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">4. Alert Pulses</h3>
-				<p class="text-sm text-gray-500 mb-4">Concentric rings pulsing from detected risk events</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<AlertPulseAnimation width={350} height={220} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: alert systems, real-time detection, "risks exposed"</p>
 			</div>
-
-			<!-- Entity Cluster Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">5. Entity Clusters</h3>
-				<p class="text-sm text-gray-500 mb-4">Floating clusters of related entities with cross-connections</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<EntityClusterAnimation width={350} height={220} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: "50M relationships", knowledge graph, entity mapping</p>
 			</div>
-
-			<!-- Signal Strength Animation -->
 			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
 				<h3 class="text-lg font-semibold mb-2 text-gray-900">6. Signal Monitor</h3>
-				<p class="text-sm text-gray-500 mb-4">Real-time signal strength bars with alert thresholds</p>
 				<div class="bg-gray-900 rounded-xl p-4 flex items-center justify-center">
 					<SignalStrengthAnimation width={350} height={220} accentColor={accentColor} />
 				</div>
-				<p class="text-xs text-gray-400 mt-3">Good for: dashboard feel, monitoring metrics, quantified intelligence</p>
 			</div>
 		</div>
-
-		<div class="mt-12 text-center">
-			<p class="text-sm text-red-400 font-medium">This section will be removed - just for evaluation purposes</p>
-		</div>
 	</section>
+	END HIDDEN TEST SECTION -->
 
 	<!-- Footer - Clean & Minimal -->
 	<footer class="border-t border-gray-100 py-12">
