@@ -10,19 +10,21 @@
   let queriesTrend: any = $state(null);
   let logs: any = $state(null);
   let distribution: any = $state(null);
+  let recentTopics: any = $state(null);
   let loading = $state(true);
 
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes, distRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes, distRes, recentRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
         fetch('/api/admin/trends/analysis?days=7'),
         fetch('/api/admin/trends/strategy-analysis?days=7'),
         fetch('/api/admin/trends/queries?days=7'),
         fetch('/api/admin/logs/today?lines=20'),
-        fetch('/api/admin/article-distribution')
+        fetch('/api/admin/article-distribution'),
+        fetch('/api/admin/topics-recent?days=7')
       ]);
 
       summary = await summaryRes.json();
@@ -32,6 +34,7 @@
       queriesTrend = await queriesRes.json();
       logs = await logsRes.json();
       distribution = await distRes.json();
+      recentTopics = await recentRes.json();
       
       loading = false;
       
@@ -320,24 +323,50 @@
     {#if (summary?.topics?.rejected || 0) > 0}
     <h3>📋 Rejection Breakdown</h3>
     <div class="stats-grid">
-      <AdminCard 
-        title="No Proposal" 
-        value={summary?.topics?.rejected_no_proposal || 0} 
-        subtitle="LLM returned null" 
+      <AdminCard
+        title="No Proposal"
+        value={summary?.topics?.rejected_no_proposal || 0}
+        subtitle="LLM returned null"
       />
-      <AdminCard 
-        title="Relevance" 
-        value={summary?.topics?.rejected_relevance || 0} 
-        subtitle="not trading-relevant" 
+      <AdminCard
+        title="Relevance"
+        value={summary?.topics?.rejected_relevance || 0}
+        subtitle="not trading-relevant"
       />
-      <AdminCard 
-        title="Capacity Guard" 
-        value={summary?.topics?.rejected_capacity || 0} 
-        subtitle="quality/granularity" 
+      <AdminCard
+        title="Capacity Guard"
+        value={summary?.topics?.rejected_capacity || 0}
+        subtitle="quality/granularity"
       />
     </div>
     {/if}
-    
+
+    <!-- Recently Added Topics -->
+    {#if recentTopics?.total > 0}
+    <h3>📈 Recently Added Topics</h3>
+    <div class="recent-topics">
+      {#if recentTopics?.today?.length > 0}
+        <div class="topic-row">
+          <span class="topic-label">Today:</span>
+          <span class="topic-list">{recentTopics.today.map((t: any) => t.name).join(', ')}</span>
+        </div>
+      {/if}
+      {#if recentTopics?.yesterday?.length > 0}
+        <div class="topic-row">
+          <span class="topic-label">Yesterday:</span>
+          <span class="topic-list">{recentTopics.yesterday.map((t: any) => t.name).join(', ')}</span>
+        </div>
+      {/if}
+      {#if recentTopics?.this_week?.length > 0}
+        <div class="topic-row">
+          <span class="topic-label">This week:</span>
+          <span class="topic-list">{recentTopics.this_week.map((t: any) => t.name).join(', ')}</span>
+        </div>
+      {/if}
+      <p class="topic-total">Total: {recentTopics.total} new topics in last 7 days</p>
+    </div>
+    {/if}
+
     <!-- Storage Stats -->
     <h2>💾 Article Storage</h2>
     <div class="stats-grid">
@@ -683,5 +712,37 @@
 
   .dist-hint a:hover {
     text-decoration: underline;
+  }
+
+  /* Recently Added Topics */
+  .recent-topics {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .topic-row {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .topic-label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 80px;
+  }
+
+  .topic-list {
+    color: #1976d2;
+  }
+
+  .topic-total {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #6b7280;
   }
 </style>

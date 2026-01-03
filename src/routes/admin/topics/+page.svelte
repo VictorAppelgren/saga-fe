@@ -1,12 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  
+
   let topics: any[] = $state([]);
   let loading = $state(true);
   let expandedTopic: string | null = $state(null);
   let topicDetails: any = $state(null);
   let loadingDetails = $state(false);
-  
+  let deleteConfirm: string | null = $state(null);
+  let holdTimer: number | null = $state(null);
+  let holdProgress: number = $state(0);
+
+  const HOLD_DURATION = 2000; // 2 seconds to confirm delete
+
   onMount(async () => {
     try {
       const response = await fetch('/api/admin/topics');
@@ -18,17 +23,17 @@
       loading = false;
     }
   });
-  
+
   async function toggleTopic(topicId: string) {
     if (expandedTopic === topicId) {
       expandedTopic = null;
       topicDetails = null;
       return;
     }
-    
+
     expandedTopic = topicId;
     loadingDetails = true;
-    
+
     try {
       const response = await fetch(`/api/admin/topics/${topicId}`);
       topicDetails = await response.json();
@@ -38,11 +43,69 @@
       loadingDetails = false;
     }
   }
-  
-  function getImportanceStars(importance: number): string {
-    if (importance >= 8) return '⭐⭐⭐';
-    if (importance >= 5) return '⭐⭐';
-    return '⭐';
+
+  function startDeleteClick(topicId: string) {
+    if (deleteConfirm !== topicId) {
+      deleteConfirm = topicId;
+      // Auto-cancel after 5 seconds if not held
+      setTimeout(() => {
+        if (deleteConfirm === topicId && !holdTimer) {
+          deleteConfirm = null;
+        }
+      }, 5000);
+      return;
+    }
+  }
+
+  function startHold(topicId: string) {
+    if (deleteConfirm !== topicId) return;
+
+    const startTime = Date.now();
+    holdProgress = 0;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      holdProgress = Math.min(100, (elapsed / HOLD_DURATION) * 100);
+
+      if (elapsed >= HOLD_DURATION) {
+        clearInterval(interval);
+        executeDelete(topicId);
+      }
+    }, 50);
+
+    holdTimer = interval as unknown as number;
+  }
+
+  function cancelHold() {
+    if (holdTimer) {
+      clearInterval(holdTimer);
+      holdTimer = null;
+      holdProgress = 0;
+    }
+  }
+
+  async function executeDelete(topicId: string) {
+    holdTimer = null;
+    holdProgress = 0;
+
+    try {
+      const response = await fetch(`/api/admin/topics/${topicId}`, { method: 'DELETE' });
+      if (response.ok) {
+        topics = topics.filter(t => t.id !== topicId);
+        deleteConfirm = null;
+        if (expandedTopic === topicId) {
+          expandedTopic = null;
+          topicDetails = null;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete topic:', error);
+    }
+  }
+
+  function cancelDelete() {
+    cancelHold();
+    deleteConfirm = null;
   }
 </script>
 
@@ -58,22 +121,45 @@
     <div class="topics-list">
       {#each topics as topic}
         <div class="topic-card" class:expanded={expandedTopic === topic.id}>
-          <button 
-            class="topic-header" 
-            onclick={() => toggleTopic(topic.id)}
-          >
-            <div class="topic-info">
-              <span class="topic-name">{topic.name}</span>
-              <span class="topic-stars">{getImportanceStars(topic.importance)}</span>
-            </div>
-            <div class="topic-meta">
-              {#if topic.category}
-                <span class="category">{topic.category}</span>
-              {/if}
-              <span class="importance">Importance: {topic.importance}</span>
-            </div>
-            <span class="expand-icon">{expandedTopic === topic.id ? '▼' : '▶'}</span>
-          </button>
+          <div class="topic-header-row">
+            <button
+              class="topic-header"
+              onclick={() => toggleTopic(topic.id)}
+            >
+              <div class="topic-info">
+                <span class="topic-name">{topic.name}</span>
+              </div>
+              <div class="topic-meta">
+                {#if topic.category}
+                  <span class="category">{topic.category}</span>
+                {/if}
+              </div>
+              <span class="expand-icon">{expandedTopic === topic.id ? '▼' : '▶'}</span>
+            </button>
+            {#if deleteConfirm === topic.id}
+              <div class="delete-confirm-wrapper">
+                <button
+                  class="delete-btn confirm"
+                  onmousedown={() => startHold(topic.id)}
+                  onmouseup={cancelHold}
+                  onmouseleave={cancelHold}
+                >
+                  Hold to delete
+                  {#if holdProgress > 0}
+                    <div class="hold-progress" style="width: {holdProgress}%"></div>
+                  {/if}
+                </button>
+                <button class="cancel-btn" onclick={cancelDelete}>Cancel</button>
+              </div>
+            {:else}
+              <button
+                class="delete-btn"
+                onclick={() => startDeleteClick(topic.id)}
+              >
+                Delete
+              </button>
+            {/if}
+          </div>
           
           {#if expandedTopic === topic.id}
             <div class="topic-details">
@@ -278,9 +364,15 @@
   .topic-card.expanded {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
-  
+
+  .topic-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .topic-header {
-    width: 100%;
+    flex: 1;
     padding: 1.25rem;
     border: none;
     background: none;
@@ -291,9 +383,67 @@
     gap: 1rem;
     text-align: left;
   }
-  
+
   .topic-header:hover {
     background: #f9fafb;
+  }
+
+  .delete-btn {
+    padding: 0.5rem 0.75rem;
+    margin-right: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .delete-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  .delete-btn.confirm {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    min-width: 100px;
+  }
+
+  .delete-confirm-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    margin-right: 0.75rem;
+  }
+
+  .cancel-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .cancel-btn:hover {
+    border-color: #9ca3af;
+    color: #374151;
+  }
+
+  .hold-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    transition: width 0.05s linear;
+    pointer-events: none;
   }
   
   .topic-info {
