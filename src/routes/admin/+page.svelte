@@ -341,16 +341,13 @@
     </div>
     {/if}
 
-    <!-- Recently Added Topics -->
-    {#if recentTopics?.total > 0}
-    <h3>📈 Recently Added Topics</h3>
+    <!-- Recently Added Topics (always show) -->
+    <h3>📈 New Topics</h3>
     <div class="recent-topics">
-      {#if recentTopics?.today?.length > 0}
-        <div class="topic-row">
-          <span class="topic-label">Today:</span>
-          <span class="topic-list">{recentTopics.today.map((t: any) => t.name).join(', ')}</span>
-        </div>
-      {/if}
+      <div class="topic-row">
+        <span class="topic-label">Today:</span>
+        <span class="topic-list">{recentTopics?.today?.length > 0 ? recentTopics.today.map((t: any) => t.name).join(', ') : 'None'}</span>
+      </div>
       {#if recentTopics?.yesterday?.length > 0}
         <div class="topic-row">
           <span class="topic-label">Yesterday:</span>
@@ -363,9 +360,8 @@
           <span class="topic-list">{recentTopics.this_week.map((t: any) => t.name).join(', ')}</span>
         </div>
       {/if}
-      <p class="topic-total">Total: {recentTopics.total} new topics in last 7 days</p>
+      <p class="topic-total">Total: {recentTopics?.total || 0} new topics in last 7 days (limit: 2/day)</p>
     </div>
-    {/if}
 
     <!-- Storage Stats -->
     <h2>💾 Article Storage</h2>

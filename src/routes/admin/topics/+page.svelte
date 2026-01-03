@@ -128,10 +128,16 @@
             >
               <div class="topic-info">
                 <span class="topic-name">{topic.name}</span>
+                {#if topic.motivation}
+                  <span class="topic-motivation">{topic.motivation}</span>
+                {/if}
               </div>
               <div class="topic-meta">
                 {#if topic.category}
                   <span class="category">{topic.category}</span>
+                {/if}
+                {#if topic.created_at}
+                  <span class="created-at">{new Date(topic.created_at).toLocaleDateString()}</span>
                 {/if}
               </div>
               <span class="expand-icon">{expandedTopic === topic.id ? '▼' : '▶'}</span>
@@ -449,8 +455,21 @@
   .topic-info {
     flex: 1;
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .topic-motivation {
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .created-at {
+    font-size: 0.75rem;
+    color: #9ca3af;
   }
   
   .topic-name {
