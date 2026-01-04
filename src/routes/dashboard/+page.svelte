@@ -35,7 +35,7 @@
   import AnalysisDisplay from '$lib/components/AnalysisDisplay.svelte';
   import FindingsCards from '$lib/components/FindingsCards.svelte';
   import GlobeAnimation from '$lib/components/GlobeAnimation.svelte';
-  import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, type Strategy, type StrategyDetail, type Finding } from '$lib/api/strategies';
+  import { getStrategy, createStrategy, updateStrategy, deleteStrategy as deleteStrategyAPI, improveStrategyText, type Strategy, type StrategyDetail, type Finding, type ImproveStrategyTextResponse } from '$lib/api/strategies';
   import { invalidateAll } from '$app/navigation';
 
   // --- STRATEGY MODAL STATE ---
@@ -46,6 +46,10 @@
 
   // --- STRATEGY REFRESH KEY ---
   let strategyRefreshKey = 0;
+
+  // --- AI STRATEGY IMPROVEMENT STATE ---
+  let isImprovingStrategy = false;
+  let strategySuggestion: ImproveStrategyTextResponse | null = null;
 
   interface FeedbackContext {
     section: string;
@@ -87,6 +91,56 @@
 
   function handleSectionToggle(section: string, isOpen: boolean) {
     openSections = { ...openSections, [section]: isOpen };
+  }
+
+  // --- AI STRATEGY IMPROVEMENT HANDLERS ---
+  async function handleImproveStrategy(strategy: StrategyDetail) {
+    if (isImprovingStrategy) return;
+
+    isImprovingStrategy = true;
+    strategySuggestion = null;
+
+    try {
+      const result = await improveStrategyText(
+        data.user.username,
+        strategy.id,
+        strategy.user_input.strategy_text,
+        strategy.asset.primary,
+        strategy.user_input.position_text || undefined
+      );
+      strategySuggestion = result;
+    } catch (error) {
+      console.error('Error improving strategy:', error);
+      alert('Failed to improve strategy. Please try again.');
+    } finally {
+      isImprovingStrategy = false;
+    }
+  }
+
+  async function handleAcceptSuggestion(strategy: StrategyDetail, improvedText: string) {
+    try {
+      // Update the strategy with the improved text
+      await updateStrategy(strategy.id, {
+        username: data.user.username,
+        strategy_text: improvedText,
+        position_text: strategy.user_input.position_text,
+        target: strategy.user_input.target
+      });
+
+      // Clear suggestion and refresh
+      strategySuggestion = null;
+      strategyRefreshKey++;
+
+      // Refresh all data
+      await invalidateAll();
+    } catch (error) {
+      console.error('Error saving improved strategy:', error);
+      alert('Failed to save improved strategy. Please try again.');
+    }
+  }
+
+  function handleDiscardSuggestion() {
+    strategySuggestion = null;
   }
 
   // --- TOGGLE DEFAULT STATUS ---
@@ -588,6 +642,9 @@ function handleArticleLinkClick(event: MouseEvent) {
             showExport={true}
             showToggleDefault={data.user?.is_admin}
             isDefault={strategy.is_default || false}
+            showImproveButton={true}
+            {isImprovingStrategy}
+            suggestion={strategySuggestion}
             sections={[
               {
                 heading: 'Strategy Thesis',
@@ -602,6 +659,10 @@ function handleArticleLinkClick(event: MouseEvent) {
             on:delete={() => handleDeleteStrategy(strategy.id)}
             on:export={() => showPdfModal = true}
             on:toggleDefault={() => toggleDefaultStatus(strategy.id, strategy.is_default || false)}
+            on:improveStrategy={() => handleImproveStrategy(strategy)}
+            on:acceptSuggestion={(e) => handleAcceptSuggestion(strategy, e.detail.improvedText)}
+            on:regenerateSuggestion={() => handleImproveStrategy(strategy)}
+            on:discardSuggestion={handleDiscardSuggestion}
           />
 
           <!-- Findings Cards (Risks & Opportunities) -->

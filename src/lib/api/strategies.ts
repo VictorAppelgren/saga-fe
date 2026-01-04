@@ -154,3 +154,45 @@ export async function deleteStrategy(username: string, strategyId: string): Prom
     throw new Error('Failed to delete strategy');
   }
 }
+
+// Response from the improve strategy text API
+export interface ImproveStrategyTextResponse {
+  improved_text: string;
+  changes_summary: string;
+}
+
+/**
+ * Improve the user's strategy thesis text using AI.
+ *
+ * This embodies Saga's philosophy: AI AMPLIFIES human judgment, doesn't replace it.
+ * The improved text preserves the user's voice and core ideas while enhancing
+ * clarity, structure, and market context.
+ */
+export async function improveStrategyText(
+  username: string,
+  strategyId: string,
+  currentText: string,
+  asset: string,
+  positionText?: string
+): Promise<ImproveStrategyTextResponse> {
+  const response = await fetch(
+    `${API_BASE}/users/${username}/strategies/${strategyId}/improve-text`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        current_text: currentText,
+        asset: asset,
+        position_text: positionText || null
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to improve strategy text: ${errorText}`);
+  }
+
+  return response.json();
+}

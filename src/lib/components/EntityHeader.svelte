@@ -1,6 +1,8 @@
 <!-- EntityHeader.svelte - Shared header for strategies and topics -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import StrategySuggestion from './StrategySuggestion.svelte';
+  import type { ImproveStrategyTextResponse } from '$lib/api/strategies';
 
   // Props
   export let title: string;
@@ -18,7 +20,12 @@
   export let isDefault: boolean = false;
 
   // User input sections (for strategies)
-  export let sections: { heading: string; content: string; hint?: string }[] = [];
+  export let sections: { heading: string; content: string; hint?: string; showImprove?: boolean }[] = [];
+
+  // AI improvement state (passed down from parent)
+  export let suggestion: ImproveStrategyTextResponse | null = null;
+  export let isImprovingStrategy: boolean = false;
+  export let showImproveButton: boolean = false;
 
   const dispatch = createEventDispatcher();
 
@@ -40,6 +47,22 @@
 
   function handleToggleDefault() {
     dispatch('toggleDefault');
+  }
+
+  function handleImproveStrategy() {
+    dispatch('improveStrategy');
+  }
+
+  function handleAcceptSuggestion(event: CustomEvent<{ improvedText: string }>) {
+    dispatch('acceptSuggestion', event.detail);
+  }
+
+  function handleRegenerateSuggestion() {
+    dispatch('regenerateSuggestion');
+  }
+
+  function handleDiscardSuggestion() {
+    dispatch('discardSuggestion');
   }
 </script>
 
@@ -115,7 +138,7 @@
   </div>
 
   <!-- User Input Sections (for strategies) -->
-  {#each sections as section}
+  {#each sections as section, i}
     <div class="entity-section">
       <h3 class="section-heading">
         {section.heading}
@@ -124,6 +147,29 @@
         {/if}
       </h3>
       <p class="section-content">{section.content}</p>
+
+      <!-- AI Improvement for Strategy Thesis section (first section) -->
+      {#if i === 0 && showImproveButton && !isDefault}
+        <!-- Show suggestion if available or loading -->
+        {#if isImprovingStrategy || suggestion}
+          <StrategySuggestion
+            originalText={section.content}
+            improvedText={suggestion?.improved_text || ''}
+            changesSummary={suggestion?.changes_summary || ''}
+            isLoading={isImprovingStrategy}
+            on:accept={handleAcceptSuggestion}
+            on:regenerate={handleRegenerateSuggestion}
+            on:discard={handleDiscardSuggestion}
+          />
+        {:else}
+          <button class="btn-improve" on:click={handleImproveStrategy}>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+            Help Me Improve This
+          </button>
+        {/if}
+      {/if}
     </div>
   {/each}
 </div>
@@ -342,6 +388,43 @@
 
   :global(.dark) .section-content {
     color: var(--text-color, #f5f5f7);
+  }
+
+  /* Improve button */
+  .btn-improve {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(145deg, rgba(10, 132, 255, 0.1) 0%, rgba(10, 132, 255, 0.05) 100%);
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 8px;
+    color: #0a84ff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-improve:hover {
+    background: linear-gradient(145deg, rgba(10, 132, 255, 0.15) 0%, rgba(10, 132, 255, 0.08) 100%);
+    border-color: rgba(10, 132, 255, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-improve:active {
+    transform: translateY(0);
+  }
+
+  :global(.dark) .btn-improve {
+    background: linear-gradient(145deg, rgba(10, 132, 255, 0.15) 0%, rgba(10, 132, 255, 0.08) 100%);
+    border-color: rgba(10, 132, 255, 0.4);
+  }
+
+  :global(.dark) .btn-improve:hover {
+    background: linear-gradient(145deg, rgba(10, 132, 255, 0.2) 0%, rgba(10, 132, 255, 0.12) 100%);
+    border-color: rgba(10, 132, 255, 0.6);
   }
 
   /* Mobile responsive */
