@@ -298,6 +298,11 @@
     <h2>🏷️ Topic Activity</h2>
     <div class="stats-grid">
       <AdminCard
+        title="Suggested"
+        value={summary?.topics?.suggested || 0}
+        subtitle="LLM proposals"
+      />
+      <AdminCard
         title="Created"
         value={summary?.topics?.created || 0}
         subtitle="added to graph"
@@ -316,11 +321,8 @@
 
     <!-- Topic Rejection Breakdown (compact) -->
     {#if (summary?.topics?.rejected || 0) > 0}
-    <div class="rejection-breakdown">
-      <span class="breakdown-label">Rejection reasons:</span>
-      <span class="breakdown-item">No proposal: {summary?.topics?.rejected_no_proposal || 0}</span>
-      <span class="breakdown-item">Relevance: {summary?.topics?.rejected_relevance || 0}</span>
-      <span class="breakdown-item">Capacity: {summary?.topics?.rejected_capacity || 0}</span>
+    <div class="compact-breakdown">
+      Rejected: {summary?.topics?.rejected_no_proposal || 0} no proposal, {summary?.topics?.rejected_relevance || 0} relevance, {summary?.topics?.rejected_capacity || 0} capacity
     </div>
     {/if}
 
@@ -411,48 +413,56 @@
       totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}
     <h2>📊 Article Distribution ({topicCount} Topics)</h2>
     <div class="distribution-summary">
-      <div class="dist-row header">
-        <span class="dist-label"></span>
-        <span class="dist-cell">Fundamental</span>
-        <span class="dist-cell">Medium</span>
-        <span class="dist-cell">Current</span>
-        <span class="dist-cell total">Total</span>
-      </div>
-      <div class="dist-row">
-        <span class="dist-label risk-label">Risk</span>
-        <span class="dist-cell">{totals.fundamental.risk} <span class="avg">({(totals.fundamental.risk / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.medium.risk} <span class="avg">({(totals.medium.risk / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.current.risk} <span class="avg">({(totals.current.risk / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell total">{totals.fundamental.risk + totals.medium.risk + totals.current.risk}</span>
-      </div>
-      <div class="dist-row">
-        <span class="dist-label opp-label">Opportunity</span>
-        <span class="dist-cell">{totals.fundamental.opportunity} <span class="avg">({(totals.fundamental.opportunity / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.medium.opportunity} <span class="avg">({(totals.medium.opportunity / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.current.opportunity} <span class="avg">({(totals.current.opportunity / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell total">{totals.fundamental.opportunity + totals.medium.opportunity + totals.current.opportunity}</span>
-      </div>
-      <div class="dist-row">
-        <span class="dist-label trend-label">Trend</span>
-        <span class="dist-cell">{totals.fundamental.trend} <span class="avg">({(totals.fundamental.trend / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.medium.trend} <span class="avg">({(totals.medium.trend / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.current.trend} <span class="avg">({(totals.current.trend / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell total">{totals.fundamental.trend + totals.medium.trend + totals.current.trend}</span>
-      </div>
-      <div class="dist-row">
-        <span class="dist-label cat-label">Catalyst</span>
-        <span class="dist-cell">{totals.fundamental.catalyst} <span class="avg">({(totals.fundamental.catalyst / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.medium.catalyst} <span class="avg">({(totals.medium.catalyst / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell">{totals.current.catalyst} <span class="avg">({(totals.current.catalyst / topicCount).toFixed(1)})</span></span>
-        <span class="dist-cell total">{totals.fundamental.catalyst + totals.medium.catalyst + totals.current.catalyst}</span>
-      </div>
-      <div class="dist-row footer">
-        <span class="dist-label">Total</span>
-        <span class="dist-cell">{totals.fundamental.risk + totals.fundamental.opportunity + totals.fundamental.trend + totals.fundamental.catalyst}</span>
-        <span class="dist-cell">{totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst}</span>
-        <span class="dist-cell">{totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}</span>
-        <span class="dist-cell total grand">{grandTotal}</span>
-      </div>
+      <table class="dist-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Fundamental</th>
+            <th>Medium</th>
+            <th>Current</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Risk</td>
+            <td>{totals.fundamental.risk} <span class="avg">({(totals.fundamental.risk / topicCount).toFixed(1)})</span></td>
+            <td>{totals.medium.risk} <span class="avg">({(totals.medium.risk / topicCount).toFixed(1)})</span></td>
+            <td>{totals.current.risk} <span class="avg">({(totals.current.risk / topicCount).toFixed(1)})</span></td>
+            <td class="total">{totals.fundamental.risk + totals.medium.risk + totals.current.risk}</td>
+          </tr>
+          <tr>
+            <td>Opportunity</td>
+            <td>{totals.fundamental.opportunity} <span class="avg">({(totals.fundamental.opportunity / topicCount).toFixed(1)})</span></td>
+            <td>{totals.medium.opportunity} <span class="avg">({(totals.medium.opportunity / topicCount).toFixed(1)})</span></td>
+            <td>{totals.current.opportunity} <span class="avg">({(totals.current.opportunity / topicCount).toFixed(1)})</span></td>
+            <td class="total">{totals.fundamental.opportunity + totals.medium.opportunity + totals.current.opportunity}</td>
+          </tr>
+          <tr>
+            <td>Trend</td>
+            <td>{totals.fundamental.trend} <span class="avg">({(totals.fundamental.trend / topicCount).toFixed(1)})</span></td>
+            <td>{totals.medium.trend} <span class="avg">({(totals.medium.trend / topicCount).toFixed(1)})</span></td>
+            <td>{totals.current.trend} <span class="avg">({(totals.current.trend / topicCount).toFixed(1)})</span></td>
+            <td class="total">{totals.fundamental.trend + totals.medium.trend + totals.current.trend}</td>
+          </tr>
+          <tr>
+            <td>Catalyst</td>
+            <td>{totals.fundamental.catalyst} <span class="avg">({(totals.fundamental.catalyst / topicCount).toFixed(1)})</span></td>
+            <td>{totals.medium.catalyst} <span class="avg">({(totals.medium.catalyst / topicCount).toFixed(1)})</span></td>
+            <td>{totals.current.catalyst} <span class="avg">({(totals.current.catalyst / topicCount).toFixed(1)})</span></td>
+            <td class="total">{totals.fundamental.catalyst + totals.medium.catalyst + totals.current.catalyst}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            <td>{totals.fundamental.risk + totals.fundamental.opportunity + totals.fundamental.trend + totals.fundamental.catalyst}</td>
+            <td>{totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst}</td>
+            <td>{totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}</td>
+            <td class="total">{grandTotal}</td>
+          </tr>
+        </tfoot>
+      </table>
       <p class="dist-hint">See <a href="/admin/distribution">Distribution</a> for per-topic breakdown</p>
     </div>
     {/if}
@@ -631,54 +641,42 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
-  .dist-row {
-    display: grid;
-    grid-template-columns: 100px repeat(4, 1fr);
-    gap: 0.5rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f3f4f6;
+  .dist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
   }
 
-  .dist-row.header {
-    font-weight: 600;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  .dist-row.footer {
-    font-weight: 600;
-    border-top: 2px solid #e5e7eb;
-    border-bottom: none;
-    margin-top: 0.5rem;
-    padding-top: 1rem;
-  }
-
-  .dist-label {
-    font-weight: 500;
-    color: #374151;
-  }
-
-  .dist-label.risk-label { color: #ef4444; }
-  .dist-label.opp-label { color: #22c55e; }
-  .dist-label.trend-label { color: #3b82f6; }
-  .dist-label.cat-label { color: #f59e0b; }
-
-  .dist-cell {
+  .dist-table th,
+  .dist-table td {
+    padding: 0.5rem 0.75rem;
     text-align: center;
-    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
   }
 
-  .dist-cell.total {
+  .dist-table th {
     font-weight: 600;
-    color: #111827;
+    color: #374151;
+    border-bottom: 2px solid #d1d5db;
   }
 
-  .dist-cell.grand {
-    font-size: 1.1rem;
-    color: #1976d2;
+  .dist-table th:first-child,
+  .dist-table td:first-child {
+    text-align: left;
+    font-weight: 500;
   }
 
-  .dist-cell .avg {
+  .dist-table td.total {
+    font-weight: 600;
+  }
+
+  .dist-table tfoot td {
+    font-weight: 600;
+    border-top: 2px solid #d1d5db;
+    border-bottom: none;
+  }
+
+  .dist-table .avg {
     color: #9ca3af;
     font-size: 0.85em;
   }
@@ -691,12 +689,16 @@
   }
 
   .dist-hint a {
-    color: #1976d2;
-    text-decoration: none;
+    color: #374151;
+    text-decoration: underline;
   }
 
-  .dist-hint a:hover {
-    text-decoration: underline;
+  /* Compact breakdown text */
+  .compact-breakdown {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
   }
 
   /* Recently Added Topics */
@@ -729,26 +731,5 @@
     margin-top: 0.75rem;
     font-size: 0.875rem;
     color: #6b7280;
-  }
-
-  /* Compact rejection breakdown */
-  .rejection-breakdown {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    padding: 0.75rem 1rem;
-    background: #fef2f2;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
-  }
-
-  .breakdown-label {
-    font-weight: 600;
-    color: #991b1b;
-  }
-
-  .breakdown-item {
-    color: #7f1d1d;
   }
 </style>
