@@ -1,4 +1,5 @@
 <!-- Chat.svelte -->
+<!-- Authentication: Uses session cookies only (NO API keys in frontend) -->
 <script lang="ts">
   import { simpleMarkdown } from '$lib/utils/simpleMarkdown';
   export let topic_id: string | null = null;
@@ -7,8 +8,8 @@
   export let triggerMessage: string | null = null; // Message to auto-send from dashboard
   import { onMount } from 'svelte';
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-  const API_KEY = import.meta.env.VITE_API_KEY || '';
+  // Use relative URL - goes through nginx which validates session cookies
+  const API_BASE = '/api';
 
   interface Message {
     id: string;
@@ -140,9 +141,9 @@
 
       const resp = await fetch(API_BASE + '/chat', {
         method: 'POST',
+        credentials: 'include', // Send session cookies for auth
         headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': API_KEY
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
       });
@@ -224,9 +225,9 @@
     try {
       const response = await fetch(`${API_BASE}/strategy/rewrite-section`, {
         method: 'POST',
+        credentials: 'include', // Send session cookies for auth
         headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': API_KEY
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           strategy_id: feedbackContext.strategyId,
