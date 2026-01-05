@@ -149,7 +149,7 @@
       <p class="section-content">{section.content}</p>
 
       <!-- AI Improvement for Strategy Thesis section (first section) -->
-      {#if i === 0 && showImproveButton && !isDefault}
+      {#if i === 0 && showImproveButton}
         <!-- Show suggestion if available or loading -->
         {#if isImprovingStrategy || suggestion}
           <StrategySuggestion

@@ -328,6 +328,11 @@
         subtitle="new strategies"
       />
       <AdminCard
+        title="Strategies Viewed"
+        value={summary?.engagement?.strategies_viewed || 0}
+        subtitle="strategies opened"
+      />
+      <AdminCard
         title="Reports Viewed"
         value={summary?.engagement?.reports_viewed || 0}
         subtitle="topic reports"

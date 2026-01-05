@@ -112,13 +112,20 @@
     background: var(--card-bg, white);
     border-radius: 12px;
     padding: 2rem;
-    max-width: 600px;
+    max-width: 900px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   }
-  
+
+  @media (min-width: 1024px) {
+    .modal-content {
+      width: 70%;
+      min-width: 700px;
+    }
+  }
+
   h2 {
     margin: 0 0 1.5rem 0;
     color: var(--text-color, black);
