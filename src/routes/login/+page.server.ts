@@ -13,13 +13,24 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid credentials' });
 		}
 
-		// Backend sets session_token cookie for auth (via Set-Cookie header)
-		// Frontend sets user cookie for storing user data (username, topics)
-		cookies.set('user', JSON.stringify(authResult), {
+		// Forward session_token cookie from backend to browser
+		// (SvelteKit server received it, now pass it to the client)
+		if (authResult.sessionToken) {
+			cookies.set('session_token', authResult.sessionToken, {
+				path: '/',
+				httpOnly: true,
+				secure: false,
+				maxAge: 60 * 60 * 24, // 24 hours
+				sameSite: 'lax'
+			});
+		}
+
+		// Also store user data for frontend access
+		cookies.set('user', JSON.stringify(authResult.user), {
 			path: '/',
 			httpOnly: true,
 			secure: false,
-			maxAge: 60 * 60 * 24 // 24 hours (match session_token)
+			maxAge: 60 * 60 * 24
 		});
 
 		throw redirect(302, '/dashboard');

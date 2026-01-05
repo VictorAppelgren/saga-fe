@@ -13,12 +13,17 @@ export interface LoginResponse {
   is_admin: boolean;
 }
 
-export async function authenticate(username: string, password: string): Promise<LoginResponse | null> {
+export interface AuthResult {
+  user: LoginResponse;
+  sessionToken: string | null;
+}
+
+export async function authenticate(username: string, password: string): Promise<AuthResult | null> {
   try {
     // Login endpoint is public - no API key or cookies required
     const response = await fetch(`${API_BASE}/login`, {
       method: 'POST',
-      credentials: 'include', // To receive the session cookie
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -26,7 +31,19 @@ export async function authenticate(username: string, password: string): Promise<
     });
 
     if (response.ok) {
-      return await response.json();
+      const user = await response.json();
+
+      // Extract session_token from Set-Cookie header (server-side only)
+      let sessionToken: string | null = null;
+      const setCookie = response.headers.get('set-cookie');
+      if (setCookie) {
+        const match = setCookie.match(/session_token=([^;]+)/);
+        if (match) {
+          sessionToken = match[1];
+        }
+      }
+
+      return { user, sessionToken };
     }
     return null;
   } catch (error) {
