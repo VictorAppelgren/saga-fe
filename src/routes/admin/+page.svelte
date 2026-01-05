@@ -257,18 +257,88 @@
     <!-- Strategy Analysis (Custom User Strategies) -->
     <h2>💼 Strategy Analysis</h2>
     <div class="stats-grid">
-      <AdminCard 
-        title="Triggered" 
-        value={summary?.strategy_analysis?.triggered || 0} 
-        subtitle="user strategies" 
+      <AdminCard
+        title="Triggered"
+        value={summary?.strategy_analysis?.triggered || 0}
+        subtitle="user strategies"
       />
-      <AdminCard 
-        title="Completed" 
-        value={summary?.strategy_analysis?.completed || 0} 
-        subtitle="analyses done" 
+      <AdminCard
+        title="Completed"
+        value={summary?.strategy_analysis?.completed || 0}
+        subtitle="analyses done"
       />
     </div>
-    
+
+    <!-- Exploration Research -->
+    <h2>🔬 Exploration Research</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Started"
+        value={summary?.exploration?.started || 0}
+        subtitle="explorations initiated"
+      />
+      <AdminCard
+        title="Accepted"
+        value={summary?.exploration?.accepted || 0}
+        subtitle="findings approved"
+      />
+      <AdminCard
+        title="Rejected"
+        value={summary?.exploration?.rejected || 0}
+        subtitle="findings rejected"
+      />
+    </div>
+
+    <!-- LLM Calls -->
+    <h2>🤖 LLM Calls</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Simple (20B)"
+        value={summary?.llm_calls?.simple || 0}
+        subtitle="local/external"
+      />
+      <AdminCard
+        title="Medium (120B)"
+        value={summary?.llm_calls?.medium || 0}
+        subtitle="OpenRouter"
+      />
+      <AdminCard
+        title="Complex"
+        value={summary?.llm_calls?.complex || 0}
+        subtitle="DeepSeek"
+      />
+      <AdminCard
+        title="Fast"
+        value={summary?.llm_calls?.fast || 0}
+        subtitle="Anthropic"
+      />
+    </div>
+
+    <!-- User Engagement -->
+    <h2>👥 User Engagement</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Sessions"
+        value={summary?.engagement?.sessions || 0}
+        subtitle="logins today"
+      />
+      <AdminCard
+        title="Strategies Created"
+        value={summary?.engagement?.strategies_created || 0}
+        subtitle="new strategies"
+      />
+      <AdminCard
+        title="Reports Viewed"
+        value={summary?.engagement?.reports_viewed || 0}
+        subtitle="topic reports"
+      />
+      <AdminCard
+        title="Rewrites"
+        value={summary?.engagement?.section_rewrites || 0}
+        subtitle="analysis rewrites"
+      />
+    </div>
+
     <!-- Capacity Management -->
     <h2>🔧 Capacity Management</h2>
     <div class="stats-grid">
