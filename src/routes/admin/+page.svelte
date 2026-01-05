@@ -410,21 +410,21 @@
     
     <!-- Article Distribution Summary -->
     {#if distribution?.distribution}
-    {@const allTopics = Object.values(distribution.distribution) as any[]}
-    {@const totals = {
+    {@const totals = Object.values(distribution.distribution).reduce((acc: any, t: any) => {
+      ['fundamental', 'medium', 'current'].forEach(tf => {
+        ['risk', 'opportunity', 'trend', 'catalyst'].forEach(p => {
+          acc[tf][p] += t[tf]?.[p] || 0;
+        });
+      });
+      return acc;
+    }, {
       fundamental: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 },
       medium: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 },
       current: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 }
-    }}
-    {@const _ = allTopics.forEach((t: any) => {
-      ['fundamental', 'medium', 'current'].forEach(tf => {
-        ['risk', 'opportunity', 'trend', 'catalyst'].forEach(p => {
-          totals[tf][p] += t[tf]?.[p] || 0;
-        });
-      });
     })}
-    {@const grandTotal = Object.values(totals).reduce((sum, tf) =>
-      sum + tf.risk + tf.opportunity + tf.trend + tf.catalyst, 0)}
+    {@const grandTotal = totals.fundamental.risk + totals.fundamental.opportunity + totals.fundamental.trend + totals.fundamental.catalyst +
+      totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst +
+      totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}
     <h2>📊 Article Distribution (All Topics)</h2>
     <div class="distribution-summary">
       <div class="dist-row header">
