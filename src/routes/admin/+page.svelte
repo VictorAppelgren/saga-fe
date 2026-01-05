@@ -422,10 +422,11 @@
       medium: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 },
       current: { risk: 0, opportunity: 0, trend: 0, catalyst: 0 }
     })}
+    {@const topicCount = Object.keys(distribution.distribution).length}
     {@const grandTotal = totals.fundamental.risk + totals.fundamental.opportunity + totals.fundamental.trend + totals.fundamental.catalyst +
       totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst +
       totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}
-    <h2>📊 Article Distribution (All Topics)</h2>
+    <h2>📊 Article Distribution ({topicCount} Topics)</h2>
     <div class="distribution-summary">
       <div class="dist-row header">
         <span class="dist-label"></span>
@@ -433,6 +434,7 @@
         <span class="dist-cell">Medium</span>
         <span class="dist-cell">Current</span>
         <span class="dist-cell total">Total</span>
+        <span class="dist-cell avg">Avg/Topic</span>
       </div>
       <div class="dist-row">
         <span class="dist-label risk-label">Risk</span>
@@ -440,6 +442,7 @@
         <span class="dist-cell">{totals.medium.risk}</span>
         <span class="dist-cell">{totals.current.risk}</span>
         <span class="dist-cell total">{totals.fundamental.risk + totals.medium.risk + totals.current.risk}</span>
+        <span class="dist-cell avg">{((totals.fundamental.risk + totals.medium.risk + totals.current.risk) / topicCount).toFixed(1)}</span>
       </div>
       <div class="dist-row">
         <span class="dist-label opp-label">Opportunity</span>
@@ -447,6 +450,7 @@
         <span class="dist-cell">{totals.medium.opportunity}</span>
         <span class="dist-cell">{totals.current.opportunity}</span>
         <span class="dist-cell total">{totals.fundamental.opportunity + totals.medium.opportunity + totals.current.opportunity}</span>
+        <span class="dist-cell avg">{((totals.fundamental.opportunity + totals.medium.opportunity + totals.current.opportunity) / topicCount).toFixed(1)}</span>
       </div>
       <div class="dist-row">
         <span class="dist-label trend-label">Trend</span>
@@ -454,6 +458,7 @@
         <span class="dist-cell">{totals.medium.trend}</span>
         <span class="dist-cell">{totals.current.trend}</span>
         <span class="dist-cell total">{totals.fundamental.trend + totals.medium.trend + totals.current.trend}</span>
+        <span class="dist-cell avg">{((totals.fundamental.trend + totals.medium.trend + totals.current.trend) / topicCount).toFixed(1)}</span>
       </div>
       <div class="dist-row">
         <span class="dist-label cat-label">Catalyst</span>
@@ -461,6 +466,7 @@
         <span class="dist-cell">{totals.medium.catalyst}</span>
         <span class="dist-cell">{totals.current.catalyst}</span>
         <span class="dist-cell total">{totals.fundamental.catalyst + totals.medium.catalyst + totals.current.catalyst}</span>
+        <span class="dist-cell avg">{((totals.fundamental.catalyst + totals.medium.catalyst + totals.current.catalyst) / topicCount).toFixed(1)}</span>
       </div>
       <div class="dist-row footer">
         <span class="dist-label">Total</span>
@@ -468,8 +474,9 @@
         <span class="dist-cell">{totals.medium.risk + totals.medium.opportunity + totals.medium.trend + totals.medium.catalyst}</span>
         <span class="dist-cell">{totals.current.risk + totals.current.opportunity + totals.current.trend + totals.current.catalyst}</span>
         <span class="dist-cell total grand">{grandTotal}</span>
+        <span class="dist-cell avg">{(grandTotal / topicCount).toFixed(1)}</span>
       </div>
-      <p class="dist-hint">See <a href="/admin/distribution">Distribution</a> for per-topic breakdown ({Object.keys(distribution.distribution).length} topics)</p>
+      <p class="dist-hint">See <a href="/admin/distribution">Distribution</a> for per-topic breakdown</p>
     </div>
     {/if}
 
