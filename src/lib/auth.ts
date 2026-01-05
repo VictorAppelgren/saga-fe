@@ -1,8 +1,11 @@
 // src/lib/auth.ts
 // Authentication helper - login endpoint is PUBLIC (no auth required)
 
-// Use relative URL - login goes through nginx which doesn't require auth for /api/login
-const API_BASE = '/api';
+// Detect server vs client
+const isServer = typeof window === 'undefined';
+
+// Server-side: Direct to API container | Client-side: Relative through nginx
+const API_BASE = isServer ? 'http://apis:8000/api' : '/api';
 
 export interface LoginResponse {
   username: string;
