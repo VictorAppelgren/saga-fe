@@ -7,7 +7,7 @@
   export interface Finding {
     headline: string;
     rationale?: string;
-    confidence?: string;
+    confidence?: string | number;
     flow_path?: string;
     evidence?: string;
     added_at?: string;
@@ -44,18 +44,19 @@
     dispatch('discuss', { finding, type });
   }
 
-  function getConfidenceClass(confidence: string | undefined): string {
+  function getConfidenceClass(confidence: string | number | undefined): string {
     if (!confidence) return '';
-    const lower = confidence.toLowerCase();
-    if (lower === 'high') return 'confidence-high';
-    if (lower === 'medium') return 'confidence-medium';
-    if (lower === 'low') return 'confidence-low';
+    const str = String(confidence).toLowerCase();
+    if (str === 'high') return 'confidence-high';
+    if (str === 'medium') return 'confidence-medium';
+    if (str === 'low') return 'confidence-low';
     return '';
   }
 
-  function formatConfidence(confidence: string | undefined): string {
+  function formatConfidence(confidence: string | number | undefined): string {
     if (!confidence) return '';
-    return confidence.charAt(0).toUpperCase() + confidence.slice(1).toLowerCase();
+    const str = String(confidence);
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
   function hasExpandableContent(finding: Finding): boolean {
