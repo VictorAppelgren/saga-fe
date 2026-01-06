@@ -1,14 +1,7 @@
-<!-- FlowPathViz.svelte - Vertical flow with aligned evidence -->
+<!-- FlowPathViz.svelte - Vertical flow visualization (nodes only) -->
 <script lang="ts">
   export let flowPath: string = '';
-  export let evidence: ParsedEvidence[] = [];
   export let compact: boolean = false;
-
-  interface ParsedEvidence {
-    excerpt: string;
-    source: string;
-    relevance?: string;
-  }
 
   interface FlowNode {
     name: string;
@@ -35,49 +28,30 @@
 </script>
 
 {#if nodes.length > 0}
-  <div class="flow-evidence-grid" class:compact>
+  <div class="flow-container" class:compact>
     {#each nodes as node, i}
-      <div class="flow-row">
-        <!-- Left: Flow node + connector -->
-        <div class="flow-node-col">
-          <div class="step-node" class:has-direction={node.direction}>
-            <span class="node-label">{node.name}</span>
-            {#if node.direction}
-              <span class="direction-badge {node.direction}">
-                {node.direction === 'up' ? '↑' : '↓'}
-              </span>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Right: Evidence for this node -->
-        <div class="evidence-col">
-          {#if evidence[i]}
-            <div class="evidence-card">
-              <p class="evidence-text">"{evidence[i].excerpt}"</p>
-              {#if evidence[i].relevance}
-                <p class="evidence-link">→ {evidence[i].relevance}</p>
-              {/if}
-            </div>
-          {/if}
-        </div>
+      <!-- Node -->
+      <div class="step-node" class:has-direction={node.direction}>
+        <span class="node-label">{node.name}</span>
+        {#if node.direction}
+          <span class="direction-badge {node.direction}">
+            {node.direction === 'up' ? '↑' : '↓'}
+          </span>
+        {/if}
       </div>
 
-      <!-- Connector arrow between rows -->
+      <!-- Connector arrow between nodes -->
       {#if i < nodes.length - 1}
-        <div class="connector-row">
-          <div class="connector-col">
-            <svg class="arrow-svg" viewBox="0 0 24 28" fill="none">
-              <path
-                d="M12 0 L12 20 M6 14 L12 22 L18 14"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
-          <div class="connector-spacer"></div>
+        <div class="connector">
+          <svg class="arrow-svg" viewBox="0 0 24 28" fill="none">
+            <path
+              d="M12 0 L12 20 M6 14 L12 22 L18 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </div>
       {/if}
     {/each}
@@ -85,30 +59,11 @@
 {/if}
 
 <style>
-  .flow-evidence-grid {
+  .flow-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0;
-  }
-
-  .flow-row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 1.5rem;
-    min-height: 72px;
-    align-items: center;
-  }
-
-  .compact .flow-row {
-    grid-template-columns: 140px 1fr;
-    gap: 1rem;
-    min-height: 56px;
-  }
-
-  .flow-node-col {
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .step-node {
@@ -117,7 +72,8 @@
     justify-content: center;
     gap: 0.5rem;
     width: 100%;
-    padding: 0.75rem 0.875rem;
+    max-width: 200px;
+    padding: 0.75rem 1rem;
     background: linear-gradient(145deg, var(--node-bg, #ffffff) 0%, var(--node-bg-end, #f8f8fa) 100%);
     border: 1px solid var(--border-color, #e5e5e7);
     border-radius: 10px;
@@ -128,6 +84,7 @@
   .compact .step-node {
     padding: 0.5rem 0.75rem;
     border-radius: 8px;
+    max-width: 160px;
   }
 
   .step-node:hover {
@@ -177,28 +134,15 @@
     color: #ff3b30;
   }
 
-  /* Connector row */
-  .connector-row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 1.5rem;
-    height: 28px;
-  }
-
-  .compact .connector-row {
-    grid-template-columns: 140px 1fr;
-    gap: 1rem;
-    height: 22px;
-  }
-
-  .connector-col {
+  .connector {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 28px;
   }
 
-  .connector-spacer {
-    /* Empty spacer to maintain grid alignment */
+  .compact .connector {
+    height: 22px;
   }
 
   .arrow-svg {
@@ -212,42 +156,8 @@
     height: 22px;
   }
 
-  /* Evidence column */
-  .evidence-col {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 0;
-  }
-
-  .evidence-card {
-    flex: 1;
-  }
-
-  .evidence-text {
-    font-size: 0.8125rem;
-    color: var(--text-color, #1d1d1f);
-    line-height: 1.5;
-    margin: 0 0 0.25rem 0;
-    font-style: italic;
-  }
-
-  .compact .evidence-text {
-    font-size: 0.75rem;
-  }
-
-  .evidence-link {
-    font-size: 0.75rem;
-    color: var(--primary, #007aff);
-    font-weight: 500;
-    margin: 0;
-  }
-
-  .compact .evidence-link {
-    font-size: 0.6875rem;
-  }
-
   /* Dark mode */
-  :global(.dark) .flow-evidence-grid {
+  :global(.dark) .flow-container {
     --node-bg: #2c2c2e;
     --node-bg-end: #1c1c1e;
     --border-color: #48484a;
@@ -268,46 +178,5 @@
   :global(.dark) .direction-badge.down {
     background: rgba(255, 69, 58, 0.2);
     color: #ff453a;
-  }
-
-  :global(.dark) .evidence-text {
-    color: var(--text-color, #f5f5f7);
-  }
-
-  :global(.dark) .evidence-link {
-    color: #0a84ff;
-  }
-
-  /* Mobile: stack vertically */
-  @media (max-width: 640px) {
-    .flow-row {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-      min-height: auto;
-    }
-
-    .flow-node-col {
-      justify-content: flex-start;
-    }
-
-    .step-node {
-      width: auto;
-      display: inline-flex;
-    }
-
-    .connector-row {
-      grid-template-columns: 1fr;
-      height: 20px;
-      padding-left: 2rem;
-    }
-
-    .connector-spacer {
-      display: none;
-    }
-
-    .evidence-col {
-      padding-left: 1rem;
-      border-left: 2px solid var(--border-color, #e5e5e7);
-    }
   }
 </style>

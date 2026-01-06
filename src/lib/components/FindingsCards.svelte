@@ -153,11 +153,31 @@
                 </div>
               </div>
 
-              <!-- Flow + Evidence grid (always visible if flow_path exists) -->
-              {#if risk.flow_path}
+              <!-- Flow + Evidence two-column layout -->
+              {#if risk.flow_path || risk.evidence}
                 {@const evidenceItems = parseEvidence(risk.evidence)}
                 <div class="flow-evidence-wrapper">
-                  <FlowPathViz flowPath={risk.flow_path} evidence={evidenceItems} compact={false} />
+                  {#if risk.flow_path}
+                    <div class="flow-box">
+                      <h5 class="box-label">Causal Chain</h5>
+                      <FlowPathViz flowPath={risk.flow_path} compact={true} />
+                    </div>
+                  {/if}
+                  {#if evidenceItems.length > 0}
+                    <div class="evidence-box">
+                      <h5 class="box-label">Supporting Evidence ({evidenceItems.length})</h5>
+                      <div class="evidence-list">
+                        {#each evidenceItems as item, idx}
+                          <div class="evidence-item">
+                            <p class="evidence-text">"{item.excerpt}"</p>
+                            {#if item.relevance}
+                              <p class="evidence-relevance">→ {item.relevance}</p>
+                            {/if}
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -201,11 +221,31 @@
                 </div>
               </div>
 
-              <!-- Flow + Evidence grid (always visible if flow_path exists) -->
-              {#if opportunity.flow_path}
+              <!-- Flow + Evidence two-column layout -->
+              {#if opportunity.flow_path || opportunity.evidence}
                 {@const evidenceItems = parseEvidence(opportunity.evidence)}
                 <div class="flow-evidence-wrapper">
-                  <FlowPathViz flowPath={opportunity.flow_path} evidence={evidenceItems} compact={false} />
+                  {#if opportunity.flow_path}
+                    <div class="flow-box">
+                      <h5 class="box-label">Causal Chain</h5>
+                      <FlowPathViz flowPath={opportunity.flow_path} compact={true} />
+                    </div>
+                  {/if}
+                  {#if evidenceItems.length > 0}
+                    <div class="evidence-box">
+                      <h5 class="box-label">Supporting Evidence ({evidenceItems.length})</h5>
+                      <div class="evidence-list">
+                        {#each evidenceItems as item, idx}
+                          <div class="evidence-item">
+                            <p class="evidence-text">"{item.excerpt}"</p>
+                            {#if item.relevance}
+                              <p class="evidence-relevance">→ {item.relevance}</p>
+                            {/if}
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -400,6 +440,9 @@
   }
 
   .flow-evidence-wrapper {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
     padding: 1rem 1.25rem;
     background: var(--surface-variant, #f8f8fa);
     border-top: 1px solid var(--border-color, #e5e5e7);
@@ -408,6 +451,72 @@
   :global(.dark) .flow-evidence-wrapper {
     background: rgba(255, 255, 255, 0.02);
     border-top-color: var(--border-color, #38383a);
+  }
+
+  .flow-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 180px;
+  }
+
+  .evidence-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .box-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #86868b);
+    margin: 0 0 0.75rem 0;
+  }
+
+  .evidence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .evidence-item {
+    padding: 0.75rem;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e5e5e7);
+    border-radius: 8px;
+  }
+
+  :global(.dark) .evidence-item {
+    background: var(--card-bg, #1c1c1e);
+    border-color: var(--border-color, #48484a);
+  }
+
+  .evidence-text {
+    font-size: 0.8125rem;
+    color: var(--text-color, #1d1d1f);
+    line-height: 1.5;
+    margin: 0;
+    font-style: italic;
+  }
+
+  :global(.dark) .evidence-text {
+    color: var(--text-color, #f5f5f7);
+  }
+
+  .evidence-relevance {
+    font-size: 0.75rem;
+    color: var(--primary, #007aff);
+    font-weight: 500;
+    margin: 0.5rem 0 0 0;
+  }
+
+  :global(.dark) .evidence-relevance {
+    color: #0a84ff;
   }
 
   .finding-actions {
@@ -452,6 +561,21 @@
 
   /* Mobile responsive */
   @media (max-width: 768px) {
+    .flow-evidence-wrapper {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .flow-box {
+      min-width: 0;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color, #e5e5e7);
+    }
+
+    .evidence-list {
+      max-height: 300px;
+    }
+
     .findings-section {
       padding: 1rem;
     }
