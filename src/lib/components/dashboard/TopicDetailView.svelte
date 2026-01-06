@@ -43,15 +43,6 @@
   <!-- Report content using AnalysisDisplay component -->
   {#await getReport(interestId) then report}
     {#if report.sections && Object.keys(report.sections).length > 0}
-      <!-- Findings Cards (Risks & Opportunities) for Topics -->
-      {#if report.exploration_findings}
-        <FindingsCards
-          risks={report.exploration_findings.risks || []}
-          opportunities={report.exploration_findings.opportunities || []}
-          on:discuss={(e) => handleDiscussFindings(e.detail.finding, e.detail.type)}
-        />
-      {/if}
-
       <AnalysisDisplay
         sections={report.sections}
         heroKey="house_view"
@@ -60,6 +51,15 @@
         on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}
         on:contentClick={handleArticleLinkClick}
       />
+
+      <!-- Findings Cards (Risks & Opportunities) - After Analysis -->
+      {#if report.exploration_findings}
+        <FindingsCards
+          risks={report.exploration_findings.risks || []}
+          opportunities={report.exploration_findings.opportunities || []}
+          on:discuss={(e) => handleDiscussFindings(e.detail.finding, e.detail.type)}
+        />
+      {/if}
     {:else}
       <div class="no-analysis">
         <p>No report content found for this topic.</p>

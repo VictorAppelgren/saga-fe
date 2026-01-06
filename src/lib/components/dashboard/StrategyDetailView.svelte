@@ -127,15 +127,6 @@
         on:discardSuggestion={handleDiscardSuggestion}
       />
 
-      <!-- Findings Cards (Risks & Opportunities) -->
-      {#if strategy.exploration_findings}
-        <FindingsCards
-          risks={strategy.exploration_findings.risks || []}
-          opportunities={strategy.exploration_findings.opportunities || []}
-          on:discuss={(e) => handleDiscussFindings(e.detail.finding, e.detail.type)}
-        />
-      {/if}
-
       <!-- Analysis Display Component -->
       {#if strategy.latest_analysis?.analyzed_at && strategy.latest_analysis.final_analysis}
         <AnalysisDisplay
@@ -148,6 +139,15 @@
           on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}
           on:contentClick={handleArticleLinkClick}
         />
+
+        <!-- Findings Cards (Risks & Opportunities) - After Analysis -->
+        {#if strategy.exploration_findings}
+          <FindingsCards
+            risks={strategy.exploration_findings.risks || []}
+            opportunities={strategy.exploration_findings.opportunities || []}
+            on:discuss={(e) => handleDiscussFindings(e.detail.finding, e.detail.type)}
+          />
+        {/if}
       {:else}
         <div class="no-analysis">
           <p>No AI analysis generated yet</p>

@@ -118,14 +118,15 @@
 
 {#if hasFindings}
   <div class="findings-container">
-    <!-- Risks Section -->
+    <!-- Risks Section - Collapsible -->
     {#if risks.length > 0}
-      <div class="findings-section risks-section">
-        <div class="findings-header">
+      <details class="findings-section risks-section">
+        <summary class="findings-header">
           <span class="findings-icon">⚠️</span>
           <h3 class="findings-title">Active Risks</h3>
           <span class="findings-count">{risks.length}</span>
-        </div>
+          <span class="findings-chevron">›</span>
+        </summary>
         <div class="findings-list">
           {#each risks as risk, i}
             <div class="finding-card risk-card">
@@ -183,17 +184,18 @@
             </div>
           {/each}
         </div>
-      </div>
+      </details>
     {/if}
 
-    <!-- Opportunities Section -->
+    <!-- Opportunities Section - Collapsible -->
     {#if opportunities.length > 0}
-      <div class="findings-section opportunities-section">
-        <div class="findings-header">
+      <details class="findings-section opportunities-section">
+        <summary class="findings-header">
           <span class="findings-icon">💡</span>
           <h3 class="findings-title">Opportunities</h3>
           <span class="findings-count">{opportunities.length}</span>
-        </div>
+          <span class="findings-chevron">›</span>
+        </summary>
         <div class="findings-list">
           {#each opportunities as opportunity, i}
             <div class="finding-card opportunity-card">
@@ -251,7 +253,7 @@
             </div>
           {/each}
         </div>
-      </div>
+      </details>
     {/if}
   </div>
 {/if}
@@ -268,8 +270,12 @@
     background: linear-gradient(145deg, var(--card-bg, #ffffff) 0%, var(--hover-bg, #fafafa) 100%);
     border: 1px solid var(--border-color, #e5e5e7);
     border-radius: 16px;
-    padding: 1.25rem 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  .findings-section[open] {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   .risks-section {
@@ -297,7 +303,33 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    transition: background 0.2s ease;
+  }
+
+  .findings-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .findings-header:hover {
+    background: var(--hover-bg, #f5f5f7);
+  }
+
+  .findings-chevron {
+    margin-left: auto;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-muted, #86868b);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 1;
+  }
+
+  .findings-section[open] .findings-chevron {
+    transform: rotate(90deg);
+    color: var(--primary, #007aff);
   }
 
   .findings-icon {
@@ -334,6 +366,19 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding: 0 1.5rem 1.25rem 1.5rem;
+    animation: slideDown 0.25s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .finding-card {
