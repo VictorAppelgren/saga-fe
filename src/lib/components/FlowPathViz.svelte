@@ -15,10 +15,11 @@
       const trimmed = segment.trim();
       const hasUp = trimmed.includes('↑');
       const hasDown = trimmed.includes('↓');
+      const direction: 'up' | 'down' | null = hasUp ? 'up' : hasDown ? 'down' : null;
 
       return {
         name: trimmed.replace(/[↑↓]/g, '').trim().replace(/_/g, ' '),
-        direction: hasUp ? 'up' : hasDown ? 'down' : null
+        direction
       };
     }).filter(node => node.name.length > 0);
   }
