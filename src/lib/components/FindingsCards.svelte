@@ -1,7 +1,6 @@
 <!-- FindingsCards.svelte - Display risk and opportunity findings with flow visualization -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { slide } from 'svelte/transition';
   import FlowPathViz from './FlowPathViz.svelte';
 
   // SavedExcerpt from exploration agent
@@ -36,28 +35,6 @@
   export let opportunities: Finding[] = [];
 
   const dispatch = createEventDispatcher();
-
-  // Track which cards have expanded details
-  let expandedRisks: Set<number> = new Set();
-  let expandedOpportunities: Set<number> = new Set();
-
-  function toggleExpand(type: 'risk' | 'opportunity', index: number) {
-    if (type === 'risk') {
-      if (expandedRisks.has(index)) {
-        expandedRisks.delete(index);
-      } else {
-        expandedRisks.add(index);
-      }
-      expandedRisks = expandedRisks;
-    } else {
-      if (expandedOpportunities.has(index)) {
-        expandedOpportunities.delete(index);
-      } else {
-        expandedOpportunities.add(index);
-      }
-      expandedOpportunities = expandedOpportunities;
-    }
-  }
 
   function handleDiscuss(finding: Finding, type: 'risk' | 'opportunity') {
     dispatch('discuss', { finding, type });
@@ -136,11 +113,6 @@
     return [];
   }
 
-  function hasExpandableContent(finding: Finding): boolean {
-    const evidenceItems = parseEvidence(finding.evidence);
-    return evidenceItems.length > 0;
-  }
-
   $: hasFindings = risks.length > 0 || opportunities.length > 0;
 </script>
 
@@ -171,26 +143,7 @@
                   <p class="finding-rationale">{risk.rationale}</p>
                 {/if}
 
-                <!-- Flow path visualization (prominent) -->
-                {#if risk.flow_path}
-                  <div class="flow-preview">
-                    <FlowPathViz flowPath={risk.flow_path} compact={false} />
-                  </div>
-                {/if}
-
                 <div class="finding-actions">
-                  {#if hasExpandableContent(risk)}
-                    <button
-                      class="expand-btn"
-                      class:expanded={expandedRisks.has(i)}
-                      on:click={() => toggleExpand('risk', i)}
-                    >
-                      <svg class="chevron" viewBox="0 0 24 24" width="16" height="16">
-                        <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      {expandedRisks.has(i) ? 'Hide Details' : 'View Research'}
-                    </button>
-                  {/if}
                   <button class="discuss-btn" on:click={() => handleDiscuss(risk, 'risk')}>
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
@@ -200,28 +153,11 @@
                 </div>
               </div>
 
-              <!-- Expandable details -->
-              {#if expandedRisks.has(i) && hasExpandableContent(risk)}
+              <!-- Flow + Evidence grid (always visible if flow_path exists) -->
+              {#if risk.flow_path}
                 {@const evidenceItems = parseEvidence(risk.evidence)}
-                <div class="finding-details" transition:slide={{ duration: 200 }}>
-                  {#if evidenceItems.length > 0}
-                    <div class="evidence-section">
-                      <h5 class="details-label">Supporting Evidence ({evidenceItems.length})</h5>
-                      <div class="evidence-list">
-                        {#each evidenceItems as item, idx}
-                          <div class="evidence-item">
-                            <div class="evidence-excerpt">"{item.excerpt}"</div>
-                            {#if item.relevance}
-                              <div class="evidence-relevance">→ {item.relevance}</div>
-                            {/if}
-                            {#if item.source}
-                              <div class="evidence-source">{item.source}</div>
-                            {/if}
-                          </div>
-                        {/each}
-                      </div>
-                    </div>
-                  {/if}
+                <div class="flow-evidence-wrapper">
+                  <FlowPathViz flowPath={risk.flow_path} evidence={evidenceItems} compact={false} />
                 </div>
               {/if}
             </div>
@@ -255,26 +191,7 @@
                   <p class="finding-rationale">{opportunity.rationale}</p>
                 {/if}
 
-                <!-- Flow path visualization (prominent) -->
-                {#if opportunity.flow_path}
-                  <div class="flow-preview">
-                    <FlowPathViz flowPath={opportunity.flow_path} compact={false} />
-                  </div>
-                {/if}
-
                 <div class="finding-actions">
-                  {#if hasExpandableContent(opportunity)}
-                    <button
-                      class="expand-btn"
-                      class:expanded={expandedOpportunities.has(i)}
-                      on:click={() => toggleExpand('opportunity', i)}
-                    >
-                      <svg class="chevron" viewBox="0 0 24 24" width="16" height="16">
-                        <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      {expandedOpportunities.has(i) ? 'Hide Details' : 'View Research'}
-                    </button>
-                  {/if}
                   <button class="discuss-btn" on:click={() => handleDiscuss(opportunity, 'opportunity')}>
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
@@ -284,28 +201,11 @@
                 </div>
               </div>
 
-              <!-- Expandable details -->
-              {#if expandedOpportunities.has(i) && hasExpandableContent(opportunity)}
+              <!-- Flow + Evidence grid (always visible if flow_path exists) -->
+              {#if opportunity.flow_path}
                 {@const evidenceItems = parseEvidence(opportunity.evidence)}
-                <div class="finding-details" transition:slide={{ duration: 200 }}>
-                  {#if evidenceItems.length > 0}
-                    <div class="evidence-section">
-                      <h5 class="details-label">Supporting Evidence ({evidenceItems.length})</h5>
-                      <div class="evidence-list">
-                        {#each evidenceItems as item, idx}
-                          <div class="evidence-item">
-                            <div class="evidence-excerpt">"{item.excerpt}"</div>
-                            {#if item.relevance}
-                              <div class="evidence-relevance">→ {item.relevance}</div>
-                            {/if}
-                            {#if item.source}
-                              <div class="evidence-source">{item.source}</div>
-                            {/if}
-                          </div>
-                        {/each}
-                      </div>
-                    </div>
-                  {/if}
+                <div class="flow-evidence-wrapper">
+                  <FlowPathViz flowPath={opportunity.flow_path} evidence={evidenceItems} compact={false} />
                 </div>
               {/if}
             </div>
@@ -499,16 +399,15 @@
     line-height: 1.5;
   }
 
-  .flow-preview {
-    margin: 1rem 0;
-    padding: 1rem;
-    background: var(--surface-variant, #f5f5f7);
-    border-radius: 12px;
-    overflow-x: auto;
+  .flow-evidence-wrapper {
+    padding: 1rem 1.25rem;
+    background: var(--surface-variant, #f8f8fa);
+    border-top: 1px solid var(--border-color, #e5e5e7);
   }
 
-  :global(.dark) .flow-preview {
-    background: rgba(255, 255, 255, 0.05);
+  :global(.dark) .flow-evidence-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    border-top-color: var(--border-color, #38383a);
   }
 
   .finding-actions {
@@ -516,39 +415,6 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.75rem;
-  }
-
-  .expand-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    background: transparent;
-    border: none;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text-muted, #86868b);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 6px;
-  }
-
-  .expand-btn:hover {
-    color: var(--text-color, #1d1d1f);
-    background: var(--surface-variant, #f0f0f2);
-  }
-
-  :global(.dark) .expand-btn:hover {
-    color: var(--text-color, #f5f5f7);
-    background: var(--surface-variant, #3a3a3c);
-  }
-
-  .chevron {
-    transition: transform 0.2s ease;
-  }
-
-  .expand-btn.expanded .chevron {
-    transform: rotate(180deg);
   }
 
   .discuss-btn {
@@ -582,82 +448,6 @@
     background: #0a84ff;
     border-color: #0a84ff;
     color: white;
-  }
-
-  .finding-details {
-    background: var(--surface-variant, #f5f5f7);
-    border-top: 1px solid var(--border-color, #e5e5e7);
-    padding: 1rem 1.25rem;
-  }
-
-  :global(.dark) .finding-details {
-    background: rgba(255, 255, 255, 0.03);
-    border-top-color: var(--border-color, #38383a);
-  }
-
-  .evidence-section {
-    margin-bottom: 1rem;
-  }
-
-  .evidence-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .details-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-muted, #86868b);
-    margin: 0 0 0.5rem 0;
-  }
-
-  .evidence-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .evidence-item {
-    padding: 1rem 1.25rem;
-    background: var(--card-bg, #ffffff);
-    border-radius: 10px;
-    border-left: 3px solid var(--primary, #007aff);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  }
-
-  :global(.dark) .evidence-item {
-    background: var(--card-bg, #1c1c1e);
-    border-left-color: #0a84ff;
-  }
-
-  .evidence-excerpt {
-    font-size: 0.875rem;
-    color: var(--text-color, #1d1d1f);
-    line-height: 1.6;
-    font-style: italic;
-    margin-bottom: 0.5rem;
-  }
-
-  :global(.dark) .evidence-excerpt {
-    color: var(--text-color, #f5f5f7);
-  }
-
-  .evidence-relevance {
-    font-size: 0.8125rem;
-    color: var(--primary, #007aff);
-    font-weight: 500;
-    margin-bottom: 0.375rem;
-  }
-
-  :global(.dark) .evidence-relevance {
-    color: #0a84ff;
-  }
-
-  .evidence-source {
-    font-size: 0.75rem;
-    color: var(--text-muted, #86868b);
-    font-family: 'SF Mono', 'Menlo', monospace;
   }
 
   /* Mobile responsive */
