@@ -38,19 +38,14 @@
   <div class="flow-evidence-grid" class:compact>
     {#each nodes as node, i}
       <div class="flow-row">
-        <!-- Left: Flow node -->
+        <!-- Left: Flow node + connector -->
         <div class="flow-node-col">
-          <div class="node-wrapper">
-            <div class="step-node" class:has-direction={node.direction}>
-              <span class="node-label">{node.name}</span>
-              {#if node.direction}
-                <span class="direction-badge {node.direction}">
-                  {node.direction === 'up' ? '↑' : '↓'}
-                </span>
-              {/if}
-            </div>
-            {#if i < nodes.length - 1}
-              <div class="connector-line"></div>
+          <div class="step-node" class:has-direction={node.direction}>
+            <span class="node-label">{node.name}</span>
+            {#if node.direction}
+              <span class="direction-badge {node.direction}">
+                {node.direction === 'up' ? '↑' : '↓'}
+              </span>
             {/if}
           </div>
         </div>
@@ -64,11 +59,27 @@
                 <p class="evidence-link">→ {evidence[i].relevance}</p>
               {/if}
             </div>
-          {:else}
-            <div class="evidence-placeholder"></div>
           {/if}
         </div>
       </div>
+
+      <!-- Connector arrow between rows -->
+      {#if i < nodes.length - 1}
+        <div class="connector-row">
+          <div class="connector-col">
+            <svg class="arrow-svg" viewBox="0 0 24 28" fill="none">
+              <path
+                d="M12 0 L12 20 M6 14 L12 22 L18 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <div class="connector-spacer"></div>
+        </div>
+      {/if}
     {/each}
   </div>
 {/if}
@@ -82,27 +93,22 @@
 
   .flow-row {
     display: grid;
-    grid-template-columns: minmax(140px, 200px) 1fr;
+    grid-template-columns: 180px 1fr;
     gap: 1.5rem;
-    align-items: flex-start;
+    min-height: 72px;
+    align-items: center;
   }
 
   .compact .flow-row {
-    grid-template-columns: minmax(120px, 160px) 1fr;
+    grid-template-columns: 140px 1fr;
     gap: 1rem;
+    min-height: 56px;
   }
 
   .flow-node-col {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-  }
-
-  .node-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
   }
 
   .step-node {
@@ -111,7 +117,7 @@
     justify-content: center;
     gap: 0.5rem;
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.875rem;
     background: linear-gradient(145deg, var(--node-bg, #ffffff) 0%, var(--node-bg-end, #f8f8fa) 100%);
     border: 1px solid var(--border-color, #e5e5e7);
     border-radius: 10px;
@@ -136,6 +142,7 @@
     color: var(--text-color, #1d1d1f);
     text-transform: capitalize;
     text-align: center;
+    line-height: 1.3;
   }
 
   .compact .node-label {
@@ -170,22 +177,46 @@
     color: #ff3b30;
   }
 
-  .connector-line {
-    width: 2px;
-    height: 24px;
-    background: linear-gradient(to bottom, var(--border-color, #d1d1d6), var(--border-color, #d1d1d6) 60%, transparent);
-    margin: 0.25rem 0;
+  /* Connector row */
+  .connector-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    height: 28px;
   }
 
-  .compact .connector-line {
-    height: 16px;
+  .compact .connector-row {
+    grid-template-columns: 140px 1fr;
+    gap: 1rem;
+    height: 22px;
   }
 
+  .connector-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .connector-spacer {
+    /* Empty spacer to maintain grid alignment */
+  }
+
+  .arrow-svg {
+    width: 24px;
+    height: 28px;
+    color: var(--arrow-color, #c7c7cc);
+  }
+
+  .compact .arrow-svg {
+    width: 20px;
+    height: 22px;
+  }
+
+  /* Evidence column */
   .evidence-col {
     display: flex;
-    align-items: flex-start;
-    min-height: 60px;
-    padding: 0.25rem 0;
+    align-items: center;
+    padding: 0.5rem 0;
   }
 
   .evidence-card {
@@ -196,7 +227,7 @@
     font-size: 0.8125rem;
     color: var(--text-color, #1d1d1f);
     line-height: 1.5;
-    margin: 0 0 0.375rem 0;
+    margin: 0 0 0.25rem 0;
     font-style: italic;
   }
 
@@ -215,16 +246,13 @@
     font-size: 0.6875rem;
   }
 
-  .evidence-placeholder {
-    height: 1px;
-  }
-
   /* Dark mode */
   :global(.dark) .flow-evidence-grid {
     --node-bg: #2c2c2e;
     --node-bg-end: #1c1c1e;
     --border-color: #48484a;
     --text-color: #f5f5f7;
+    --arrow-color: #636366;
   }
 
   :global(.dark) .step-node:hover {
@@ -255,10 +283,11 @@
     .flow-row {
       grid-template-columns: 1fr;
       gap: 0.5rem;
+      min-height: auto;
     }
 
     .flow-node-col {
-      align-items: flex-start;
+      justify-content: flex-start;
     }
 
     .step-node {
@@ -266,14 +295,19 @@
       display: inline-flex;
     }
 
-    .connector-line {
+    .connector-row {
+      grid-template-columns: 1fr;
+      height: 20px;
+      padding-left: 2rem;
+    }
+
+    .connector-spacer {
       display: none;
     }
 
     .evidence-col {
       padding-left: 1rem;
       border-left: 2px solid var(--border-color, #e5e5e7);
-      margin-bottom: 1rem;
     }
   }
 </style>
