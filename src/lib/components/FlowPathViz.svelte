@@ -25,12 +25,12 @@
   }
 
   $: nodes = parseFlowPath(flowPath);
-  $: nodeWidth = compact ? 100 : 140;
-  $: nodeHeight = compact ? 36 : 48;
-  $: nodeGap = compact ? 24 : 36;
+  $: nodeWidth = compact ? 100 : 160;
+  $: nodeHeight = compact ? 36 : 56;
+  $: nodeGap = compact ? 24 : 44;
   $: totalWidth = nodes.length * nodeWidth + (nodes.length - 1) * nodeGap;
   $: viewBoxWidth = Math.max(totalWidth + 40, 200);
-  $: viewBoxHeight = compact ? 56 : 72;
+  $: viewBoxHeight = compact ? 56 : 80;
 </script>
 
 {#if nodes.length > 0}
@@ -162,11 +162,11 @@
     display: block;
     min-width: 100%;
     height: auto;
-    max-height: 72px;
+    max-height: 100px;
   }
 
   .compact .flow-svg {
-    max-height: 56px;
+    max-height: 60px;
   }
 
   .node-rect {
@@ -183,7 +183,7 @@
 
   .node-text {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     fill: var(--text-color, #1d1d1f);
     pointer-events: none;

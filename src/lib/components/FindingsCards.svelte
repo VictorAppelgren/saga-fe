@@ -4,12 +4,21 @@
   import { slide } from 'svelte/transition';
   import FlowPathViz from './FlowPathViz.svelte';
 
+  // Evidence can be string, array of objects, or array of strings
+  interface EvidenceItem {
+    text?: string;
+    source?: string;
+    article_id?: string;
+    section_id?: string;
+    [key: string]: unknown;
+  }
+
   export interface Finding {
     headline: string;
     rationale?: string;
     confidence?: string | number;
     flow_path?: string;
-    evidence?: string;
+    evidence?: string | EvidenceItem[] | unknown[];
     added_at?: string;
   }
 
@@ -44,6 +53,13 @@
     dispatch('discuss', { finding, type });
   }
 
+  // Only show confidence if it's a text value (high/medium/low), not numeric
+  function shouldShowConfidence(confidence: string | number | undefined): boolean {
+    if (!confidence) return false;
+    const str = String(confidence).toLowerCase();
+    return str === 'high' || str === 'medium' || str === 'low';
+  }
+
   function getConfidenceClass(confidence: string | number | undefined): string {
     if (!confidence) return '';
     const str = String(confidence).toLowerCase();
@@ -59,8 +75,34 @@
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
+  // Parse evidence into displayable format
+  function parseEvidence(evidence: string | EvidenceItem[] | unknown[] | undefined): string[] {
+    if (!evidence) return [];
+
+    // If it's already a string, split by newlines or return as single item
+    if (typeof evidence === 'string') {
+      return evidence.split('\n').filter(line => line.trim());
+    }
+
+    // If it's an array, extract text from each item
+    if (Array.isArray(evidence)) {
+      return evidence.map(item => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') {
+          // Try common text fields
+          const obj = item as EvidenceItem;
+          return obj.text || obj.source || JSON.stringify(item);
+        }
+        return String(item);
+      }).filter(text => text && text !== '{}');
+    }
+
+    return [];
+  }
+
   function hasExpandableContent(finding: Finding): boolean {
-    return !!(finding.flow_path || finding.evidence);
+    const evidenceItems = parseEvidence(finding.evidence);
+    return evidenceItems.length > 0;
   }
 
   $: hasFindings = risks.length > 0 || opportunities.length > 0;
@@ -81,7 +123,7 @@
             <div class="finding-card risk-card">
               <div class="finding-main">
                 <div class="finding-top-row">
-                  {#if risk.confidence}
+                  {#if shouldShowConfidence(risk.confidence)}
                     <span class="confidence-badge {getConfidenceClass(risk.confidence)}">
                       {formatConfidence(risk.confidence)}
                     </span>
@@ -93,10 +135,10 @@
                   <p class="finding-rationale">{risk.rationale}</p>
                 {/if}
 
-                <!-- Flow path preview (always visible if exists) -->
+                <!-- Flow path visualization (prominent) -->
                 {#if risk.flow_path}
                   <div class="flow-preview">
-                    <FlowPathViz flowPath={risk.flow_path} compact={true} />
+                    <FlowPathViz flowPath={risk.flow_path} compact={false} />
                   </div>
                 {/if}
 
@@ -124,11 +166,16 @@
 
               <!-- Expandable details -->
               {#if expandedRisks.has(i) && hasExpandableContent(risk)}
+                {@const evidenceItems = parseEvidence(risk.evidence)}
                 <div class="finding-details" transition:slide={{ duration: 200 }}>
-                  {#if risk.evidence}
+                  {#if evidenceItems.length > 0}
                     <div class="evidence-section">
                       <h5 class="details-label">Supporting Evidence</h5>
-                      <div class="evidence-content">{risk.evidence}</div>
+                      <ul class="evidence-list">
+                        {#each evidenceItems as item}
+                          <li class="evidence-item">{item}</li>
+                        {/each}
+                      </ul>
                     </div>
                   {/if}
                 </div>
@@ -152,7 +199,7 @@
             <div class="finding-card opportunity-card">
               <div class="finding-main">
                 <div class="finding-top-row">
-                  {#if opportunity.confidence}
+                  {#if shouldShowConfidence(opportunity.confidence)}
                     <span class="confidence-badge {getConfidenceClass(opportunity.confidence)}">
                       {formatConfidence(opportunity.confidence)}
                     </span>
@@ -164,10 +211,10 @@
                   <p class="finding-rationale">{opportunity.rationale}</p>
                 {/if}
 
-                <!-- Flow path preview -->
+                <!-- Flow path visualization (prominent) -->
                 {#if opportunity.flow_path}
                   <div class="flow-preview">
-                    <FlowPathViz flowPath={opportunity.flow_path} compact={true} />
+                    <FlowPathViz flowPath={opportunity.flow_path} compact={false} />
                   </div>
                 {/if}
 
@@ -195,11 +242,16 @@
 
               <!-- Expandable details -->
               {#if expandedOpportunities.has(i) && hasExpandableContent(opportunity)}
+                {@const evidenceItems = parseEvidence(opportunity.evidence)}
                 <div class="finding-details" transition:slide={{ duration: 200 }}>
-                  {#if opportunity.evidence}
+                  {#if evidenceItems.length > 0}
                     <div class="evidence-section">
                       <h5 class="details-label">Supporting Evidence</h5>
-                      <div class="evidence-content">{opportunity.evidence}</div>
+                      <ul class="evidence-list">
+                        {#each evidenceItems as item}
+                          <li class="evidence-item">{item}</li>
+                        {/each}
+                      </ul>
                     </div>
                   {/if}
                 </div>
@@ -396,10 +448,11 @@
   }
 
   .flow-preview {
-    margin: 0.75rem 0;
-    padding: 0.5rem;
+    margin: 1rem 0;
+    padding: 1rem;
     background: var(--surface-variant, #f5f5f7);
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow-x: auto;
   }
 
   :global(.dark) .flow-preview {
@@ -507,15 +560,29 @@
     margin: 0 0 0.5rem 0;
   }
 
-  .evidence-content {
+  .evidence-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .evidence-item {
     font-size: 0.875rem;
     color: var(--text-color, #1d1d1f);
     line-height: 1.6;
-    white-space: pre-wrap;
+    padding: 0.75rem 1rem;
+    background: var(--card-bg, #ffffff);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary, #007aff);
   }
 
-  :global(.dark) .evidence-content {
+  :global(.dark) .evidence-item {
     color: var(--text-color, #f5f5f7);
+    background: var(--card-bg, #1c1c1e);
+    border-left-color: #0a84ff;
   }
 
   /* Mobile responsive */
