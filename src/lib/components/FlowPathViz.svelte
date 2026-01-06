@@ -1,4 +1,4 @@
-<!-- FlowPathViz.svelte - Clean Apple-style SVG flow path visualization -->
+<!-- FlowPathViz.svelte - Vertical flow path with motivations -->
 <script lang="ts">
   export let flowPath: string = '';
   export let compact: boolean = false;
@@ -25,235 +25,169 @@
   }
 
   $: nodes = parseFlowPath(flowPath);
-  $: nodeWidth = compact ? 100 : 160;
-  $: nodeHeight = compact ? 36 : 56;
-  $: nodeGap = compact ? 24 : 44;
-  $: totalWidth = nodes.length * nodeWidth + (nodes.length - 1) * nodeGap;
-  $: viewBoxWidth = Math.max(totalWidth + 40, 200);
-  $: viewBoxHeight = compact ? 56 : 80;
 </script>
 
 {#if nodes.length > 0}
-  <div class="flow-path-container" class:compact>
-    <svg
-      viewBox="0 0 {viewBoxWidth} {viewBoxHeight}"
-      class="flow-svg"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      <defs>
-        <!-- Gradient for nodes -->
-        <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:var(--node-bg-start, #f8f8fa);stop-opacity:1" />
-          <stop offset="100%" style="stop-color:var(--node-bg-end, #f0f0f2);stop-opacity:1" />
-        </linearGradient>
-
-        <!-- Arrow marker -->
-        <marker
-          id="arrowhead"
-          markerWidth="8"
-          markerHeight="6"
-          refX="7"
-          refY="3"
-          orient="auto"
-        >
-          <polygon
-            points="0 0, 8 3, 0 6"
-            fill="var(--arrow-color, #c7c7cc)"
-          />
-        </marker>
-      </defs>
-
-      {#each nodes as node, i}
-        {@const x = 20 + i * (nodeWidth + nodeGap)}
-        {@const y = (viewBoxHeight - nodeHeight) / 2}
-
-        <!-- Node rectangle -->
-        <g class="flow-node" transform="translate({x}, {y})">
-          <rect
-            width={nodeWidth}
-            height={nodeHeight}
-            rx={compact ? 8 : 10}
-            ry={compact ? 8 : 10}
-            class="node-rect"
-          />
-
-          <!-- Node text -->
-          <text
-            x={nodeWidth / 2}
-            y={nodeHeight / 2}
-            class="node-text"
-            dominant-baseline="central"
-            text-anchor="middle"
-          >
-            {node.name.length > (compact ? 12 : 16)
-              ? node.name.slice(0, compact ? 11 : 15) + '…'
-              : node.name}
-          </text>
-
-          <!-- Direction indicator -->
-          {#if node.direction}
-            <g transform="translate({nodeWidth - (compact ? 14 : 18)}, {(nodeHeight - (compact ? 16 : 20)) / 2})">
-              <circle
-                cx={compact ? 8 : 10}
-                cy={compact ? 8 : 10}
-                r={compact ? 8 : 10}
-                class="direction-bg {node.direction}"
-              />
-              <text
-                x={compact ? 8 : 10}
-                y={compact ? 9 : 11}
-                class="direction-arrow"
-                dominant-baseline="central"
-                text-anchor="middle"
-              >
+  <div class="flow-vertical" class:compact>
+    {#each nodes as node, i}
+      <div class="flow-step">
+        <div class="step-line">
+          <div class="step-node" class:has-direction={node.direction}>
+            <span class="node-label">{node.name}</span>
+            {#if node.direction}
+              <span class="direction-indicator {node.direction}">
                 {node.direction === 'up' ? '↑' : '↓'}
-              </text>
-            </g>
+              </span>
+            {/if}
+          </div>
+          {#if i < nodes.length - 1}
+            <div class="connector">
+              <svg viewBox="0 0 24 40" class="arrow-svg">
+                <path d="M12 0 L12 32 M6 26 L12 34 L18 26"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </div>
           {/if}
-        </g>
-
-        <!-- Connecting arrow -->
-        {#if i < nodes.length - 1}
-          {@const arrowStartX = x + nodeWidth + 4}
-          {@const arrowEndX = x + nodeWidth + nodeGap - 4}
-          {@const arrowY = viewBoxHeight / 2}
-          <line
-            x1={arrowStartX}
-            y1={arrowY}
-            x2={arrowEndX}
-            y2={arrowY}
-            class="arrow-line"
-            marker-end="url(#arrowhead)"
-          />
-        {/if}
-      {/each}
-    </svg>
+        </div>
+      </div>
+    {/each}
   </div>
 {/if}
 
 <style>
-  .flow-path-container {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+  .flow-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     padding: 0.5rem 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color, #e5e5e7) transparent;
   }
 
-  .flow-path-container::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .flow-path-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .flow-path-container::-webkit-scrollbar-thumb {
-    background: var(--border-color, #e5e5e7);
-    border-radius: 2px;
-  }
-
-  .compact {
+  .flow-vertical.compact {
     padding: 0.25rem 0;
   }
 
-  .flow-svg {
-    display: block;
-    min-width: 100%;
-    height: auto;
-    max-height: 100px;
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
   }
 
-  .compact .flow-svg {
-    max-height: 60px;
+  .step-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 180px;
   }
 
-  .node-rect {
-    fill: url(#nodeGradient);
-    stroke: var(--border-color, #e5e5e7);
-    stroke-width: 1;
+  .compact .step-line {
+    min-width: 140px;
+  }
+
+  .step-node {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: linear-gradient(145deg, var(--node-bg-start, #ffffff) 0%, var(--node-bg-end, #f8f8fa) 100%);
+    border: 1px solid var(--border-color, #e5e5e7);
+    border-radius: 10px;
+    min-width: 160px;
+    justify-content: center;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
-  .flow-node:hover .node-rect {
-    stroke: var(--primary, #007aff);
-    stroke-width: 1.5;
+  .compact .step-node {
+    padding: 0.5rem 0.75rem;
+    min-width: 120px;
+    border-radius: 8px;
   }
 
-  .node-text {
+  .step-node:hover {
+    border-color: var(--primary, #007aff);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.12);
+  }
+
+  .node-label {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    font-size: 12px;
+    font-size: 0.8125rem;
     font-weight: 500;
-    fill: var(--text-color, #1d1d1f);
-    pointer-events: none;
+    color: var(--text-color, #1d1d1f);
+    text-transform: capitalize;
   }
 
-  .direction-bg {
-    transition: all 0.2s ease;
+  .compact .node-label {
+    font-size: 0.75rem;
   }
 
-  .direction-bg.up {
-    fill: rgba(52, 199, 89, 0.15);
-  }
-
-  .direction-bg.down {
-    fill: rgba(255, 59, 48, 0.15);
-  }
-
-  .direction-arrow {
-    font-size: 10px;
+  .direction-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 0.75rem;
     font-weight: 700;
-    pointer-events: none;
   }
 
-  .direction-bg.up + .direction-arrow {
-    fill: #34c759;
+  .compact .direction-indicator {
+    width: 16px;
+    height: 16px;
+    font-size: 0.625rem;
   }
 
-  .direction-bg.down + .direction-arrow {
-    fill: #ff3b30;
+  .direction-indicator.up {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34c759;
   }
 
-  .arrow-line {
-    stroke: var(--arrow-color, #c7c7cc);
-    stroke-width: 1.5;
-    stroke-linecap: round;
+  .direction-indicator.down {
+    background: rgba(255, 59, 48, 0.15);
+    color: #ff3b30;
+  }
+
+  .connector {
+    display: flex;
+    justify-content: center;
+    padding: 0.25rem 0;
+  }
+
+  .arrow-svg {
+    width: 20px;
+    height: 32px;
+    color: var(--arrow-color, #c7c7cc);
+  }
+
+  .compact .arrow-svg {
+    width: 16px;
+    height: 24px;
   }
 
   /* Dark mode */
-  :global(.dark) .flow-path-container {
+  :global(.dark) .flow-vertical {
     --node-bg-start: #2c2c2e;
     --node-bg-end: #1c1c1e;
-    --arrow-color: #48484a;
     --border-color: #48484a;
     --text-color: #f5f5f7;
+    --arrow-color: #636366;
   }
 
-  :global(.dark) .direction-bg.up {
-    fill: rgba(48, 209, 88, 0.2);
+  :global(.dark) .step-node:hover {
+    border-color: #0a84ff;
+    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.2);
   }
 
-  :global(.dark) .direction-bg.down {
-    fill: rgba(255, 69, 58, 0.2);
+  :global(.dark) .direction-indicator.up {
+    background: rgba(48, 209, 88, 0.2);
+    color: #30d158;
   }
 
-  :global(.dark) .direction-bg.up + .direction-arrow {
-    fill: #30d158;
-  }
-
-  :global(.dark) .direction-bg.down + .direction-arrow {
-    fill: #ff453a;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .flow-svg {
-      max-height: 56px;
-    }
-
-    .node-text {
-      font-size: 10px;
-    }
+  :global(.dark) .direction-indicator.down {
+    background: rgba(255, 69, 58, 0.2);
+    color: #ff453a;
   }
 </style>

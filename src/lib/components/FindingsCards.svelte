@@ -4,12 +4,22 @@
   import { slide } from 'svelte/transition';
   import FlowPathViz from './FlowPathViz.svelte';
 
-  // Evidence can be string, array of objects, or array of strings
+  // SavedExcerpt from exploration agent
+  interface SavedExcerpt {
+    excerpt: string;
+    source_id: string;
+    source_type: 'article' | 'section';
+    why_relevant: string;
+    saved_at_topic?: string;
+    saved_at_step?: number;
+  }
+
+  // Generic evidence item for backwards compat
   interface EvidenceItem {
     text?: string;
     source?: string;
-    article_id?: string;
-    section_id?: string;
+    excerpt?: string;
+    why_relevant?: string;
     [key: string]: unknown;
   }
 
@@ -18,7 +28,7 @@
     rationale?: string;
     confidence?: string | number;
     flow_path?: string;
-    evidence?: string | EvidenceItem[] | unknown[];
+    evidence?: string | SavedExcerpt[] | EvidenceItem[] | unknown[];
     added_at?: string;
   }
 
@@ -75,26 +85,52 @@
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
+  // Parsed evidence item for display
+  interface ParsedEvidence {
+    excerpt: string;
+    source: string;
+    relevance?: string;
+  }
+
   // Parse evidence into displayable format
-  function parseEvidence(evidence: string | EvidenceItem[] | unknown[] | undefined): string[] {
+  function parseEvidence(evidence: string | SavedExcerpt[] | EvidenceItem[] | unknown[] | undefined): ParsedEvidence[] {
     if (!evidence) return [];
 
-    // If it's already a string, split by newlines or return as single item
+    // If it's already a string, return as single item
     if (typeof evidence === 'string') {
-      return evidence.split('\n').filter(line => line.trim());
+      return evidence.split('\n').filter(line => line.trim()).map(line => ({
+        excerpt: line,
+        source: ''
+      }));
     }
 
-    // If it's an array, extract text from each item
+    // If it's an array, extract structured data from each item
     if (Array.isArray(evidence)) {
       return evidence.map(item => {
-        if (typeof item === 'string') return item;
-        if (item && typeof item === 'object') {
-          // Try common text fields
-          const obj = item as EvidenceItem;
-          return obj.text || obj.source || JSON.stringify(item);
+        if (typeof item === 'string') {
+          return { excerpt: item, source: '' };
         }
-        return String(item);
-      }).filter(text => text && text !== '{}');
+        if (item && typeof item === 'object') {
+          const obj = item as SavedExcerpt & EvidenceItem;
+          // SavedExcerpt structure from exploration agent
+          if (obj.excerpt) {
+            return {
+              excerpt: obj.excerpt,
+              source: obj.source_id || obj.source || '',
+              relevance: obj.why_relevant
+            };
+          }
+          // Generic structure
+          if (obj.text) {
+            return {
+              excerpt: obj.text,
+              source: obj.source || '',
+              relevance: obj.why_relevant
+            };
+          }
+        }
+        return null;
+      }).filter((item): item is ParsedEvidence => item !== null && item.excerpt.length > 0);
     }
 
     return [];
@@ -170,12 +206,20 @@
                 <div class="finding-details" transition:slide={{ duration: 200 }}>
                   {#if evidenceItems.length > 0}
                     <div class="evidence-section">
-                      <h5 class="details-label">Supporting Evidence</h5>
-                      <ul class="evidence-list">
-                        {#each evidenceItems as item}
-                          <li class="evidence-item">{item}</li>
+                      <h5 class="details-label">Supporting Evidence ({evidenceItems.length})</h5>
+                      <div class="evidence-list">
+                        {#each evidenceItems as item, idx}
+                          <div class="evidence-item">
+                            <div class="evidence-excerpt">"{item.excerpt}"</div>
+                            {#if item.relevance}
+                              <div class="evidence-relevance">→ {item.relevance}</div>
+                            {/if}
+                            {#if item.source}
+                              <div class="evidence-source">{item.source}</div>
+                            {/if}
+                          </div>
                         {/each}
-                      </ul>
+                      </div>
                     </div>
                   {/if}
                 </div>
@@ -246,12 +290,20 @@
                 <div class="finding-details" transition:slide={{ duration: 200 }}>
                   {#if evidenceItems.length > 0}
                     <div class="evidence-section">
-                      <h5 class="details-label">Supporting Evidence</h5>
-                      <ul class="evidence-list">
-                        {#each evidenceItems as item}
-                          <li class="evidence-item">{item}</li>
+                      <h5 class="details-label">Supporting Evidence ({evidenceItems.length})</h5>
+                      <div class="evidence-list">
+                        {#each evidenceItems as item, idx}
+                          <div class="evidence-item">
+                            <div class="evidence-excerpt">"{item.excerpt}"</div>
+                            {#if item.relevance}
+                              <div class="evidence-relevance">→ {item.relevance}</div>
+                            {/if}
+                            {#if item.source}
+                              <div class="evidence-source">{item.source}</div>
+                            {/if}
+                          </div>
                         {/each}
-                      </ul>
+                      </div>
                     </div>
                   {/if}
                 </div>
@@ -561,28 +613,51 @@
   }
 
   .evidence-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .evidence-item {
-    font-size: 0.875rem;
-    color: var(--text-color, #1d1d1f);
-    line-height: 1.6;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
     background: var(--card-bg, #ffffff);
-    border-radius: 8px;
+    border-radius: 10px;
     border-left: 3px solid var(--primary, #007aff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   :global(.dark) .evidence-item {
-    color: var(--text-color, #f5f5f7);
     background: var(--card-bg, #1c1c1e);
     border-left-color: #0a84ff;
+  }
+
+  .evidence-excerpt {
+    font-size: 0.875rem;
+    color: var(--text-color, #1d1d1f);
+    line-height: 1.6;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.dark) .evidence-excerpt {
+    color: var(--text-color, #f5f5f7);
+  }
+
+  .evidence-relevance {
+    font-size: 0.8125rem;
+    color: var(--primary, #007aff);
+    font-weight: 500;
+    margin-bottom: 0.375rem;
+  }
+
+  :global(.dark) .evidence-relevance {
+    color: #0a84ff;
+  }
+
+  .evidence-source {
+    font-size: 0.75rem;
+    color: var(--text-muted, #86868b);
+    font-family: 'SF Mono', 'Menlo', monospace;
   }
 
   /* Mobile responsive */
