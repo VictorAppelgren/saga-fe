@@ -1,12 +1,8 @@
-import { redirect } from '@sveltejs/kit';
-
+/**
+ * Admin topics page load.
+ * Server-side validation happens in parent +layout.server.ts.
+ */
 export async function load({ parent }: any) {
   const data = await parent();
-  
-  // Check if user is admin
-  if (!data.user?.is_admin) {
-    throw redirect(302, '/dashboard');
-  }
-  
-  return {};
+  return { user: data.user };
 }
