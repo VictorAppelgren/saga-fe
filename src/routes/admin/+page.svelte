@@ -292,26 +292,17 @@
     <!-- LLM Calls -->
     <h2>🤖 LLM Calls</h2>
     <div class="stats-grid">
-      <AdminCard
-        title="Simple (20B)"
-        value={summary?.llm_calls?.simple || 0}
-        subtitle="local/external"
-      />
-      <AdminCard
-        title="Medium (120B)"
-        value={summary?.llm_calls?.medium || 0}
-        subtitle="OpenRouter"
-      />
-      <AdminCard
-        title="Complex"
-        value={summary?.llm_calls?.complex || 0}
-        subtitle="DeepSeek"
-      />
-      <AdminCard
-        title="Fast"
-        value={summary?.llm_calls?.fast || 0}
-        subtitle="Anthropic"
-      />
+      <AdminCard title="Simple (20B)" value={summary?.llm_calls?.tiers?.simple || 0} subtitle="local/external" />
+      <AdminCard title="Medium (120B)" value={summary?.llm_calls?.tiers?.medium || 0} subtitle="research/writing" />
+      <AdminCard title="Complex" value={summary?.llm_calls?.tiers?.complex || 0} subtitle="strategic" />
+      <AdminCard title="Fast" value={summary?.llm_calls?.tiers?.fast || 0} subtitle="user-facing" />
+    </div>
+    <div class="llm-servers">
+      {#each Object.entries(summary?.llm_calls?.servers || {}).sort((a, b) => (b[1] as number) - (a[1] as number)) as [server, count]}
+        <span class="server" class:paid={server.includes('paid') || server === 'anthropic'}>
+          {server}: {count}
+        </span>
+      {/each}
     </div>
 
     <!-- User Engagement -->
@@ -627,6 +618,32 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
+  }
+
+  /* LLM Servers - Compact list */
+  .llm-servers {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .server {
+    font-family: monospace;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .server.paid {
+    background: #fef3c7;
+    color: #92400e;
   }
   
   .chart-container {
