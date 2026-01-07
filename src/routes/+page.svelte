@@ -128,7 +128,7 @@
 				</p>
 
 				<p class="text-sm sm:text-base text-gray-500 max-w-lg mx-auto lg:mx-0 mb-6 sm:mb-7">
-					Walk into every decision certain — before the market catches up.
+					From confidence to conviction — know you've checked what others haven't.
 				</p>
 
 				<button
@@ -159,15 +159,43 @@
 		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
 	</div>
 
+	<!-- The Core Problem - Light Intro -->
+	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-20 overflow-hidden">
+		<div class="text-center">
+			<h2 class="text-3xl sm:text-4xl md:text-5xl font-semibold mb-8 leading-tight text-gray-900">
+				The Risks You Don't Know You're Taking
+			</h2>
+
+			<p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-6 leading-relaxed">
+				The risks that hurt you aren't the ones you're watching. They're the ones you didn't know existed.
+			</p>
+
+			<p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+				Your mental model is powerful — but it only includes what you've thought to include. Chain reactions are building right now, toward your portfolio, that you haven't mapped yet.
+			</p>
+
+			<p class="text-xl sm:text-2xl font-medium text-gray-900">
+				Saga shows you the whole picture — including the parts you didn't know to look for.
+			</p>
+		</div>
+	</section>
+
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
 	<!-- SHOWCASE: GOD-TIER ANIMATIONS -->
 	<section class="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 overflow-hidden">
 		<div class="text-center mb-12 sm:mb-16">
-			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">How It Works</p>
+			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Knowledge Graph</p>
 			<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
-				Your Judgment. Amplified Beyond Human Scale.
+				Chain Reactions Made Visible
 			</h2>
 			<p class="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
-				Saga extends your reach across the entire world — checking every angle, exposing every risk, so you walk into every decision with certainty.
+				50M+ entities mapped. Every connection traced. See where risk is building before it hits your portfolio.
 			</p>
 		</div>
 
@@ -303,31 +331,31 @@
 			Two Ways We Strengthen You
 		</h2>
 		<p class="text-lg text-center mb-20 text-gray-500">
-			Deep strategic due diligence. Continuous portfolio monitoring.
+			Every angle mapped before you commit. Nothing building undetected while you hold.
 		</p>
 
 		<div class="grid md:grid-cols-2 gap-12">
 			<!-- Deep Strategic Due Diligence -->
 			<div class="group space-y-6 p-8 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
-				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">Before the decision</p>
+				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">Before you commit</p>
 				<h3 class="text-2xl font-semibold group-hover:text-blue-900 transition-colors">Deep Strategic Due Diligence</h3>
 				<p class="text-gray-600 leading-relaxed">
-					Understand all the angles — risks, opportunities, chain effects across geographies, sectors, and supply chains. Our AI agents map the entire landscape around your decision.
+					Every angle mapped. Every chain reaction traced. Every risk surfaced — before you make the decision. Complete information, complete conviction.
 				</p>
 				<p class="font-medium text-gray-900">
-					Every angle checked. Complete certainty.
+					Walk in knowing what others will discover too late.
 				</p>
 			</div>
 
 			<!-- Continuous Portfolio & Risk Monitoring -->
 			<div class="group space-y-6 p-8 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
-				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">After the decision</p>
+				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide">While you hold</p>
 				<h3 class="text-2xl font-semibold group-hover:text-blue-900 transition-colors">Continuous Portfolio Monitoring</h3>
 				<p class="text-gray-600 leading-relaxed">
-					Your portfolio monitored against a living map of global events. Thousands of AI agents working continuously — reading, analyzing, connecting, simulating.
+					Your portfolio watched against a living map of global events. 24/7 vigilance. Chain reactions detected while they're still forming — not after they've hit.
 				</p>
 				<p class="font-medium text-gray-900">
-					Nothing missed. Ever.
+					Nothing building undetected. Ever.
 				</p>
 			</div>
 		</div>
@@ -341,26 +369,27 @@
 		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
 	</div>
 
-	<!-- Certainty Section -->
+	<!-- From Confidence to Conviction Section -->
 	<section class="relative max-w-5xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
 		<div class="relative grid lg:grid-cols-[1fr_auto] gap-12 items-center">
 			<!-- Left: Content -->
 			<div>
 				<h2 class="text-4xl md:text-5xl font-semibold mb-8 leading-tight">
-					Thesis Confirmed. Or Risks Exposed First.
+					From Confidence to Conviction
 				</h2>
 
 				<div class="space-y-6 text-lg text-gray-600 leading-relaxed">
-					<p>
-						Your judgment is sharp. But there's always that question: What am I missing? What's building that I haven't seen?
-					</p>
-
 					<p class="text-xl font-medium text-gray-900">
-						Saga gives you certainty.
+						Confidence is "I think I'm right."<br/>
+						Conviction is "I know I've checked."
 					</p>
 
 					<p>
-						Thousands of AI agents checking every angle — confirming your thesis or exposing risks you'd never have found alone.
+						There's a gap between good judgment and total certainty. It's filled with doubt. Second-guessing. The nagging question: <em>What am I missing?</em>
+					</p>
+
+					<p>
+						Saga closes that gap. Thousands of AI agents checking every angle — confirming your thesis or exposing the risks you'd never have found alone.
 					</p>
 				</div>
 
@@ -390,6 +419,45 @@
 					<GlobeAnimation size={280} accentColor={accentColor} />
 					<div class="absolute inset-0 bg-blue-500/8 blur-2xl rounded-full -z-10"></div>
 				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
+	<!-- Analysis That Doesn't Expire - NEW Living Analysis Section -->
+	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
+		<div class="relative">
+			<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
+				Analysis That Doesn't Expire
+			</h2>
+
+			<div class="space-y-6 text-lg text-gray-600 leading-relaxed text-center max-w-3xl mx-auto">
+				<p class="text-xl font-medium text-gray-900">
+					A great analysis isn't a document. It's a conversation that never stops.
+				</p>
+
+				<p>
+					Static reports are dead the moment they're written. Markets move. Events cascade. Yesterday's thesis needs today's validation.
+				</p>
+
+				<p>
+					Saga keeps analyzing. Your thesis is tested against every new piece of information, every day. Conclusions that adapt. Intelligence that evolves.
+				</p>
+			</div>
+
+			<div class="mt-12 bg-gray-900 text-white rounded-2xl p-10 text-center">
+				<p class="text-xl font-medium mb-4">
+					Not a snapshot. A living system.
+				</p>
+				<p class="text-gray-400">
+					Your analysis stays alive — updating, adapting, challenging itself with every new development.
+				</p>
 			</div>
 		</div>
 	</section>
@@ -522,14 +590,14 @@
 			<!-- Right: Content -->
 			<div class="order-1 lg:order-2">
 				<h2 class="text-4xl md:text-5xl font-semibold mb-6">
-					Your AI Research Team
+					Thousands of Experts. Working Only for You.
 				</h2>
 				<p class="text-lg mb-6 text-gray-500">
-					How thousands of specialized agents extend your reach
+					Your AI research team — specialized agents extending your reach across the entire world
 				</p>
 
 				<p class="text-gray-600 mb-12 max-w-xl">
-					Not one model trying to do everything — a coordinated team of specialized agents, each doing what it does best.
+					Not one model trying to do everything — a coordinated team of specialized agents, each doing what it does best. All working for you.
 				</p>
 
 				<div class="space-y-8">
@@ -592,7 +660,7 @@
 				Every angle checked. Every risk exposed. Nothing missed.
 			</h2>
 			<p class="text-lg text-gray-500 mb-10">
-				Walk into every decision certain — before the market catches up.
+				See what others miss. Act before they can.
 			</p>
 			<button
 				onclick={() => showContactModal = true}
@@ -602,7 +670,7 @@
 				<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 			</button>
 			<p class="text-sm text-gray-400 mt-6">
-				We work with a limited number of partners during this phase.
+				We work with a limited number of partners. If this resonates, let's talk.
 			</p>
 		</div>
 	</section>
@@ -932,6 +1000,22 @@
 						<p><span class="font-medium text-gray-900">Building while others are pitching</span> — Working platform. Real customers.</p>
 						<p><span class="font-medium text-gray-900">Bloomberg can't pivot</span> — Their relational architecture is their prison.</p>
 					</div>
+				</div>
+
+				<div>
+					<h4 class="text-lg font-semibold mb-6">Why Better AI Makes Us More Valuable:</h4>
+					<p class="text-gray-600 mb-6">
+						For AI to deliver real economic value, frontier models need the right infrastructure: structured problems, rich context, and time to work iteratively toward profound insights.
+					</p>
+					<div class="space-y-3 text-gray-600">
+						<p><span class="font-medium text-gray-900">Saga is that infrastructure.</span> We're not an AI wrapper — we're the tool that lets frontier AI do what it does best.</p>
+						<p><span class="font-medium text-gray-900">The knowledge graph provides structured context</span> — 50M+ entities and relationships that give AI the raw material for deep analysis.</p>
+						<p><span class="font-medium text-gray-900">The agent architecture enables sustained work</span> — not one-shot queries, but iterative refinement over days and weeks.</p>
+						<p><span class="font-medium text-gray-900">As models improve, our value compounds.</span> Better AI + better infrastructure = exponentially better insights.</p>
+					</div>
+					<p class="font-medium text-gray-900 mt-6">
+						Most AI startups worry about being replaced by the next model. We're building the infrastructure that makes every next model more powerful.
+					</p>
 				</div>
 			</div>
 
