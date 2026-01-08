@@ -1,7 +1,7 @@
 <!-- StrategyDetailView.svelte - Strategy detail view with analysis -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { getStrategy, type StrategyDetail, type ImproveStrategyTextResponse } from '$lib/api/strategies';
+  import { getStrategy, type StrategyDetail } from '$lib/api/strategies';
   import EntityHeader from '$lib/components/EntityHeader.svelte';
   import AnalysisDisplay from '$lib/components/AnalysisDisplay.svelte';
   import FindingsCards from '$lib/components/FindingsCards.svelte';
@@ -13,8 +13,6 @@
   export let isAdmin: boolean = false;
   export let refreshKey: number = 0;
   export let openSections: Record<string, boolean> = {};
-  export let isImprovingStrategy: boolean = false;
-  export let strategySuggestion: ImproveStrategyTextResponse | null = null;
 
   let showPdfModal = false;
 
@@ -37,15 +35,8 @@
   }
 
   function handleImproveStrategy(strategy: StrategyDetail) {
+    // Opens edit modal (handled by parent)
     dispatch('improveStrategy', strategy);
-  }
-
-  function handleAcceptSuggestion(strategy: StrategyDetail, improvedText: string) {
-    dispatch('acceptSuggestion', { strategy, improvedText });
-  }
-
-  function handleDiscardSuggestion() {
-    dispatch('discardSuggestion');
   }
 
   function handleSuggestChanges(sectionName: string, sectionTitle: string, content: string) {
@@ -104,9 +95,7 @@
         showExport={true}
         showToggleDefault={isAdmin}
         isDefault={strategy.is_default || false}
-        showImproveButton={true}
-        {isImprovingStrategy}
-        suggestion={strategySuggestion}
+        showImproveButton={!strategy.is_default || isAdmin}
         sections={[
           {
             heading: 'Strategy Thesis',
@@ -122,9 +111,6 @@
         on:export={() => showPdfModal = true}
         on:toggleDefault={() => handleToggleDefault(strategy.id, strategy.is_default || false)}
         on:improveStrategy={() => handleImproveStrategy(strategy)}
-        on:acceptSuggestion={(e) => handleAcceptSuggestion(strategy, e.detail.improvedText)}
-        on:regenerateSuggestion={() => handleImproveStrategy(strategy)}
-        on:discardSuggestion={handleDiscardSuggestion}
       />
 
       <!-- Analysis Display Component -->

@@ -1,8 +1,6 @@
 <!-- EntityHeader.svelte - Shared header for strategies and topics -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import StrategySuggestion from './StrategySuggestion.svelte';
-  import type { ImproveStrategyTextResponse } from '$lib/api/strategies';
 
   // Props
   export let title: string;
@@ -20,11 +18,9 @@
   export let isDefault: boolean = false;
 
   // User input sections (for strategies)
-  export let sections: { heading: string; content: string; hint?: string; showImprove?: boolean }[] = [];
+  export let sections: { heading: string; content: string; hint?: string }[] = [];
 
-  // AI improvement state (passed down from parent)
-  export let suggestion: ImproveStrategyTextResponse | null = null;
-  export let isImprovingStrategy: boolean = false;
+  // Show "Help Me Improve This" button (opens edit modal)
   export let showImproveButton: boolean = false;
 
   const dispatch = createEventDispatcher();
@@ -50,19 +46,8 @@
   }
 
   function handleImproveStrategy() {
+    // Dispatches to parent which opens the edit modal
     dispatch('improveStrategy');
-  }
-
-  function handleAcceptSuggestion(event: CustomEvent<{ improvedText: string }>) {
-    dispatch('acceptSuggestion', event.detail);
-  }
-
-  function handleRegenerateSuggestion() {
-    dispatch('regenerateSuggestion');
-  }
-
-  function handleDiscardSuggestion() {
-    dispatch('discardSuggestion');
   }
 </script>
 
@@ -148,27 +133,14 @@
       </h3>
       <p class="section-content">{section.content}</p>
 
-      <!-- AI Improvement for Strategy Thesis section (first section) -->
+      <!-- "Help Me Improve This" button on Strategy Thesis (opens edit modal) -->
       {#if i === 0 && showImproveButton}
-        <!-- Show suggestion if available or loading -->
-        {#if isImprovingStrategy || suggestion}
-          <StrategySuggestion
-            originalText={section.content}
-            improvedText={suggestion?.improved_text || ''}
-            changesSummary={suggestion?.changes_summary || ''}
-            isLoading={isImprovingStrategy}
-            on:accept={handleAcceptSuggestion}
-            on:regenerate={handleRegenerateSuggestion}
-            on:discard={handleDiscardSuggestion}
-          />
-        {:else}
-          <button class="btn-improve" on:click={handleImproveStrategy}>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-            </svg>
-            Help Me Improve This
-          </button>
-        {/if}
+        <button class="btn-improve" on:click={handleImproveStrategy}>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+          </svg>
+          Help Me Improve This
+        </button>
       {/if}
     </div>
   {/each}

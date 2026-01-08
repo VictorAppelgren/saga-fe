@@ -21,6 +21,7 @@
   import ThemeReview from '$lib/components/ThemeReview.svelte';
   import StrategyModal from '$lib/components/StrategyModal.svelte';
   import ArticleModal from '$lib/components/ArticleModal.svelte';
+  import FindingModal from '$lib/components/FindingModal.svelte';
 
   // Types
   import type { Theme } from '$lib/types/storage';
@@ -39,17 +40,18 @@
   // --- MODAL STATE ---
   let showStrategyModal = false;
   let showArticleModal = false;
+  let showFindingModal = false;
   let modalMode: 'create' | 'edit' = 'create';
   let editingStrategy: StrategyDetail | null = null;
   let selectedArticleId: string | null = null;
+  let selectedFindingId: string | null = null;
 
   // --- STRATEGY STATE ---
   let strategyRefreshKey = 0;
   let openSections: Record<string, boolean> = {};
 
-  // --- AI IMPROVEMENT STATE ---
-  let isImprovingStrategy = false;
-  let strategySuggestion: ImproveStrategyTextResponse | null = null;
+  // --- AI IMPROVEMENT STATE (modal-only now) ---
+  // Note: Improvement happens in the edit modal, not inline in main view
 
   // --- CHAT STATE ---
   let chatTriggerMessage: string | null = null;
@@ -70,7 +72,6 @@
   function selectStrategy(strategy: Strategy): void {
     currentSelection = { type: 'strategy', value: strategy.id };
     openSections = {};
-    strategySuggestion = null;
     if ($isMobile) leftSidebarOpen.set(false);
   }
 
@@ -168,27 +169,10 @@
   }
 
   // --- AI IMPROVEMENT HANDLERS ---
-  async function handleImproveStrategy(strategy: StrategyDetail) {
-    if (isImprovingStrategy) return;
-
-    isImprovingStrategy = true;
-    strategySuggestion = null;
-
-    try {
-      const result = await improveStrategyText(
-        data.user.username,
-        strategy.id,
-        strategy.user_input.strategy_text,
-        strategy.asset.primary,
-        strategy.user_input.position_text || undefined
-      );
-      strategySuggestion = result;
-    } catch (error) {
-      console.error('Error improving strategy:', error);
-      alert('Failed to improve strategy. Please try again.');
-    } finally {
-      isImprovingStrategy = false;
-    }
+  // Main view "Improve" button now opens the edit modal
+  function handleImproveStrategy(strategy: StrategyDetail) {
+    // Open edit modal - the modal has its own improvement functionality
+    openEditModal(strategy);
   }
 
   // For modal - returns the result instead of setting state
@@ -206,28 +190,6 @@
       console.error('Error improving strategy:', error);
       throw error;
     }
-  }
-
-  async function handleAcceptSuggestion(strategy: StrategyDetail, improvedText: string) {
-    try {
-      await updateStrategy(strategy.id, {
-        username: data.user.username,
-        strategy_text: improvedText,
-        position_text: strategy.user_input.position_text,
-        target: strategy.user_input.target
-      });
-
-      strategySuggestion = null;
-      strategyRefreshKey++;
-      await invalidateAll();
-    } catch (error) {
-      console.error('Error saving improved strategy:', error);
-      alert('Failed to save improved strategy. Please try again.');
-    }
-  }
-
-  function handleDiscardSuggestion() {
-    strategySuggestion = null;
   }
 
   // --- FEEDBACK/SUGGEST CHANGES HANDLERS ---
@@ -261,11 +223,21 @@
     openSections = { ...openSections, [detail.section]: detail.isOpen };
   }
 
-  // --- ARTICLE LINK HANDLER ---
+  // --- ARTICLE & FINDING LINK HANDLER ---
   function handleArticleLinkClick(event: MouseEvent) {
     let target = event.target as HTMLElement;
     while (target && target !== event.currentTarget) {
       if (target.tagName === 'A') {
+        // Check for finding ID first (R_XXXXXXXXX or O_XXXXXXXXX)
+        const findingId = target.getAttribute('data-finding-id');
+        if (findingId) {
+          event.preventDefault();
+          event.stopPropagation();
+          selectedFindingId = findingId;
+          showFindingModal = true;
+          return;
+        }
+        // Then check for article ID
         const articleId = target.getAttribute('data-article-id');
         if (articleId) {
           event.preventDefault();
@@ -376,15 +348,11 @@
         isAdmin={data.user?.is_admin || false}
         refreshKey={strategyRefreshKey}
         {openSections}
-        {isImprovingStrategy}
-        {strategySuggestion}
         on:back={() => currentSelection = { type: 'nav', value: 'dashboard' }}
         on:edit={(e) => openEditModal(e.detail)}
         on:delete={(e) => handleDeleteStrategy(e.detail)}
         on:toggleDefault={(e) => toggleDefaultStatus(e.detail.strategyId, e.detail.isDefault)}
         on:improveStrategy={(e) => handleImproveStrategy(e.detail)}
-        on:acceptSuggestion={(e) => handleAcceptSuggestion(e.detail.strategy, e.detail.improvedText)}
-        on:discardSuggestion={handleDiscardSuggestion}
         on:suggestChanges={(e) => handleSuggestChanges(e.detail)}
         on:sectionToggle={(e) => handleSectionToggle(e.detail)}
         on:articleClick={(e) => handleArticleLinkClick(e.detail)}
@@ -445,6 +413,13 @@
   <ArticleModal
     articleId={selectedArticleId}
     onClose={() => showArticleModal = false}
+  />
+{/if}
+
+{#if showFindingModal && selectedFindingId}
+  <FindingModal
+    findingId={selectedFindingId}
+    onClose={() => showFindingModal = false}
   />
 {/if}
 
