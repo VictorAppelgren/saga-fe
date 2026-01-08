@@ -191,6 +191,23 @@
     }
   }
 
+  // For modal - returns the result instead of setting state
+  async function handleImproveThesisForModal(strategy: StrategyDetail): Promise<ImproveStrategyTextResponse | null> {
+    try {
+      const result = await improveStrategyText(
+        data.user.username,
+        strategy.id,
+        strategy.user_input.strategy_text,
+        strategy.asset.primary,
+        strategy.user_input.position_text || undefined
+      );
+      return result;
+    } catch (error) {
+      console.error('Error improving strategy:', error);
+      throw error;
+    }
+  }
+
   async function handleAcceptSuggestion(strategy: StrategyDetail, improvedText: string) {
     try {
       await updateStrategy(strategy.id, {
@@ -420,6 +437,7 @@
     strategy={editingStrategy}
     onSave={handleStrategySave}
     onCancel={() => showStrategyModal = false}
+    onImproveThesis={modalMode === 'edit' && editingStrategy ? handleImproveThesisForModal : null}
   />
 {/if}
 

@@ -190,22 +190,22 @@
 	<!-- SHOWCASE: GOD-TIER ANIMATIONS -->
 	<section class="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 overflow-hidden">
 		<div class="text-center mb-12 sm:mb-16">
-			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Knowledge Graph</p>
+			<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Living Map</p>
 			<h2 class="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-gray-900">
 				Chain Reactions Made Visible
 			</h2>
 			<p class="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
-				50M+ entities mapped. Every connection traced. See where risk is building before it hits your portfolio.
+				Millions of entities mapped. Every connection traced. See where risk is building before it hits your portfolio.
 			</p>
 		</div>
 
-		<!-- Animation 1: The Knowledge Graph -->
+		<!-- Animation 1: The Living Map -->
 		<div class="mb-16 sm:mb-20">
 			<div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
 				<div class="lg:w-2/5 text-left px-2">
-					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Knowledge Graph</p>
+					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">The Living Map</p>
 					<h3 class="text-xl sm:text-2xl font-semibold mb-4 text-gray-900">
-						50M+ Entities. Every Connection Mapped.
+						Millions of Entities. Every Connection Mapped.
 					</h3>
 					<p class="text-gray-600 mb-4">
 						Events don't happen in isolation. A policy shift cascades through supply chains, sectors, and markets. Saga maps every path — so you see where risk is building before it hits your portfolio.
@@ -395,12 +395,12 @@
 
 				<div class="mt-12 grid grid-cols-3 gap-6">
 					<div class="group">
-						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">10,000+</p>
+						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">1,000+</p>
 						<p class="text-xs md:text-sm text-gray-500">sources monitored</p>
 					</div>
 					<div class="group">
-						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">50M</p>
-						<p class="text-xs md:text-sm text-gray-500">relationships mapped</p>
+						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">Millions</p>
+						<p class="text-xs md:text-sm text-gray-500">of connections mapped</p>
 					</div>
 					<div class="group">
 						<p class="text-2xl md:text-3xl font-semibold text-blue-600 mb-1 transition-transform group-hover:scale-105">24/7</p>
@@ -459,54 +459,6 @@
 					Your analysis stays alive — updating, adapting, challenging itself with every new development.
 				</p>
 			</div>
-		</div>
-	</section>
-
-	<!-- Section Divider -->
-	<div class="max-w-xs mx-auto flex items-center gap-4 py-4">
-		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
-		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
-		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
-	</div>
-
-	<!-- The Category Opportunity -->
-	<section class="relative max-w-4xl mx-auto px-6 py-16 sm:py-24 overflow-hidden">
-		<div class="relative">
-		<h2 class="text-4xl md:text-5xl font-semibold mb-6 text-center leading-tight">
-			The Category No One Has Built
-		</h2>
-		<p class="text-lg text-center mb-16 text-gray-500">
-			Where human judgment still matters most
-		</p>
-
-		<div class="grid md:grid-cols-2 gap-8 mb-16">
-			<div class="text-center">
-				<p class="text-2xl font-semibold mb-2">Recorded Future</p>
-				<p class="text-gray-500">$2.7B exit — cybersecurity</p>
-			</div>
-			<div class="text-center">
-				<p class="text-2xl font-semibold mb-2">Palantir</p>
-				<p class="text-gray-500">$400B+ — governments</p>
-			</div>
-		</div>
-
-		<div class="bg-gray-900 text-white rounded-2xl p-10 mb-16">
-			<p class="text-xl font-medium text-center mb-6">
-				No one has built this for the trillions in institutional capital making investment decisions.
-			</p>
-			<p class="text-gray-400 text-center">
-				The infrastructure exists for cyber threats. For defense. For government. But for investment decisions? Nothing. Until now.
-			</p>
-		</div>
-
-		<div class="text-center space-y-4">
-			<p class="text-lg text-gray-600">
-				We didn't build AI to replace analysts. We built it to make the best analysts even better.
-			</p>
-			<p class="text-2xl font-medium text-gray-900">
-				The funds that adopt this will compound their advantage.
-			</p>
-		</div>
 		</div>
 	</section>
 
@@ -605,7 +557,7 @@
 						<span class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0">R</span>
 						<div>
 							<h3 class="text-lg font-semibold mb-1">Reading Agents</h3>
-							<p class="text-gray-600 text-sm">Processing 10,000+ sources in real-time. <span class="text-blue-600">The width of understanding.</span></p>
+							<p class="text-gray-600 text-sm">Processing thousands of sources in real-time. <span class="text-blue-600">The width of understanding.</span></p>
 						</div>
 					</div>
 
@@ -613,7 +565,7 @@
 						<span class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0">M</span>
 						<div>
 							<h3 class="text-lg font-semibold mb-1">Mapping Agents</h3>
-							<p class="text-gray-600 text-sm">Connecting 50M+ entities into a living knowledge graph. <span class="text-blue-600">Chain reactions become visible.</span></p>
+							<p class="text-gray-600 text-sm">Connecting millions of entities into a living map. <span class="text-blue-600">Chain reactions become visible.</span></p>
 						</div>
 					</div>
 
@@ -688,61 +640,75 @@
 
 		<div class="relative">
 			<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
-				The Infrastructure That Scales Human Understanding
+				Infrastructure That Scales Human Understanding to Total Conviction
 			</h2>
 
 			<p class="text-lg text-gray-600 text-center mb-6 max-w-3xl mx-auto">
-				No human can hold 50 million relationships, read 10,000 sources daily, or simulate cascading scenarios continuously.
+				Your judgment is sharp. But can you check every angle? Every source? Every chain reaction forming right now?
 			</p>
 
 			<p class="text-xl font-medium text-center mb-20">
-				We built infrastructure that can.
+				We built infrastructure that can. So you can be certain, not just confident.
 			</p>
 		</div>
 
-		<!-- Why Traditional Tools Fail -->
+		<!-- The Gap Between Confidence and Conviction -->
 		<div class="relative mb-32">
-			<h3 class="text-2xl font-semibold mb-12 text-center">Why Traditional Tools Leave You Exposed</h3>
+			<h3 class="text-2xl font-semibold mb-6 text-center">The Gap Between Confidence and Conviction</h3>
+			<p class="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+				Great tools exist. But each solves part of the puzzle. None gives you the complete picture.
+			</p>
 
 			<div class="space-y-6 max-w-3xl mx-auto">
-				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
 					<h4 class="font-semibold mb-2 flex items-center gap-3">
-						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
-						Bloomberg
+						<span class="w-2 h-2 rounded-full bg-blue-400 group-hover:scale-150 transition-transform"></span>
+						Data Terminals
 					</h4>
-					<p class="text-gray-600 pl-5">News in silos. Events in isolation. The risks that hurt you are the connections you didn't think to make.</p>
+					<p class="text-gray-600 pl-5">Excellent for numbers, performance, and market data. But events arrive in silos — the chain reactions that matter are the connections between them.</p>
+					<p class="text-sm text-blue-600 pl-5 mt-2">Saga adds: The connective tissue between events and your portfolio.</p>
 				</div>
 
-				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
 					<h4 class="font-semibold mb-2 flex items-center gap-3">
-						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
+						<span class="w-2 h-2 rounded-full bg-blue-400 group-hover:scale-150 transition-transform"></span>
 						Traditional Risk Systems
 					</h4>
-					<p class="text-gray-600 pl-5">Backward-looking. Built on historical correlations. They measure risk that already happened.</p>
+					<p class="text-gray-600 pl-5">Built on historical correlations and market-wide expectations. They measure what already happened — and assume the future rhymes with the past.</p>
+					<p class="text-sm text-blue-600 pl-5 mt-2">Saga adds: Forward simulation. Not just robust — the most robust player in your field.</p>
 				</div>
 
-				<div class="group p-6 rounded-xl border border-gray-100 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300">
+				<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
 					<h4 class="font-semibold mb-2 flex items-center gap-3">
-						<span class="w-2 h-2 rounded-full bg-red-400 group-hover:scale-150 transition-transform"></span>
-						Generic AI
+						<span class="w-2 h-2 rounded-full bg-blue-400 group-hover:scale-150 transition-transform"></span>
+						Frontier AI Models
 					</h4>
-					<p class="text-gray-600 pl-5">No financial domain expertise. Can't tell you three unrelated events are converging to threaten your AUM.</p>
+					<p class="text-gray-600 pl-5">Incredibly powerful — but they need the right infrastructure to shine. Raw LLMs answer questions. They can't tell you which questions to ask about your specific exposures.</p>
+					<p class="text-sm text-blue-600 pl-5 mt-2">Saga adds: The structured context, domain expertise, and iterative depth that lets frontier AI do profound work.</p>
 				</div>
 			</div>
+
+			<p class="text-center text-lg font-medium text-gray-900 mt-12">
+				Saga isn't a replacement. It's the layer that makes everything else work together.
+			</p>
 		</div>
 
 		<!-- The Four Pillars -->
 		<div class="relative">
-			<h3 class="text-2xl font-semibold mb-16 text-center">The Four Pillars of Scaled Intelligence</h3>
+			<h3 class="text-2xl font-semibold mb-6 text-center">The Four Pillars of Scaled Intelligence</h3>
+			<p class="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+				Every pillar serves one purpose: giving you the complete picture so you can act with complete conviction.
+			</p>
 
 			<div class="grid md:grid-cols-2 gap-8 mb-32">
 				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
 					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Width</p>
 					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Collect</h4>
 					<p class="text-gray-600 leading-relaxed mb-2">
-						10,000+ sources processed in real-time. News, filings, trade data, policy announcements, earnings calls.
+						Thousands of sources processed in real-time. News, filings, trade data, policy announcements, earnings calls.
 					</p>
-					<p class="text-sm text-blue-600">One expert reads 50 sources/day. We read 10,000+.</p>
+					<p class="text-sm text-blue-600 mb-3">One expert reads 50 sources/day. We read thousands.</p>
+					<p class="text-sm font-medium text-gray-900">→ Never miss what matters</p>
 				</div>
 
 				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
@@ -751,16 +717,18 @@
 					<p class="text-gray-600 leading-relaxed mb-2">
 						Thousands of specialized agents. Causal inference. Pattern recognition. Anomaly detection.
 					</p>
-					<p class="text-sm text-blue-600">Risk intelligence shaped to your exposures.</p>
+					<p class="text-sm text-blue-600 mb-3">Risk intelligence shaped to your exposures.</p>
+					<p class="text-sm font-medium text-gray-900">→ Understand what it means for you</p>
 				</div>
 
 				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
 					<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-3">Connection</p>
 					<h4 class="text-xl font-semibold mb-3 group-hover:text-blue-900 transition-colors">Map</h4>
 					<p class="text-gray-600 leading-relaxed mb-2">
-						50M+ entities in a living knowledge graph. Companies, suppliers, geographies, policies — all linked.
+						Millions of entities in a living map. Companies, suppliers, geographies, policies — all linked.
 					</p>
-					<p class="text-sm text-blue-600">Chain reactions become visible.</p>
+					<p class="text-sm text-blue-600 mb-3">Chain reactions become visible.</p>
+					<p class="text-sm font-medium text-gray-900">→ See how everything connects</p>
 				</div>
 
 				<div class="group p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 bg-white/80 backdrop-blur-sm">
@@ -769,38 +737,30 @@
 					<p class="text-gray-600 leading-relaxed mb-2">
 						Projecting how events cascade forward. Stress-testing scenarios before they happen.
 					</p>
-					<p class="text-sm text-blue-600">See where risk is building first.</p>
+					<p class="text-sm text-blue-600 mb-3">Not just robust — the most robust player in your field.</p>
+					<p class="text-sm font-medium text-gray-900">→ Know what happens next</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- Why This Can't Be Easily Replicated -->
-		<div class="mb-20 bg-white/95 rounded-2xl p-10 backdrop-blur-sm">
-			<h3 class="text-2xl font-semibold mb-12 text-center text-gray-900">The Moat That Deepens Daily</h3>
+		<!-- Built Over Years. Not Months. -->
+		<div class="mb-20 bg-gray-900 text-white rounded-2xl p-10">
+			<h3 class="text-2xl font-semibold mb-8 text-center">Built Over Years. Not Months.</h3>
 
-			<div class="space-y-4 max-w-3xl mx-auto text-gray-700">
-				<p><span class="font-semibold text-gray-900">Graph architecture</span> — 50M+ entities with financial-specific relationships. Years to build.</p>
-				<p>
-					<span class="text-blue-600 font-medium">→</span> <strong class="text-gray-900">Multi-agent systems from frontier research</strong> — not off-the-shelf models
-				</p>
-				<p>
-					<span class="text-blue-600 font-medium">→</span> <strong class="text-gray-900">Simulation engines require deep domain expertise</strong> — understanding how markets actually move
-				</p>
-				<p>
-					<span class="text-blue-600 font-medium">→</span> <strong class="text-gray-900">Data network effects compound daily</strong> — every day we run, competitors fall further behind
-				</p>
-			</div>
+			<p class="text-lg text-gray-300 text-center max-w-3xl mx-auto mb-8">
+				Graph architecture. Multi-agent systems. Financial domain expertise. Simulation engines that understand how markets actually move.
+			</p>
 
-			<p class="text-2xl text-center mt-10 font-bold text-gray-900">
-				This is infrastructure-level IP. Years of work. Not replicable in months.
+			<p class="text-xl text-center font-medium">
+				This is infrastructure-level IP — the kind that takes years to build and can't be replicated by throwing money at the problem.
 			</p>
 		</div>
 
 		<!-- CTA -->
 		<div class="relative mt-20 text-center">
-			<h3 class="text-2xl font-semibold mb-4">See It In Action</h3>
+			<h3 class="text-2xl font-semibold mb-4">See What Certainty Looks Like</h3>
 			<p class="text-lg text-gray-500 mb-8">
-				Reach out to discuss how Saga could fit your workflow.
+				Walk through a scenario relevant to your portfolio. See the chain reactions you're not seeing today.
 			</p>
 			<button
 				onclick={() => showContactModal = true}
@@ -824,28 +784,28 @@
 		<div class="relative">
 		<!-- Hero -->
 		<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
-			The Category-Defining Opportunity
+			The Intelligence Layer No One Has Built
 		</h2>
 		<p class="text-lg text-gray-500 text-center mb-16 max-w-3xl mx-auto">
-			Infrastructure that amplifies human intelligence for financial markets
+			Trillions in institutional capital make decisions every day. They have data terminals. They have analytics. They have brilliant teams. What they don't have is the infrastructure to put frontier AI to work on their most complex problems.
 		</p>
 
 		<div class="space-y-6 text-lg text-gray-600 leading-relaxed mb-20">
 			<p class="text-center">
-				Recorded Future built a $2.7B business scaling threat intelligence for cyber.
-				Palantir is worth $400B+ scaling intelligence for defense.
+				Palantir built intelligence infrastructure for defense — now worth $400B+.<br/>
+				Recorded Future built it for cyber — $2.7B exit.
 			</p>
 			<p class="text-xl font-medium text-gray-900 text-center">
-				No one has built this for the trillions in institutional capital making investment decisions — where human judgment still matters most.
+				No one has built it for capital allocation — where human judgment still matters most.
 			</p>
 			<p class="text-2xl font-semibold text-gray-900 text-center">
-				That's the opportunity. We're building it.
+				That's the category we're defining. We're building it.
 			</p>
 		</div>
 
 		<!-- The IP -->
 		<div class="mb-32 border-t border-gray-100 pt-20">
-			<h3 class="text-2xl font-semibold mb-12 text-center">The IP: Why We Win</h3>
+			<h3 class="text-2xl font-semibold mb-12 text-center">The Unfair Advantage</h3>
 
 			<div class="space-y-6 text-lg text-gray-600 leading-relaxed mb-16 text-center">
 				<p class="text-xl font-medium text-gray-900">The Core Insight:</p>
@@ -868,7 +828,7 @@
 				</div>
 				<div>
 					<h4 class="text-lg font-semibold mb-3">2. GenAI + Graph Database</h4>
-					<p class="text-gray-600 leading-relaxed">Specialized agents working across 50M+ mapped entities. Not generic LLMs. Purpose-built for chain reaction detection.</p>
+					<p class="text-gray-600 leading-relaxed">Specialized agents working across millions of mapped entities. Not generic LLMs. Purpose-built for chain reaction detection.</p>
 				</div>
 				<div>
 					<h4 class="text-lg font-semibold mb-3">3. Simulation Layer</h4>
@@ -931,14 +891,14 @@
 				<div>
 					<h4 class="text-lg font-semibold mb-3">Proprietary Infrastructure</h4>
 					<p class="text-gray-600 leading-relaxed">
-						Graph database with 50M+ entities. Multi-agent coordination layer. Simulation engines. Years of IP, not months.
+						Graph database with millions of entities. Multi-agent coordination layer. Simulation engines. Years of IP, not months.
 					</p>
 				</div>
 
 				<div>
 					<h4 class="text-lg font-semibold mb-3">Real-Time Ingestion</h4>
 					<p class="text-gray-600 leading-relaxed">
-						10,000+ sources ingested continuously.
+						Thousands of sources ingested continuously.
 					</p>
 				</div>
 
@@ -986,7 +946,7 @@
 				<div>
 					<h4 class="text-lg font-semibold mb-6">The Infrastructure Advantage:</h4>
 					<div class="space-y-3 text-gray-600">
-						<p><span class="font-medium text-gray-900">50M+ entities mapped</span> — Building this takes years, not months.</p>
+						<p><span class="font-medium text-gray-900">Millions of entities mapped</span> — Building this takes years, not months.</p>
 						<p><span class="font-medium text-gray-900">Years of causal modeling research</span> — Academic foundation that can't be replicated.</p>
 						<p><span class="font-medium text-gray-900">Multi-agent orchestration layer</span> — Proprietary architecture.</p>
 						<p><span class="font-medium text-gray-900">Domain-specific training</span> — Financial causality patterns. Generic LLMs don't have this.</p>
@@ -1009,7 +969,7 @@
 					</p>
 					<div class="space-y-3 text-gray-600">
 						<p><span class="font-medium text-gray-900">Saga is that infrastructure.</span> We're not an AI wrapper — we're the tool that lets frontier AI do what it does best.</p>
-						<p><span class="font-medium text-gray-900">The knowledge graph provides structured context</span> — 50M+ entities and relationships that give AI the raw material for deep analysis.</p>
+						<p><span class="font-medium text-gray-900">The living map provides structured context</span> — millions of entities and relationships that give AI the raw material for deep analysis.</p>
 						<p><span class="font-medium text-gray-900">The agent architecture enables sustained work</span> — not one-shot queries, but iterative refinement over days and weeks.</p>
 						<p><span class="font-medium text-gray-900">As models improve, our value compounds.</span> Better AI + better infrastructure = exponentially better insights.</p>
 					</div>
@@ -1070,9 +1030,9 @@
 
 		<!-- The Endgame -->
 		<div class="mb-32 border-t border-gray-100 pt-20">
-			<h3 class="text-2xl font-semibold mb-12 text-center">The Endgame: Intelligence Infrastructure for Capital</h3>
+			<h3 class="text-2xl font-semibold mb-8 text-center">The Endgame</h3>
 
-			<div class="space-y-4 text-lg text-gray-600 text-center mb-16">
+			<div class="space-y-4 text-lg text-gray-600 text-center mb-12">
 				<p class="font-medium text-gray-900">
 					Today: Saga helps portfolios see chain reactions before they materialize
 				</p>
@@ -1081,38 +1041,7 @@
 				</p>
 			</div>
 
-			<div class="mb-16">
-				<h4 class="text-lg font-semibold mb-6 text-center">The World Is Too Complex for Human-Scale Mental Models</h4>
-				<div class="grid md:grid-cols-2 gap-x-16 gap-y-4 text-gray-600 mb-8">
-					<div class="space-y-2">
-						<p><span class="font-medium text-gray-900">50,000+</span> publicly traded companies</p>
-						<p><span class="font-medium text-gray-900">Millions</span> of private entities</p>
-						<p><span class="font-medium text-gray-900">Infinite</span> supply chain permutations</p>
-					</div>
-					<div class="space-y-2">
-						<p>Cascading policy changes across <span class="font-medium text-gray-900">195 countries</span></p>
-						<p>Real-time events affecting <span class="font-medium text-gray-900">everything simultaneously</span></p>
-						<p>Connections forming <span class="font-medium text-gray-900">faster than humans can map</span></p>
-					</div>
-				</div>
-				<p class="font-medium text-gray-900 text-center">
-					No human team can map this. No traditional system was built for it.
-				</p>
-			</div>
-
-			<div class="mb-16">
-				<p class="text-lg font-medium text-gray-900 text-center mb-8">
-					Saga becomes the intelligence layer that institutional capital runs on:
-				</p>
-				<div class="space-y-3 text-gray-600">
-					<p><span class="font-medium text-gray-900">Hedge funds:</span> Continuous risk monitoring across global portfolios</p>
-					<p><span class="font-medium text-gray-900">Private equity:</span> Due diligence that sees what sell-side missed</p>
-					<p><span class="font-medium text-gray-900">Corporate strategy:</span> M&A intelligence that maps competitive landscapes</p>
-					<p><span class="font-medium text-gray-900">Family offices:</span> Wealth preservation through early warning systems</p>
-				</div>
-			</div>
-
-			<div class="bg-gray-900 text-white rounded-2xl p-10 mb-16 text-center">
+			<div class="bg-gray-900 text-white rounded-2xl p-10 mb-12 text-center">
 				<p class="text-xl font-medium mb-4">
 					Not a tool. Not a dashboard. Infrastructure.
 				</p>
@@ -1121,20 +1050,19 @@
 				</p>
 			</div>
 
-			<div class="mb-16">
-				<p class="text-lg font-medium text-gray-900 text-center mb-8">Just like:</p>
+			<div class="mb-12">
 				<div class="grid md:grid-cols-3 gap-8 text-center">
 					<div>
 						<p class="font-semibold mb-2">Bloomberg</p>
-						<p class="text-sm text-gray-500">Became the data layer<br/>(terminals everywhere)</p>
+						<p class="text-sm text-gray-500">Became the data layer</p>
 					</div>
 					<div>
 						<p class="font-semibold mb-2">Palantir</p>
-						<p class="text-sm text-gray-500">Became the intelligence layer for defense<br/>($400B market cap)</p>
+						<p class="text-sm text-gray-500">Became the intelligence layer for defense</p>
 					</div>
 					<div>
 						<p class="font-semibold mb-2">Recorded Future</p>
-						<p class="text-sm text-gray-500">Became the threat layer for cyber<br/>($2.7B exit)</p>
+						<p class="text-sm text-gray-500">Became the threat layer for cyber</p>
 					</div>
 				</div>
 			</div>
@@ -1144,10 +1072,7 @@
 					Saga becomes the intelligence layer for capital allocation.
 				</p>
 				<p class="text-lg text-gray-500">
-					That's the category we're defining. The $100T+ market with no current leader.
-				</p>
-				<p class="text-xl font-medium text-gray-900">
-					That's what we're building.
+					The $100T+ market with no current leader. That's the category we're building.
 				</p>
 			</div>
 		</div>
@@ -1176,7 +1101,7 @@
 
 	<!-- EXAMPLES TAB CONTENT -->
 	{#if activeTab === 'examples'}
-	<section data-tab="examples" class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+	<section data-tab="examples" class="relative max-w-5xl mx-auto px-6 py-32 overflow-hidden">
 		<!-- Network animation background -->
 		<div class="absolute inset-0 opacity-55">
 			<NetworkAnimation nodeCount={25} accentColor={accentColor} />
@@ -1186,157 +1111,173 @@
 		<h2 class="text-4xl md:text-5xl font-semibold mb-8 text-center leading-tight">
 			Chain Reactions Made Visible
 		</h2>
-		<p class="text-lg text-gray-500 text-center mb-20 max-w-3xl mx-auto">
-			Real scenarios where human-scale monitoring failed — and AI-scale intelligence caught the risk in time
+		<p class="text-lg text-gray-500 text-center mb-8 max-w-3xl mx-auto">
+			These represent the types of chain reactions Saga monitors — scenarios where public information, properly connected, reveals risks and opportunities that isolated news coverage misses.
 		</p>
 
-		<div class="space-y-6 text-lg text-gray-600 leading-relaxed mb-20">
-			<p>
-				The risks that hurt portfolios aren't the obvious ones. They're the chain reactions: Event A affects Entity B, which threatens Supply Chain C, which impacts Position D.
-			</p>
-			<p class="text-xl font-medium text-gray-900">
-				No human can track these connections across the entire world. But thousands of AI agents can.
-			</p>
-			<p class="text-center text-gray-900 font-medium">
-				Here's what that looks like in practice.
-			</p>
+		<p class="text-xl font-medium text-gray-900 text-center mb-20">
+			The information exists. The question is whether you see the connections in time.
+		</p>
+
+		<div class="space-y-20">
+			<!-- Scenario 1: AI Infrastructure - Detailed breakdown -->
+			<div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 md:p-10 shadow-lg shadow-blue-100/30 border border-gray-100">
+				<div class="flex items-center gap-3 mb-6">
+					<span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full uppercase tracking-wide">AI & Infrastructure</span>
+					<span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">Risk Avoided</span>
+				</div>
+				<h3 class="text-2xl font-semibold mb-2">The AI Capex Squeeze</h3>
+				<p class="text-gray-500 mb-8">Portfolio: Long AI infrastructure plays + data center REITs</p>
+
+				<div class="grid md:grid-cols-2 gap-8 mb-8">
+					<div>
+						<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">The Chain Reaction</p>
+						<p class="text-gray-600 leading-relaxed">
+							Hyperscaler capex guidance revision + power grid interconnection delays + copper supply constraints + cooling equipment lead times extending — converging toward AI infrastructure bottleneck
+						</p>
+					</div>
+					<div>
+						<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">The Scattered Signal</p>
+						<p class="text-gray-600 leading-relaxed">
+							Capex numbers in earnings transcripts. Grid delays in utility filings. Copper in commodity reports. Cooling in industrial sector coverage. All separate. No synthesis.
+						</p>
+					</div>
+				</div>
+
+				<div class="bg-gray-900 text-white rounded-xl p-6 mb-6">
+					<p class="text-sm font-medium text-blue-400 uppercase tracking-wide mb-2">What Saga Revealed</p>
+					<p class="text-gray-300">
+						Mapped the full dependency chain from AI compute demand to physical infrastructure constraints. Identified which data center positions faced delayed revenue recognition. Timeline: 6-8 weeks to earnings impact.
+					</p>
+				</div>
+
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<p class="font-medium text-gray-900">
+						The Edge: Reduced data center concentration AND rotated into power infrastructure beneficiaries before the repricing.
+					</p>
+					<p class="text-sm text-blue-600 font-medium whitespace-nowrap">Flagged 5 weeks early</p>
+				</div>
+			</div>
+
+			<!-- Scenario 2: Energy/Oil - Streamlined visual format -->
+			<div class="border-t border-gray-200 pt-16">
+				<div class="flex items-center gap-3 mb-6">
+					<span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full uppercase tracking-wide">Energy & Commodities</span>
+					<span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Opportunity Captured</span>
+				</div>
+				<h3 class="text-2xl font-semibold mb-2">The Refinery Margin Surge</h3>
+				<p class="text-gray-500 mb-8">Portfolio: Underweight energy refiners</p>
+
+				<div class="relative pl-8 border-l-2 border-blue-200 space-y-6 mb-8">
+					<div>
+						<p class="text-sm font-medium text-blue-600 mb-1">Red Sea disruptions</p>
+						<p class="text-gray-600 text-sm">Tanker rerouting adding 10-14 days to crude delivery</p>
+					</div>
+					<div>
+						<p class="text-sm font-medium text-blue-600 mb-1">+ US Gulf maintenance cycle</p>
+						<p class="text-gray-600 text-sm">Major refinery turnarounds coinciding with demand surge</p>
+					</div>
+					<div>
+						<p class="text-sm font-medium text-blue-600 mb-1">+ European inventory drawdown</p>
+						<p class="text-gray-600 text-sm">Strategic reserves hitting multi-year lows</p>
+					</div>
+					<div>
+						<p class="text-sm font-medium text-blue-600 mb-1">= Crack spread expansion</p>
+						<p class="text-gray-600 text-sm">Refining margins set to expand significantly</p>
+					</div>
+				</div>
+
+				<p class="text-gray-600 mb-6">
+					<span class="font-medium text-gray-900">The Scattered Signal:</span> Shipping data in logistics feeds. Maintenance schedules in energy sector reports. Inventory data in government releases. Each covered. None connected to refiner equity implications.
+				</p>
+
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-green-50 rounded-xl p-6">
+					<p class="font-medium text-gray-900">
+						The Edge: Built refiner position before margins expanded. Captured the upside others didn't see coming.
+					</p>
+					<p class="text-sm text-green-700 font-medium whitespace-nowrap">Flagged 3 weeks early</p>
+				</div>
+			</div>
+
+			<!-- Scenario 3: Geopolitical/Trade - Outcome-focused format -->
+			<div class="border-t border-gray-200 pt-16">
+				<div class="flex items-center gap-3 mb-6">
+					<span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full uppercase tracking-wide">Trade & Geopolitics</span>
+					<span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">Risk Avoided</span>
+				</div>
+				<h3 class="text-2xl font-semibold mb-2">The Rare Earth Chokepoint</h3>
+				<p class="text-gray-500 mb-8">Portfolio: Long defense contractors + aerospace suppliers</p>
+
+				<div class="bg-gray-50 rounded-xl p-6 mb-8">
+					<p class="text-lg font-medium text-gray-900 mb-4">What was avoided:</p>
+					<p class="text-gray-600 leading-relaxed mb-4">
+						Export control escalation targeting rare earth processing created supply disruption for critical defense components. Holdings had concentrated supplier exposure that wasn't visible in standard risk screens.
+					</p>
+					<p class="text-gray-600 leading-relaxed">
+						<span class="font-medium text-gray-900">The Scattered Signal:</span> Policy signals in government filings across multiple jurisdictions. Processing capacity data in mining industry reports. Component sourcing in defense contractor 10-Ks. The connection to specific holdings required mapping dozens of supplier relationships.
+					</p>
+				</div>
+
+				<div class="grid sm:grid-cols-3 gap-4 text-center">
+					<div class="bg-white rounded-lg p-4 border border-gray-100">
+						<p class="text-2xl font-semibold text-blue-600 mb-1">4 weeks</p>
+						<p class="text-sm text-gray-500">early warning</p>
+					</div>
+					<div class="bg-white rounded-lg p-4 border border-gray-100">
+						<p class="text-2xl font-semibold text-blue-600 mb-1">3 holdings</p>
+						<p class="text-sm text-gray-500">exposure identified</p>
+					</div>
+					<div class="bg-white rounded-lg p-4 border border-gray-100">
+						<p class="text-2xl font-semibold text-blue-600 mb-1">12%</p>
+						<p class="text-sm text-gray-500">drawdown avoided</p>
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<div class="space-y-16">
-			<!-- Scenario 1: Semiconductor Supply Chain -->
-			<div class="border-t border-gray-100 pt-12">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Scenario 1</p>
-				<h3 class="text-2xl font-semibold mb-2">The Semiconductor Blindspot</h3>
-				<p class="text-gray-500 mb-8">Portfolio: Long auto suppliers + tech positions</p>
+		<div class="mt-24 border-t border-gray-200 pt-16">
+			<h3 class="text-2xl font-semibold mb-8 text-center">The Pattern</h3>
 
-				<div class="space-y-6 text-gray-600 leading-relaxed">
-					<p>
-						<span class="font-medium text-gray-900">The Chain Reaction:</span> Taiwan drought conditions + automotive demand surge + TSMC capacity constraints converging toward global semiconductor shortage
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Bloomberg Showed:</span> Three separate news items in three different feeds. Drought in Taiwan. Auto sales data. Chip maker earnings. No connection drawn. No portfolio impact flagged.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Saga Revealed:</span> Direct threat to auto supplier holdings mapped through supply chain dependencies. Secondary exposure through tech positions. Timeline: 2-3 weeks to material impact.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">When Flagged:</span> 14 days before shortage hit mainstream financial news
-					</p>
+			<div class="grid md:grid-cols-5 gap-4 mb-12">
+				<div class="text-center p-4">
+					<p class="text-3xl font-semibold text-blue-600 mb-2">1</p>
+					<p class="text-sm text-gray-600">Information existed — public, available</p>
 				</div>
-				<p class="mt-8 font-medium text-gray-900">
-					The Edge: Time to reduce concentrated auto supplier risk AND position for the repricing others would chase.
-				</p>
+				<div class="text-center p-4">
+					<p class="text-3xl font-semibold text-blue-600 mb-2">2</p>
+					<p class="text-sm text-gray-600">Scattered across sources and geographies</p>
+				</div>
+				<div class="text-center p-4">
+					<p class="text-3xl font-semibold text-blue-600 mb-2">3</p>
+					<p class="text-sm text-gray-600">Connection was the insight, not the data</p>
+				</div>
+				<div class="text-center p-4">
+					<p class="text-3xl font-semibold text-blue-600 mb-2">4</p>
+					<p class="text-sm text-gray-600">Human-scale couldn't synthesize fast enough</p>
+				</div>
+				<div class="text-center p-4">
+					<p class="text-3xl font-semibold text-blue-600 mb-2">5</p>
+					<p class="text-sm text-gray-600">AI-scale mapped it in time to act</p>
+				</div>
 			</div>
 
-			<!-- Scenario 2: Commodity Supply Shock -->
-			<div class="border-t border-gray-100 pt-12">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Scenario 2</p>
-				<h3 class="text-2xl font-semibold mb-2">The Commodity Chain Reaction</h3>
-				<p class="text-gray-500 mb-8">Portfolio: Long European paper commodities</p>
-
-				<div class="space-y-6 text-gray-600 leading-relaxed">
-					<p>
-						<span class="font-medium text-gray-900">The Chain Reaction:</span> Finnish labor dispute + European mill capacity constraints + packaging supply chain stress + energy cost spikes converging toward price volatility
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Bloomberg Showed:</span> A labor news item buried in Nordic regional coverage. Energy prices reported separately. Mill capacity data in industry reports. No connection to commodity positions.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Saga Revealed:</span> Direct exposure in European paper commodity holdings. Cascading supply pressure mapped across 12 connected mills. Price impact probability: 85%. Timeline: 5-7 days.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">When Flagged:</span> 5 days before pricing volatility hit
-					</p>
-				</div>
-				<p class="mt-8 font-medium text-gray-900">
-					The Edge: Hedged downside risk with options AND captured asymmetric opportunity from the dislocation.
-				</p>
-			</div>
-
-			<!-- Scenario 3: Lithium Supply Risk -->
-			<div class="border-t border-gray-100 pt-12">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Scenario 3</p>
-				<h3 class="text-2xl font-semibold mb-2">The Lithium Miner Squeeze</h3>
-				<p class="text-gray-500 mb-8">Portfolio: Long lithium miners + EV supply chain exposure</p>
-
-				<div class="space-y-6 text-gray-600 leading-relaxed">
-					<p>
-						<span class="font-medium text-gray-900">The Chain Reaction:</span> Chile water policy changes + Chinese export restrictions + mining labor disputes + environmental regulation tightening converging toward supply constraints
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Bloomberg Showed:</span> Water policy in Chile environmental section. Chinese trade data in Asia coverage. Labor news in mining industry reports. All separate. No synthesis.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Saga Revealed:</span> Converging pressure on 40% of global lithium supply. Direct exposure through miner holdings. Opportunity: Competitors in alternative geographies positioned to benefit.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">When Flagged:</span> 3 weeks before supply concerns hit analyst reports
-					</p>
-				</div>
-				<p class="mt-8 font-medium text-gray-900">
-					The Edge: Rotated out of concentrated Chile exposure AND positioned in Australian/Canadian miners before the repricing.
-				</p>
-			</div>
-
-			<!-- Scenario 4: Credit Portfolio Risk -->
-			<div class="border-t border-gray-100 pt-12">
-				<p class="text-sm font-medium text-gray-400 uppercase tracking-wide mb-3">Scenario 4</p>
-				<h3 class="text-2xl font-semibold mb-2">The Industrial Credit Cascade</h3>
-				<p class="text-gray-500 mb-8">Portfolio: Industrial credit positions + leveraged loans</p>
-
-				<div class="space-y-6 text-gray-600 leading-relaxed">
-					<p>
-						<span class="font-medium text-gray-900">The Chain Reaction:</span> Key borrower's largest customer announces restructuring + input cost pressure from commodity spike + trade policy creating tariff exposure + working capital deterioration
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Bloomberg Showed:</span> Customer restructuring in M&A section. Commodity prices in markets data. Trade policy in government coverage. No connection to credit portfolio.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">What Saga Revealed:</span> Customer concentration risk (35% of borrower revenue). Margin pressure threatening covenant compliance. Credit deterioration probability: 70%. Timeline: 2-3 months.
-					</p>
-					<p>
-						<span class="font-medium text-gray-900">When Flagged:</span> 8 weeks before credit rating downgrade
-					</p>
-				</div>
-				<p class="mt-8 font-medium text-gray-900">
-					The Edge: Exited position before spread widening AND identified restructuring opportunity at distressed levels.
-				</p>
-			</div>
-		</div>
-
-		<div class="mt-32 border-t border-gray-100 pt-20">
-			<h3 class="text-2xl font-semibold mb-12 text-center">The Pattern Across All Examples</h3>
-
-			<div class="space-y-6 text-gray-600 leading-relaxed mb-16">
-				<p>Notice what these scenarios have in common:</p>
-
-				<div class="space-y-3">
-					<p><span class="font-medium text-gray-900">1.</span> The information existed. It was public. Available.</p>
-					<p><span class="font-medium text-gray-900">2.</span> It was scattered across multiple sources, categories, geographies.</p>
-					<p><span class="font-medium text-gray-900">3.</span> The CONNECTION was the insight — not any single data point.</p>
-					<p><span class="font-medium text-gray-900">4.</span> Human-scale monitoring couldn't synthesize fast enough.</p>
-					<p><span class="font-medium text-gray-900">5.</span> AI-scale monitoring mapped the chain reaction in time to act.</p>
-				</div>
-
-				<p class="text-xl font-medium text-gray-900 text-center pt-8">
-					This is the scale problem. This is what Saga solves.
-				</p>
-
-				<p class="text-center text-gray-500">
-					Your portfolio has chain reactions building right now. The question is whether you'll see them in time.
-				</p>
-			</div>
+			<p class="text-xl font-medium text-gray-900 text-center mb-4">
+				Your portfolio has chain reactions building right now.
+			</p>
+			<p class="text-lg text-gray-500 text-center mb-12">
+				The question is whether you'll see them in time.
+			</p>
 
 			<div class="text-center">
 				<button
 					onclick={() => showContactModal = true}
 					class="group relative px-8 py-4 bg-blue-600 text-white text-base font-medium rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
 				>
-					<span class="relative z-10">Interested? Let's talk</span>
+					<span class="relative z-10">Show me what's building toward my positions</span>
 					<div class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
 				</button>
 				<p class="text-sm text-gray-400 mt-6">
-					We'd be happy to show you what this looks like for your specific exposures.
+					Give us your top exposures. We'll show you what you're not seeing.
 				</p>
 			</div>
 		</div>
