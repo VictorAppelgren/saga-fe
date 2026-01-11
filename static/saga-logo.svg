@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
-  <!-- "Saga" wordmark on the LEFT -->
-  <text x="8" y="35" font-family="Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="28" font-weight="600" fill="currentColor" letter-spacing="-0.5">Saga</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 50" fill="none">
+  <!-- "SagaLabs" wordmark on the LEFT - larger font -->
+  <text x="8" y="36" font-family="Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="32" font-weight="600" fill="currentColor" letter-spacing="-0.5">SagaLabs</text>
 
-  <!-- Globe Icon on the RIGHT (scaled to fit) -->
-  <g transform="translate(110, 2.5) scale(0.45)">
+  <!-- Globe Icon on the RIGHT - slightly larger -->
+  <g transform="translate(185, 0) scale(0.50)">
     <!-- Outer sphere circle -->
     <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2.5" fill="none"/>
 
