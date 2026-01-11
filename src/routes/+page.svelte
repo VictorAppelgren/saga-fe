@@ -49,7 +49,7 @@
 			<div class="flex items-center justify-between">
 				<!-- Logo -->
 				<button onclick={() => setTab('home')} class="flex items-center gap-3 hover:opacity-70 transition-opacity">
-					<img src="/saga-logo.svg" alt="Saga" class="h-8" />
+					<img src="/saga-logo.svg" alt="Saga" class="h-10" />
 				</button>
 
 				<!-- Desktop Navigation -->
@@ -82,6 +82,10 @@
 						Examples
 						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full {activeTab === 'examples' ? 'w-full' : ''}"></span>
 					</button>
+					<a href="/pitch" class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium">
+						Pitch
+						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+					</a>
 					<a href="/login" class="group relative text-gray-500 hover:text-gray-900 transition-colors text-sm font-medium">
 						Login
 						<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
@@ -105,6 +109,7 @@
 					<button onclick={() => setTab('technology')} class="block w-full text-left py-3 text-gray-600 hover:text-gray-900 transition-colors text-sm">Technology</button>
 					<button onclick={() => setTab('investors')} class="block w-full text-left py-3 text-gray-600 hover:text-gray-900 transition-colors text-sm">For Investors</button>
 					<button onclick={() => setTab('examples')} class="block w-full text-left py-3 text-gray-600 hover:text-gray-900 transition-colors text-sm">Examples</button>
+					<a href="/pitch" class="block py-3 text-gray-600 hover:text-gray-900 transition-colors text-sm">Pitch</a>
 					<a href="/login" class="block py-3 text-gray-600 hover:text-gray-900 transition-colors text-sm">Login</a>
 				</div>
 			{/if}
@@ -631,7 +636,145 @@
 
 	<!-- TECHNOLOGY TAB CONTENT -->
 	{#if activeTab === 'technology'}
-	<section data-tab="technology" class="relative max-w-4xl mx-auto px-6 py-32 overflow-hidden">
+
+	<!-- BEYOND THE CHAT - The AI Infrastructure That Creates Real Value -->
+	<section data-tab="technology" class="relative max-w-4xl mx-auto px-6 pt-32 pb-20 overflow-hidden">
+		<div class="relative">
+			<!-- The Hook: We Unleash LLMs -->
+			<div class="text-center mb-16">
+				<p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-4">Beyond the Chat Interface</p>
+				<h2 class="text-4xl md:text-5xl font-semibold mb-8 leading-tight">
+					We Don't Compete With LLMs.<br/>
+					<span class="text-blue-600">We Unleash Them.</span>
+				</h2>
+				<p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-6">
+					Large language models are a new form of intelligence — remarkable capability that can read, reason, and synthesize at superhuman scale. But raw intelligence alone doesn't create value.
+				</p>
+				<p class="text-lg text-gray-500 max-w-2xl mx-auto">
+					To do truly valuable work, AI needs structure. Context. Time. The right questions asked in the right order. That's what we provide.
+				</p>
+			</div>
+
+			<!-- The Stakes -->
+			<div class="mb-20">
+				<div class="bg-gray-900 text-white rounded-2xl p-8 md:p-10 mb-12">
+					<p class="text-xl font-medium mb-4 text-center">
+						The difference between an AI bubble and an AI revolution?
+					</p>
+					<p class="text-2xl font-semibold text-center mb-6">
+						Whether it actually delivers.
+					</p>
+					<p class="text-lg text-gray-300 text-center max-w-3xl mx-auto leading-relaxed">
+						Walmart, Boeing, the world's largest institutions — they need to throw their hardest questions at AI and get answers that affect their bottom line. That requires more than a chat interface. It requires infrastructure where AI can truly work.
+					</p>
+				</div>
+
+				<div class="text-center mb-12">
+					<p class="text-2xl font-semibold text-gray-900 mb-4">
+						Saga is how AI delivers.
+					</p>
+					<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+						The infrastructure where frontier AI does its best work — working continuously, exploring thousands of angles, building understanding over days and weeks, all shaped to YOUR specific situation.
+					</p>
+				</div>
+			</div>
+
+			<!-- What It Takes to Create Real Value -->
+			<div class="mb-20">
+				<h3 class="text-2xl font-semibold mb-4 text-center">What It Takes to Create Real Value</h3>
+				<p class="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+					Complex questions don't have quick answers. They require depth.
+				</p>
+
+				<div class="space-y-6 max-w-3xl mx-auto mb-12">
+					<div class="flex items-start gap-4">
+						<span class="w-2 h-2 rounded-full bg-blue-600 mt-2.5 shrink-0"></span>
+						<p class="text-gray-600"><span class="font-medium text-gray-900">Sustained analysis</span> — not 30 seconds, but days of continuous work. Tens of thousands of articles processed. Hundreds of angles explored.</p>
+					</div>
+					<div class="flex items-start gap-4">
+						<span class="w-2 h-2 rounded-full bg-blue-600 mt-2.5 shrink-0"></span>
+						<p class="text-gray-600"><span class="font-medium text-gray-900">The full picture</span> — not just what's in headlines right now. The slow-building chain reactions. The nuances. The things that aren't trending but will hit your portfolio anyway.</p>
+					</div>
+					<div class="flex items-start gap-4">
+						<span class="w-2 h-2 rounded-full bg-blue-600 mt-2.5 shrink-0"></span>
+						<p class="text-gray-600"><span class="font-medium text-gray-900">Your context</span> — not generic insights, but understanding shaped to YOUR positions, YOUR thesis, YOUR risk profile.</p>
+					</div>
+					<div class="flex items-start gap-4">
+						<span class="w-2 h-2 rounded-full bg-blue-600 mt-2.5 shrink-0"></span>
+						<p class="text-gray-600"><span class="font-medium text-gray-900">Compounding knowledge</span> — understanding that builds over time, tested daily against new information, never starting from scratch.</p>
+					</div>
+				</div>
+
+				<div class="bg-gray-50 rounded-2xl p-8 text-center">
+					<p class="text-lg text-gray-600 italic">
+						"Just because it's not in the headlines doesn't mean it won't hit your portfolio."
+					</p>
+				</div>
+			</div>
+
+			<!-- How Saga Unleashes AI -->
+			<div class="mb-16">
+				<h3 class="text-2xl font-semibold mb-8 text-center">How Saga Unleashes AI</h3>
+
+				<div class="space-y-6 max-w-3xl mx-auto">
+					<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
+						<h4 class="font-semibold mb-2 flex items-center gap-3">
+							<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">1</span>
+							The Knowledge Graph
+						</h4>
+						<p class="text-gray-600 pl-11">Millions of entities mapped. Every relationship traced. Chain reactions become visible. AI doesn't just answer — it sees how everything connects to your exposures.</p>
+					</div>
+
+					<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
+						<h4 class="font-semibold mb-2 flex items-center gap-3">
+							<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">2</span>
+							Continuous Processing
+						</h4>
+						<p class="text-gray-600 pl-11">Not a snapshot — a living system. Your thesis tested daily against new information. Risks surfaced as they form. Understanding that never stops building.</p>
+					</div>
+
+					<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
+						<h4 class="font-semibold mb-2 flex items-center gap-3">
+							<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">3</span>
+							Domain Expertise Encoded
+						</h4>
+						<p class="text-gray-600 pl-11">Thousands of small decisions made correctly. The right questions asked in the right order. Understanding how financial causality actually flows. Years of expertise built into the system.</p>
+					</div>
+
+					<div class="group p-6 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300">
+						<h4 class="font-semibold mb-2 flex items-center gap-3">
+							<span class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">4</span>
+							Forward Simulation
+						</h4>
+						<p class="text-gray-600 pl-11">Not just what happened — what happens next. If this policy shifts, what cascades? If this supply chain breaks, who gets hit? Scenarios stress-tested before they occur.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- The Bottom Line -->
+			<div class="text-center">
+				<p class="text-2xl font-semibold text-gray-900 mb-4">
+					Intelligence isn't the bottleneck anymore.
+				</p>
+				<p class="text-xl text-gray-600 mb-8">
+					Time, structure, and depth are. That's what we provide.
+				</p>
+				<p class="text-lg text-gray-500 max-w-2xl mx-auto">
+					The companies that will define the AI era aren't building chat interfaces. They're building infrastructure that lets AI do sustained, complex, value-creating work. That's Saga.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Section Divider -->
+	<div class="max-w-xs mx-auto flex items-center gap-4 py-8">
+		<div class="flex-1 h-px bg-gradient-to-r from-transparent to-gray-200"></div>
+		<div class="w-1.5 h-1.5 rounded-full bg-blue-600/40"></div>
+		<div class="flex-1 h-px bg-gradient-to-l from-transparent to-gray-200"></div>
+	</div>
+
+	<!-- Original Technology Content - Now follows the "Beyond the Chat" section -->
+	<section class="relative max-w-4xl mx-auto px-6 py-20 overflow-hidden">
 		<!-- Animated network background for tech section -->
 		<div class="absolute inset-0 opacity-70">
 			<NetworkAnimation nodeCount={30} accentColor={accentColor} />

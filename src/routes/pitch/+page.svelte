@@ -1,26 +1,26 @@
 <script lang="ts">
   import { theme } from '$lib/stores/theme';
+  import { enhance } from '$app/forms';
+  import { invalidateAll } from '$app/navigation';
+  import type { PageData, ActionData } from './$types';
 
-  let password = '';
-  let error = false;
-  let unlocked = false;
+  export let data: PageData;
+  export let form: ActionData;
 
-  // Password gate - not highly sensitive, just a gate for investor access
-  const PITCH_PASSWORD = 'xK7m9Np2Qr4s';
+  // Use server-side unlocked state
+  $: unlocked = data.unlocked;
 
-  function checkPassword() {
-    if (password === PITCH_PASSWORD) {
-      unlocked = true;
-      error = false;
-    } else {
-      error = true;
-    }
-  }
-
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') {
-      checkPassword();
-    }
+  // Handle form submission - reload data on success
+  function handleSubmit() {
+    return async ({ result, update }: { result: any; update: () => Promise<void> }) => {
+      if (result.type === 'success') {
+        // Reload the page data to get the new unlocked state
+        await invalidateAll();
+      } else {
+        // Show error
+        await update();
+      }
+    };
   }
 </script>
 
@@ -37,24 +37,44 @@
       </div>
 
       <div class="content">
-        <div class="pdf-actions">
-          <a href="/pitch/saga_pitch_deck.pdf" download class="download-btn">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-            </svg>
-            Download PDF
-          </a>
-          <a href="/pitch/saga_pitch_deck.pdf" target="_blank" class="view-btn">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-              <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-            </svg>
-            Open in New Tab
-          </a>
+        <div class="materials-section">
+          <div class="material-card">
+            <div class="material-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                <path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+              </svg>
+            </div>
+            <h3>Pitch Deck</h3>
+            <p>Our seed round investor presentation</p>
+            <div class="material-actions">
+              <a href="/api/pitch/saga_pitch_deck.pdf" target="_blank" class="action-btn primary">
+                View PDF
+              </a>
+              <a href="/api/pitch/saga_pitch_deck.pdf" download class="action-btn secondary">
+                Download
+              </a>
+            </div>
+          </div>
+
+          <div class="material-card">
+            <div class="material-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
+              </svg>
+            </div>
+            <h3>Financial Model</h3>
+            <p>24-month budget and projections (Excel)</p>
+            <div class="material-actions">
+              <a href="/api/pitch/saga_budget.xlsx" download class="action-btn primary">
+                Download Excel
+              </a>
+            </div>
+          </div>
         </div>
 
         <div class="pdf-viewer">
           <iframe
-            src="/pitch/saga_pitch_deck.pdf"
+            src="/api/pitch/saga_pitch_deck.pdf"
             title="Saga Pitch Deck"
             width="100%"
             height="100%"
@@ -68,18 +88,19 @@
       <h1>Investor Materials</h1>
       <p class="subtitle">Enter the access code to view our pitch deck</p>
 
-      <div class="input-group">
-        <input
-          type="password"
-          bind:value={password}
-          placeholder="Enter password"
-          on:keydown={handleKeydown}
-          class:error
-        />
-        <button on:click={checkPassword}>Access</button>
-      </div>
+      <form method="POST" action="?/verify" use:enhance={handleSubmit}>
+        <div class="input-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter password"
+            class:error={form?.error}
+          />
+          <button type="submit">Access</button>
+        </div>
+      </form>
 
-      {#if error}
+      {#if form?.error}
         <p class="error-message">Incorrect password. Please try again.</p>
       {/if}
 
@@ -139,6 +160,10 @@
 
   .dark .subtitle {
     color: #999;
+  }
+
+  form {
+    width: 100%;
   }
 
   .input-group {
@@ -264,61 +289,6 @@
     min-height: 0;
   }
 
-  .pdf-actions {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .download-btn,
-  .view-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-
-  .download-btn {
-    background: black;
-    color: white;
-  }
-
-  .dark .download-btn {
-    background: white;
-    color: black;
-  }
-
-  .download-btn:hover {
-    background: #333;
-  }
-
-  .dark .download-btn:hover {
-    background: #ddd;
-  }
-
-  .view-btn {
-    background: #f0f0f0;
-    color: black;
-  }
-
-  .dark .view-btn {
-    background: #222;
-    color: white;
-  }
-
-  .view-btn:hover {
-    background: #e0e0e0;
-  }
-
-  .dark .view-btn:hover {
-    background: #333;
-  }
-
   .pdf-viewer {
     flex: 1;
     min-height: 0;
@@ -334,5 +304,118 @@
   .pdf-viewer iframe {
     border: none;
     display: block;
+  }
+
+  /* Material cards section */
+  .materials-section {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .material-card {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background: #fafafa;
+    transition: all 0.2s;
+  }
+
+  .dark .material-card {
+    background: #111;
+    border-color: #333;
+  }
+
+  .material-card:hover {
+    border-color: #999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .dark .material-card:hover {
+    border-color: #555;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .material-icon {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  .dark .material-icon {
+    color: #ccc;
+  }
+
+  .material-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .material-card p {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .dark .material-card p {
+    color: #999;
+  }
+
+  .material-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .action-btn.primary {
+    background: black;
+    color: white;
+  }
+
+  .dark .action-btn.primary {
+    background: white;
+    color: black;
+  }
+
+  .action-btn.primary:hover {
+    background: #333;
+  }
+
+  .dark .action-btn.primary:hover {
+    background: #ddd;
+  }
+
+  .action-btn.secondary {
+    background: #e8e8e8;
+    color: black;
+  }
+
+  .dark .action-btn.secondary {
+    background: #333;
+    color: white;
+  }
+
+  .action-btn.secondary:hover {
+    background: #ddd;
+  }
+
+  .dark .action-btn.secondary:hover {
+    background: #444;
   }
 </style>
