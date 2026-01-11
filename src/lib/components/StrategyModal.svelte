@@ -21,6 +21,7 @@
   // AI Improvement state
   let isImproving = false;
   let suggestion: ImproveStrategyTextResponse | null = null;
+  let improveError: string | null = null;
   let copySuccess = false;
 
   function handleSubmit() {
@@ -37,6 +38,7 @@
 
     isImproving = true;
     suggestion = null;
+    improveError = null;
 
     try {
       // Create a temporary strategy object with current form values
@@ -52,6 +54,18 @@
       suggestion = await onImproveThesis(currentStrategy);
     } catch (error) {
       console.error('Failed to improve thesis:', error);
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('504')) {
+          improveError = 'Request timed out. The AI is taking longer than expected. Please try again.';
+        } else if (error.message.includes('500')) {
+          improveError = 'Server error. Please try again in a moment.';
+        } else {
+          improveError = 'Failed to improve thesis. Please try again.';
+        }
+      } else {
+        improveError = 'An unexpected error occurred. Please try again.';
+      }
     } finally {
       isImproving = false;
     }
@@ -148,6 +162,26 @@
         ></textarea>
         <span class="help-text">Your analysis and reasoning — be specific about your view and the drivers behind it</span>
       </div>
+
+      <!-- AI Error Display -->
+      {#if improveError}
+        <div class="error-box">
+          <span class="error-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </span>
+          <span class="error-text">{improveError}</span>
+          <button type="button" class="error-dismiss" on:click={() => improveError = null}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      {/if}
 
       <!-- AI Suggestion Display -->
       {#if suggestion}
@@ -423,6 +457,43 @@
 
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+
+  /* Error Box */
+  .error-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: #dc2626;
+  }
+
+  .error-icon {
+    flex-shrink: 0;
+  }
+
+  .error-text {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+
+  .error-dismiss {
+    flex-shrink: 0;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .error-dismiss:hover {
+    opacity: 1;
   }
 
   /* Suggestion Box */

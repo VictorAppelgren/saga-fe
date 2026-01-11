@@ -13,20 +13,26 @@
 
   const dispatch = createEventDispatcher();
 
-  // Section title formatting
+  // Section title formatting - CANONICAL 9 SECTIONS from section_config.py
   const sectionTitleMap: Record<string, string> = {
+    // Canonical analysis sections (9 total)
+    fundamental_thesis: 'Fundamental Thesis',
+    chain_reaction_map: 'Chain Reaction Map',
+    structural_threats: 'Structural Threats & Opportunities',
+    tactical_scenarios: 'Tactical Scenarios',
+    immediate_intelligence: 'Immediate Intelligence',
+    macro_cascade: 'Macro Cascade',
+    trade_intelligence: 'Trade Intelligence',
     executive_summary: 'Executive Summary',
-    house_view: 'House View',
+    risk_monitor: 'Risk Monitor',
+    // Strategy-specific sections
     position_analysis: 'Position Analysis',
     risk_analysis: 'Risk Analysis',
     opportunity_analysis: 'Opportunity Analysis',
     recommendation: 'Recommendation',
     scenarios_and_catalysts: 'Scenarios & Catalysts',
     structuring_and_risk_management: 'Structuring & Risk Management',
-    context_and_alignment: 'Context & Alignment',
-    key_developments: 'Key Developments',
-    market_dynamics: 'Market Dynamics',
-    outlook: 'Outlook'
+    context_and_alignment: 'Context & Alignment'
   };
 
   function formatSectionTitle(key: string): string {

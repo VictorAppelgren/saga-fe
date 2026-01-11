@@ -169,63 +169,183 @@
   {#if loading}
     <div class="loading">Loading...</div>
   {:else}
-    <!-- Pipeline Flow Cards -->
-    <h2>📊 Today's Pipeline</h2>
+    <!-- 1. USER ENGAGEMENT - Who is using the system -->
+    <h2>👥 User Activity</h2>
     <div class="stats-grid">
-      <AdminCard 
-        title="Queries" 
-        value={summary?.pipeline?.queries} 
-        subtitle="today" 
+      <AdminCard
+        title="Sessions"
+        value={summary?.engagement?.sessions || 0}
+        subtitle="logins today"
       />
-      <AdminCard 
-        title="Fetched" 
-        value={summary?.pipeline?.fetched} 
-        subtitle="from API" 
+      <AdminCard
+        title="Created"
+        value={summary?.engagement?.strategies_created || 0}
+        subtitle="new strategies"
       />
-      <AdminCard 
-        title="Processed" 
-        value={summary?.pipeline?.processed} 
-        subtitle="entered pipeline" 
+      <AdminCard
+        title="Updated"
+        value={summary?.engagement?.strategies_updated || 0}
+        subtitle="edited strategies"
       />
-      <AdminCard 
-        title="Rejected" 
-        value={summary?.pipeline?.rejected} 
-        subtitle="filtered out" 
+      <AdminCard
+        title="Viewed"
+        value={summary?.engagement?.strategies_viewed || 0}
+        subtitle="strategies opened"
       />
-      <AdminCard 
-        title="Errors" 
-        value={summary?.errors} 
-        subtitle="today" 
+      <AdminCard
+        title="Reports"
+        value={summary?.engagement?.reports_viewed || 0}
+        subtitle="topic reports"
       />
     </div>
-    
-    <!-- Tier Breakdown - Shows quality of articles added -->
-    <h2>📈 Articles Added by Tier</h2>
+
+    <!-- 2. STRATEGY ANALYSIS - What users triggered -->
+    <h2>💼 Strategy Analysis Pipeline</h2>
     <div class="stats-grid">
-      <AdminCard 
-        title="Tier 3 Added" 
-        value={summary?.tier_breakdown?.tier_3 || 0} 
-        subtitle="premium (triggers analysis)" 
+      <AdminCard
+        title="Triggered"
+        value={summary?.strategy_analysis?.triggered || 0}
+        subtitle="backend → graph api"
       />
-      <AdminCard 
-        title="Tier 2 Added" 
-        value={summary?.tier_breakdown?.tier_2 || 0} 
-        subtitle="standard (triggers analysis)" 
+      <AdminCard
+        title="Received"
+        value={summary?.strategy_analysis?.received || 0}
+        subtitle="graph api got request"
       />
-      <AdminCard 
-        title="Tier 1 Added" 
-        value={summary?.tier_breakdown?.tier_1 || 0} 
-        subtitle="filler" 
+      <AdminCard
+        title="Step 1"
+        value={`${summary?.strategy_analysis?.step1_completed || 0}/${summary?.strategy_analysis?.step1_started || 0}`}
+        subtitle="topic mapping"
       />
-      <AdminCard 
-        title="Tier 0 Added" 
-        value={summary?.tier_breakdown?.tier_0 || 0} 
-        subtitle="archive" 
+      <AdminCard
+        title="Step 2"
+        value={`${summary?.strategy_analysis?.step2_completed || 0}/${summary?.strategy_analysis?.step2_started || 0}`}
+        subtitle="exploration"
+      />
+      <AdminCard
+        title="Step 3"
+        value={`${summary?.strategy_analysis?.step3_completed || 0}/${summary?.strategy_analysis?.step3_started || 0}`}
+        subtitle="final analysis"
+      />
+      <AdminCard
+        title="Completed"
+        value={summary?.strategy_analysis?.completed || 0}
+        subtitle="full pipeline done"
+      />
+      <AdminCard
+        title="Failed"
+        value={summary?.strategy_analysis?.failed || 0}
+        subtitle="errors (check logs)"
       />
     </div>
-    
-    <!-- Agent Analysis -->
-    <h2>🤖 Agent Analysis</h2>
+
+    <!-- write_all.py Catch-All (New Strategies) -->
+    <h3>🆕 New Strategy Catch-All (write_all.py)</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Found"
+        value={summary?.strategy_analysis?.new_found || 0}
+        subtitle="never-analyzed"
+      />
+      <AdminCard
+        title="Started"
+        value={summary?.strategy_analysis?.new_started || 0}
+        subtitle="processing"
+      />
+      <AdminCard
+        title="Completed"
+        value={summary?.strategy_analysis?.new_completed || 0}
+        subtitle="success"
+      />
+      <AdminCard
+        title="Failed"
+        value={summary?.strategy_analysis?.new_failed || 0}
+        subtitle="errors"
+      />
+    </div>
+
+    <!-- Strategy Health (Real-time check) -->
+    {#if summary?.strategy_health}
+    <div class="health-check" class:healthy={summary.strategy_health.healthy} class:unhealthy={!summary.strategy_health.healthy}>
+      <h3>{summary.strategy_health.healthy ? '✅' : '⚠️'} Strategy Health</h3>
+      <p>
+        <strong>Total Strategies:</strong> {summary.strategy_health.total_strategies} |
+        <strong>Never Analyzed:</strong> {summary.strategy_health.never_analyzed_count}
+        {#if summary.strategy_health.never_analyzed_count > 0}
+          <span class="warning">(should be 0!)</span>
+        {/if}
+      </p>
+      {#if summary.strategy_health.never_analyzed?.length > 0}
+        <div class="never-analyzed-list">
+          <strong>Pending:</strong>
+          {#each summary.strategy_health.never_analyzed as s}
+            <span class="pending-strategy">
+              {s.username}/{s.strategy_id.slice(-6)}
+              <span class="wait-time">{s.wait_mins}m</span>
+            </span>
+          {/each}
+        </div>
+      {/if}
+    </div>
+    {/if}
+
+    <!-- 3. ARTICLE PIPELINE - Content flowing in -->
+    <h2>📊 Article Pipeline</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Queries"
+        value={summary?.pipeline?.queries}
+        subtitle="API calls"
+      />
+      <AdminCard
+        title="Fetched"
+        value={summary?.pipeline?.fetched}
+        subtitle="from sources"
+      />
+      <AdminCard
+        title="Processed"
+        value={summary?.pipeline?.processed}
+        subtitle="entered pipeline"
+      />
+      <AdminCard
+        title="Added"
+        value={summary?.pipeline?.added}
+        subtitle="to graph"
+      />
+      <AdminCard
+        title="Rejected"
+        value={summary?.pipeline?.rejected}
+        subtitle="filtered out"
+      />
+    </div>
+
+    <!-- Articles by Tier -->
+    <h3>📈 By Quality Tier</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Tier 3"
+        value={summary?.tier_breakdown?.tier_3 || 0}
+        subtitle="premium"
+      />
+      <AdminCard
+        title="Tier 2"
+        value={summary?.tier_breakdown?.tier_2 || 0}
+        subtitle="standard"
+      />
+      <AdminCard
+        title="Tier 1"
+        value={summary?.tier_breakdown?.tier_1 || 0}
+        subtitle="filler"
+      />
+      <AdminCard
+        title="Tier 0"
+        value={summary?.tier_breakdown?.tier_0 || 0}
+        subtitle="archive"
+      />
+    </div>
+
+    <!-- 4. TOPIC ANALYSIS - Reports being written -->
+    <h2>🤖 Topic Analysis</h2>
     <div class="stats-grid">
       <AdminCard
         title="Triggered"
@@ -238,58 +358,18 @@
         subtitle="analysis finished"
       />
       <AdminCard
-        title="Skipped (No New)"
-        value={summary?.analysis?.skipped_no_new || 0}
-        subtitle="no new Tier 3 articles"
+        title="Skipped"
+        value={(summary?.analysis?.skipped_no_new || 0) + (summary?.analysis?.skipped_cooldown || 0)}
+        subtitle="no new / cooldown"
       />
       <AdminCard
-        title="Skipped (Cooldown)"
-        value={summary?.analysis?.skipped_cooldown || 0}
-        subtitle="< 24h since last write"
-      />
-      <AdminCard
-        title="Sections Written"
+        title="Sections"
         value={summary?.analysis?.sections || 0}
-        subtitle="content generated"
-      />
-    </div>
-    
-    <!-- Strategy Analysis (Custom User Strategies) -->
-    <h2>💼 Strategy Analysis</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Triggered"
-        value={summary?.strategy_analysis?.triggered || 0}
-        subtitle="user strategies"
-      />
-      <AdminCard
-        title="Completed"
-        value={summary?.strategy_analysis?.completed || 0}
-        subtitle="analyses done"
+        subtitle="written"
       />
     </div>
 
-    <!-- Exploration Research -->
-    <h2>🔬 Exploration Research</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Started"
-        value={summary?.exploration?.started || 0}
-        subtitle="explorations initiated"
-      />
-      <AdminCard
-        title="Accepted"
-        value={summary?.exploration?.accepted || 0}
-        subtitle="findings approved"
-      />
-      <AdminCard
-        title="Rejected"
-        value={summary?.exploration?.rejected || 0}
-        subtitle="findings rejected"
-      />
-    </div>
-
-    <!-- LLM Calls -->
+    <!-- 5. LLM CALLS - Resource usage -->
     <h2>🤖 LLM Calls</h2>
     <div class="stats-grid">
       <AdminCard title="Simple (20B)" value={summary?.llm_calls?.tiers?.simple || 0} subtitle="local/external" />
@@ -305,35 +385,6 @@
       {/each}
     </div>
 
-    <!-- User Engagement -->
-    <h2>👥 User Engagement</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Sessions"
-        value={summary?.engagement?.sessions || 0}
-        subtitle="logins today"
-      />
-      <AdminCard
-        title="Strategies Created"
-        value={summary?.engagement?.strategies_created || 0}
-        subtitle="new strategies"
-      />
-      <AdminCard
-        title="Strategies Viewed"
-        value={summary?.engagement?.strategies_viewed || 0}
-        subtitle="strategies opened"
-      />
-      <AdminCard
-        title="Reports Viewed"
-        value={summary?.engagement?.reports_viewed || 0}
-        subtitle="topic reports"
-      />
-      <AdminCard
-        title="Rewrites"
-        value={summary?.engagement?.section_rewrites || 0}
-        subtitle="analysis rewrites"
-      />
-    </div>
 
     <!-- Capacity Management -->
     <h2>🔧 Capacity Management</h2>
@@ -823,5 +874,66 @@
     margin-top: 0.75rem;
     font-size: 0.875rem;
     color: #6b7280;
+  }
+
+  /* Strategy Health Check */
+  .health-check {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 4px solid #9ca3af;
+  }
+
+  .health-check.healthy {
+    border-left-color: #10b981;
+    background: #f0fdf4;
+  }
+
+  .health-check.unhealthy {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+  }
+
+  .health-check h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+  }
+
+  .health-check p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .health-check .warning {
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  .never-analyzed-list {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .pending-strategy {
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin: 0.25rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+
+  .wait-time {
+    background: #dc2626;
+    color: white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    margin-left: 0.3rem;
+    font-size: 0.7rem;
   }
 </style>

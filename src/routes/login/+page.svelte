@@ -11,7 +11,7 @@
 <div class="login-container" class:dark={$theme === 'dark'}>
   <div class="login-box">
     <div class="logo">
-      <img src="/saga-labs.avif" alt="Saga Intelligence Logo" />
+      <img src="/saga-logo.svg" alt="Saga" />
     </div>
     <h1>Login</h1>
     <form method="POST">

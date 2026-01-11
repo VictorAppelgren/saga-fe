@@ -11,6 +11,7 @@
   let email = '';
   let company = '';
   let message = '';
+  let website = '';  // Honeypot field - should always be empty
   let submitted = false;
   let submitting = false;
   let error = '';
@@ -28,7 +29,7 @@
     try {
       await api('/contact', {
         method: 'POST',
-        body: JSON.stringify({ name, email, company, message })
+        body: JSON.stringify({ name, email, company, message, website })
       });
       submitted = true;
     } catch (err) {
@@ -44,6 +45,7 @@
     email = '';
     company = '';
     message = '';
+    website = '';
     submitted = false;
     error = '';
   }
@@ -142,6 +144,19 @@
             ></textarea>
           </div>
 
+          <!-- Honeypot field - hidden from humans, bots will fill it -->
+          <div class="sr-only" aria-hidden="true">
+            <label for="website">Website (leave blank)</label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              bind:value={website}
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
           {#if error}
             <p class="text-red-600 text-sm">{error}</p>
           {/if}
@@ -176,5 +191,18 @@
 
   .animate-in {
     animation: fade-in 0.2s ease-out, zoom-in 0.2s ease-out;
+  }
+
+  /* Honeypot field - hidden but accessible to screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 </style>

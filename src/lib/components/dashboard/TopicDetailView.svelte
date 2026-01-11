@@ -45,7 +45,7 @@
     {#if report.sections && Object.keys(report.sections).length > 0}
       <AnalysisDisplay
         sections={report.sections}
-        heroKey="house_view"
+        heroKey="executive_summary"
         showEditButtons={false}
         {openSections}
         on:sectionToggle={(e) => handleSectionToggle(e.detail.section, e.detail.isOpen)}

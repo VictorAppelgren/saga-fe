@@ -34,7 +34,7 @@
 <aside class="sidebar left-sidebar" class:open={isOpen} class:mobile={isMobile}>
   <div class="logo-container">
     <a href="/dashboard" aria-label="Go to main dashboard">
-      <img src="/saga-labs.avif" alt="Saga Intelligence Logo" class="logo" />
+      <img src="/saga-logo.svg" alt="Saga" class="logo" />
     </a>
   </div>
 

@@ -49,7 +49,7 @@
 			<div class="flex items-center justify-between">
 				<!-- Logo -->
 				<button onclick={() => setTab('home')} class="flex items-center gap-3 hover:opacity-70 transition-opacity">
-					<img src="/saga-labs.avif" alt="Saga Labs" class="h-8" />
+					<img src="/saga-logo.svg" alt="Saga" class="h-8" />
 				</button>
 
 				<!-- Desktop Navigation -->

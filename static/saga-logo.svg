@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+  <!-- "Saga" wordmark on the LEFT -->
+  <text x="8" y="35" font-family="Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="28" font-weight="600" fill="currentColor" letter-spacing="-0.5">Saga</text>
+
+  <!-- Globe Icon on the RIGHT (scaled to fit) -->
+  <g transform="translate(110, 2.5) scale(0.45)">
+    <!-- Outer sphere circle -->
+    <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2.5" fill="none"/>
+
+    <!-- Latitude lines (simplified) -->
+    <ellipse cx="50" cy="50" rx="45" ry="15" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.4"/>
+    <ellipse cx="50" cy="35" rx="38" ry="12" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.3"/>
+    <ellipse cx="50" cy="65" rx="38" ry="12" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.3"/>
+
+    <!-- Longitude arcs -->
+    <path d="M50 5 Q65 50 50 95" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.4"/>
+    <path d="M50 5 Q35 50 50 95" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.4"/>
+
+    <!-- Network nodes -->
+    <circle cx="30" cy="35" r="4.5" fill="currentColor"/>
+    <circle cx="70" cy="40" r="4" fill="currentColor"/>
+    <circle cx="45" cy="55" r="4.5" fill="currentColor"/>
+    <circle cx="65" cy="60" r="3.5" fill="currentColor"/>
+    <circle cx="35" cy="65" r="4" fill="currentColor"/>
+    <circle cx="55" cy="30" r="3.5" fill="currentColor"/>
+
+    <!-- Network connections -->
+    <line x1="30" y1="35" x2="55" y2="30" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+    <line x1="55" y1="30" x2="70" y2="40" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+    <line x1="30" y1="35" x2="45" y2="55" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+    <line x1="45" y1="55" x2="65" y2="60" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+    <line x1="45" y1="55" x2="35" y2="65" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+    <line x1="70" y1="40" x2="65" y2="60" stroke="currentColor" stroke-width="1.8" opacity="0.6"/>
+  </g>
+</svg>
