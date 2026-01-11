@@ -47,10 +47,10 @@
             <h3>Pitch Deck</h3>
             <p>Our seed round investor presentation</p>
             <div class="material-actions">
-              <a href="/api/pitch/saga_pitch_deck.pdf" target="_blank" class="action-btn primary">
+              <a href="/investor/saga_pitch_deck.pdf" target="_blank" class="action-btn primary">
                 View PDF
               </a>
-              <a href="/api/pitch/saga_pitch_deck.pdf" download class="action-btn secondary">
+              <a href="/investor/saga_pitch_deck.pdf" download class="action-btn secondary">
                 Download
               </a>
             </div>
@@ -65,7 +65,7 @@
             <h3>Financial Model</h3>
             <p>24-month budget and projections (Excel)</p>
             <div class="material-actions">
-              <a href="/api/pitch/saga_budget.xlsx" download class="action-btn primary">
+              <a href="/investor/saga_budget.xlsx" download class="action-btn primary">
                 Download Excel
               </a>
             </div>
@@ -74,7 +74,7 @@
 
         <div class="pdf-viewer">
           <iframe
-            src="/api/pitch/saga_pitch_deck.pdf"
+            src="/investor/saga_pitch_deck.pdf"
             title="Saga Pitch Deck"
             width="100%"
             height="100%"
