@@ -4,7 +4,7 @@
   import { invalidateAll } from '$app/navigation';
   import type { PageData, ActionData } from './$types';
   import { onMount } from 'svelte';
-  import { CASHFLOW_24M, RAISE_SCENARIOS, formatCurrency } from '$lib/components/pitch/FinancialData';
+  import { RAISE_INFO, CASHFLOW, MILESTONES, formatSEK } from '$lib/components/pitch/FinancialData';
 
   export let data: PageData;
   export let form: ActionData;
@@ -21,143 +21,215 @@
     };
   }
 
-  // Simple SVG chart drawing
-  let chartCanvas: HTMLCanvasElement;
+  // Chart drawing
+  let cashCanvas: HTMLCanvasElement;
+  let growthCanvas: HTMLCanvasElement;
 
   onMount(() => {
-    if (chartCanvas && unlocked) {
-      drawChart();
+    if (unlocked) {
+      drawCashChart();
+      drawGrowthChart();
     }
   });
 
-  function drawChart() {
-    if (!chartCanvas) return;
-    const ctx = chartCanvas.getContext('2d');
+  $: if (unlocked && cashCanvas) {
+    drawCashChart();
+    drawGrowthChart();
+  }
+
+  function drawCashChart() {
+    if (!cashCanvas) return;
+    const ctx = cashCanvas.getContext('2d');
     if (!ctx) return;
 
-    const width = chartCanvas.width;
-    const height = chartCanvas.height;
-    const padding = 50;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
+    const width = cashCanvas.width;
+    const height = cashCanvas.height;
+    const padding = { top: 40, right: 20, bottom: 40, left: 80 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
 
     // Clear
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    // Get data points from CASHFLOW_24M
-    const months = CASHFLOW_24M.months.map((_, i) => i + 1);
-    const revenues = CASHFLOW_24M.mrr;
-    const expenses = CASHFLOW_24M.totalExpenses;
-    const cashPosition = CASHFLOW_24M.cumulativeCash;
+    const months = CASHFLOW.months;
+    const cashBalance = CASHFLOW.cashBalance;
+    const revenue = CASHFLOW.monthlyRevenue;
+    const expenses = CASHFLOW.totalExpenses;
 
-    // Find max values for scaling
-    const maxVal = Math.max(...revenues, ...expenses, ...cashPosition);
-    const minVal = Math.min(...cashPosition, 0);
-    const range = maxVal - minVal;
+    // Scale for cash (left axis) - starts from raise amount going down then up
+    const cashMax = RAISE_INFO.amount;
+    const cashMin = Math.min(...cashBalance) * 0.9;
+    const cashRange = cashMax - cashMin;
 
-    // Scale functions
-    const scaleX = (i: number) => padding + (i / (months.length - 1)) * chartWidth;
-    const scaleY = (val: number) => height - padding - ((val - minVal) / range) * chartHeight;
+    const scaleX = (i: number) => padding.left + (i / (months.length - 1)) * chartWidth;
+    const scaleCash = (val: number) => padding.top + ((cashMax - val) / cashRange) * chartHeight;
 
-    // Draw grid lines
+    // Draw grid
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (i / 5) * chartHeight;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (i / 4) * chartHeight;
       ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
       ctx.stroke();
     }
 
-    // Draw axes
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, height - padding);
-    ctx.lineTo(width - padding, height - padding);
-    ctx.stroke();
-
-    // Draw Cash Position line (blue)
+    // Draw Cash Balance line (blue, thick)
     ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 3;
     ctx.beginPath();
     for (let i = 0; i < months.length; i++) {
       const x = scaleX(i);
-      const y = scaleY(cashPosition[i]);
+      const y = scaleCash(cashBalance[i]);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
     ctx.stroke();
 
-    // Draw Revenue line (green)
-    ctx.strokeStyle = '#16a34a';
-    ctx.lineWidth = 2;
+    // Draw starting point marker
+    ctx.fillStyle = '#2563eb';
     ctx.beginPath();
-    for (let i = 0; i < months.length; i++) {
-      const x = scaleX(i);
-      const y = scaleY(revenues[i]);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
+    ctx.arc(scaleX(0), scaleCash(cashBalance[0]), 5, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Draw Expenses line (red/orange)
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
+    // Draw breakeven marker (M21)
+    const breakevenIdx = MILESTONES.breakeven - 1;
+    ctx.fillStyle = '#16a34a';
     ctx.beginPath();
-    for (let i = 0; i < months.length; i++) {
-      const x = scaleX(i);
-      const y = scaleY(expenses[i]);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.arc(scaleX(breakevenIdx), scaleCash(cashBalance[breakevenIdx]), 6, 0, Math.PI * 2);
+    ctx.fill();
 
     // Labels
     ctx.fillStyle = '#374151';
     ctx.font = '12px system-ui, sans-serif';
     ctx.textAlign = 'center';
 
-    // X-axis labels (every 6 months)
+    // X-axis labels
     for (let i = 0; i < months.length; i += 6) {
-      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding + 20);
+      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 20);
     }
-    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding + 20);
+    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 20);
 
-    // Y-axis labels
+    // Y-axis labels (Cash)
     ctx.textAlign = 'right';
-    for (let i = 0; i <= 5; i++) {
-      const val = minVal + (range * (5 - i)) / 5;
-      ctx.fillText(formatCurrency(val, true), padding - 10, padding + (i / 5) * chartHeight + 4);
+    for (let i = 0; i <= 4; i++) {
+      const val = cashMax - (cashRange * i) / 4;
+      ctx.fillText(formatSEK(val, true), padding.left - 10, padding.top + (i / 4) * chartHeight + 4);
+    }
+
+    // Title
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 14px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Cash Balance (SEK)', padding.left, 20);
+
+    // Breakeven annotation
+    ctx.fillStyle = '#16a34a';
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Breakeven M21', scaleX(breakevenIdx) + 10, scaleCash(cashBalance[breakevenIdx]) - 5);
+  }
+
+  function drawGrowthChart() {
+    if (!growthCanvas) return;
+    const ctx = growthCanvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = growthCanvas.width;
+    const height = growthCanvas.height;
+    const padding = { top: 40, right: 60, bottom: 40, left: 80 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    // Clear
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    const months = CASHFLOW.months;
+    const revenue = CASHFLOW.monthlyRevenue;
+    const team = CASHFLOW.teamSize;
+    const customers = CASHFLOW.totalCustomers;
+
+    // Scales
+    const revenueMax = Math.max(...revenue) * 1.1;
+    const teamMax = Math.max(...team) * 1.2;
+
+    const scaleX = (i: number) => padding.left + (i / (months.length - 1)) * chartWidth;
+    const scaleRevenue = (val: number) => padding.top + ((revenueMax - val) / revenueMax) * chartHeight;
+    const scaleTeam = (val: number) => padding.top + ((teamMax - val) / teamMax) * chartHeight;
+
+    // Draw grid
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (i / 4) * chartHeight;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+    }
+
+    // Draw Revenue line (green)
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleRevenue(revenue[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Team line (orange, dashed)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleTeam(team[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // X-axis labels
+    ctx.fillStyle = '#374151';
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < months.length; i += 6) {
+      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 20);
+    }
+    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 20);
+
+    // Left Y-axis (Revenue)
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#16a34a';
+    for (let i = 0; i <= 4; i++) {
+      const val = revenueMax - (revenueMax * i) / 4;
+      ctx.fillText(formatSEK(val, true), padding.left - 10, padding.top + (i / 4) * chartHeight + 4);
+    }
+
+    // Right Y-axis (Team)
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f59e0b';
+    for (let i = 0; i <= 4; i++) {
+      const val = teamMax - (teamMax * i) / 4;
+      ctx.fillText(Math.round(val).toString(), width - padding.right + 10, padding.top + (i / 4) * chartHeight + 4);
     }
 
     // Legend
-    ctx.textAlign = 'left';
-    const legendY = 20;
-
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(padding, legendY - 8, 20, 3);
-    ctx.fillStyle = '#374151';
-    ctx.fillText('Cash Position', padding + 25, legendY);
-
+    ctx.font = 'bold 14px system-ui, sans-serif';
     ctx.fillStyle = '#16a34a';
-    ctx.fillRect(padding + 130, legendY - 8, 20, 3);
-    ctx.fillStyle = '#374151';
-    ctx.fillText('Revenue', padding + 155, legendY);
+    ctx.textAlign = 'left';
+    ctx.fillText('Monthly Revenue', padding.left, 20);
 
-    ctx.fillStyle = '#dc2626';
-    ctx.fillRect(padding + 230, legendY - 8, 20, 3);
-    ctx.fillStyle = '#374151';
-    ctx.fillText('Expenses', padding + 255, legendY);
-  }
-
-  $: if (unlocked && chartCanvas) {
-    drawChart();
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('Team Size', padding.left + 150, 20);
   }
 </script>
 
@@ -186,7 +258,6 @@
                 <polyline points="14,2 14,8 20,8"/>
                 <line x1="16" y1="13" x2="8" y2="13"/>
                 <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10,9 9,9 8,9"/>
               </svg>
             </div>
             <div class="material-info">
@@ -202,7 +273,6 @@
                 <line x1="3" y1="9" x2="21" y2="9"/>
                 <line x1="3" y1="15" x2="21" y2="15"/>
                 <line x1="9" y1="3" x2="9" y2="21"/>
-                <line x1="15" y1="3" x2="15" y2="21"/>
               </svg>
             </div>
             <div class="material-info">
@@ -224,75 +294,83 @@
         </div>
       </section>
 
-      <!-- Financial Charts -->
+      <!-- The Raise -->
+      <section class="raise-section">
+        <h2>The Raise</h2>
+        <div class="raise-card">
+          <div class="raise-amount">{formatSEK(RAISE_INFO.amount, true)} SEK</div>
+          <div class="raise-details">
+            <div class="detail">
+              <span class="label">Pre-Money</span>
+              <span class="value">{formatSEK(RAISE_INFO.preMoney, true)} SEK</span>
+            </div>
+            <div class="detail">
+              <span class="label">Dilution</span>
+              <span class="value">{(RAISE_INFO.dilution * 100).toFixed(0)}%</span>
+            </div>
+            <div class="detail">
+              <span class="label">Runway</span>
+              <span class="value">{RAISE_INFO.runway} months</span>
+            </div>
+          </div>
+          <div class="raise-targets">
+            <div class="target">
+              <span class="target-value">{MILESTONES.y2Customers}</span>
+              <span class="target-label">Customers Y2</span>
+            </div>
+            <div class="target">
+              <span class="target-value">{formatSEK(MILESTONES.y2ARR, true)}</span>
+              <span class="target-label">ARR Y2</span>
+            </div>
+            <div class="target">
+              <span class="target-value">{MILESTONES.y2Team}</span>
+              <span class="target-label">Team Y2</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
       <section class="charts-section">
         <h2>24-Month Financial Projection</h2>
+
         <div class="chart-container">
-          <canvas bind:this={chartCanvas} width="800" height="400"></canvas>
+          <canvas bind:this={cashCanvas} width="800" height="300"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <canvas bind:this={growthCanvas} width="800" height="300"></canvas>
         </div>
       </section>
 
       <!-- Cashflow Table -->
       <section class="table-section">
-        <h2>Monthly Cashflow Summary</h2>
+        <h2>Quarterly Summary</h2>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Month</th>
+                <th>Quarter</th>
                 <th>Revenue</th>
-                <th>Costs</th>
-                <th>Net</th>
-                <th>Cash Position</th>
+                <th>Expenses</th>
+                <th>Cash Balance</th>
+                <th>Team</th>
+                <th>Customers</th>
               </tr>
             </thead>
             <tbody>
-              {#each CASHFLOW_24M.months.filter((_, i) => i % 3 === 0) as month, idx}
-                {@const i = idx * 3}
+              {#each [2, 5, 8, 11, 14, 17, 20, 23] as idx}
                 <tr>
-                  <td>{month}</td>
-                  <td class="revenue">{formatCurrency(CASHFLOW_24M.mrr[i], true)}</td>
-                  <td class="expense">{formatCurrency(CASHFLOW_24M.totalExpenses[i], true)}</td>
-                  <td class:positive={CASHFLOW_24M.netCashFlow[i] >= 0} class:negative={CASHFLOW_24M.netCashFlow[i] < 0}>
-                    {formatCurrency(CASHFLOW_24M.netCashFlow[i], true)}
-                  </td>
-                  <td class="cash">{formatCurrency(CASHFLOW_24M.cumulativeCash[i], true)}</td>
+                  <td>M{CASHFLOW.months[idx]}</td>
+                  <td class="revenue">{formatSEK(CASHFLOW.monthlyRevenue[idx], true)}</td>
+                  <td class="expense">{formatSEK(CASHFLOW.totalExpenses[idx], true)}</td>
+                  <td class="cash">{formatSEK(CASHFLOW.cashBalance[idx], true)}</td>
+                  <td>{CASHFLOW.teamSize[idx]}</td>
+                  <td>{CASHFLOW.totalCustomers[idx]}</td>
                 </tr>
               {/each}
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <!-- Key Metrics -->
-      <section class="metrics-section">
-        <h2>Raise Scenarios</h2>
-        <div class="metrics-grid">
-          {#each RAISE_SCENARIOS as scenario}
-            <div class="metric-card" class:recommended={scenario.recommended}>
-              <div class="metric-header">
-                <span class="metric-label">{scenario.name}</span>
-                {#if scenario.recommended}
-                  <span class="badge">Recommended</span>
-                {/if}
-              </div>
-              <div class="metric-value">{formatCurrency(scenario.amount, true)}</div>
-              <div class="metric-details">
-                <div class="detail-row">
-                  <span>Pre-money:</span>
-                  <span>{formatCurrency(scenario.preMoneyVal, true)}</span>
-                </div>
-                <div class="detail-row">
-                  <span>Runway:</span>
-                  <span>{scenario.runway} months</span>
-                </div>
-                <div class="detail-row">
-                  <span>Target ARR Y2:</span>
-                  <span>{formatCurrency(scenario.arrY2, true)}</span>
-                </div>
-              </div>
-            </div>
-          {/each}
         </div>
       </section>
 
@@ -347,7 +425,6 @@
     color: white;
   }
 
-  /* Container */
   .container {
     max-width: 1000px;
     margin: 0 auto;
@@ -364,21 +441,11 @@
     border-bottom: 1px solid #e5e7eb;
   }
 
-  .dark .header {
-    border-color: #333;
-  }
+  .dark .header { border-color: #333; }
 
-  .logo-link {
-    display: flex;
-  }
-
-  .logo {
-    height: 36px;
-  }
-
-  .dark .logo {
-    filter: invert(1);
-  }
+  .logo-link { display: flex; }
+  .logo { height: 36px; }
+  .dark .logo { filter: invert(1); }
 
   .header h1 {
     margin: 0;
@@ -386,10 +453,8 @@
     font-weight: 600;
   }
 
-  /* Materials Section */
-  .materials-section {
-    margin-bottom: 2rem;
-  }
+  /* Materials */
+  .materials-section { margin-bottom: 2rem; }
 
   .materials-grid {
     display: grid;
@@ -409,56 +474,27 @@
     transition: all 0.2s;
   }
 
-  .dark .material-card {
-    border-color: #333;
-  }
-
+  .dark .material-card { border-color: #333; }
   .material-card:hover {
     border-color: #2563eb;
     background: #f8fafc;
   }
-
-  .dark .material-card:hover {
-    background: #1a1a1a;
-  }
+  .dark .material-card:hover { background: #1a1a1a; }
 
   .material-icon {
     width: 40px;
     height: 40px;
     color: #2563eb;
   }
+  .material-icon svg { width: 100%; height: 100%; }
 
-  .material-icon svg {
-    width: 100%;
-    height: 100%;
-  }
+  .material-info h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+  .material-info p { margin: 0.25rem 0 0; font-size: 0.875rem; color: #6b7280; }
+  .dark .material-info p { color: #9ca3af; }
 
-  .material-info h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .material-info p {
-    margin: 0.25rem 0 0;
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .dark .material-info p {
-    color: #9ca3af;
-  }
-
-  /* PDF Section */
-  .pdf-section {
-    margin-bottom: 2rem;
-  }
-
-  .pdf-section h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 1rem;
-  }
+  /* PDF */
+  .pdf-section { margin-bottom: 2rem; }
+  .pdf-section h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 1rem; }
 
   .pdf-viewer {
     width: 100%;
@@ -467,216 +503,100 @@
     border-radius: 8px;
     overflow: hidden;
   }
+  .dark .pdf-viewer { border-color: #333; }
+  .pdf-viewer iframe { width: 100%; height: 100%; border: none; }
 
-  .dark .pdf-viewer {
-    border-color: #333;
+  /* Raise Section */
+  .raise-section { margin-bottom: 2rem; }
+  .raise-section h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 1rem; }
+
+  .raise-card {
+    border: 2px solid #2563eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #eff6ff;
+  }
+  .dark .raise-card { background: #1e3a5f; }
+
+  .raise-amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 1rem;
   }
 
-  .pdf-viewer iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+  .raise-details {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
   }
 
-  /* Charts Section */
-  .charts-section {
-    margin-bottom: 2rem;
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .detail .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; }
+  .detail .value { font-size: 1.125rem; font-weight: 600; }
+  .dark .detail .label { color: #9ca3af; }
+
+  .raise-targets {
+    display: flex;
+    gap: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(37, 99, 235, 0.2);
+    flex-wrap: wrap;
   }
 
-  .charts-section h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 1rem;
-  }
+  .target { text-align: center; }
+  .target-value { display: block; font-size: 1.5rem; font-weight: 700; color: #16a34a; }
+  .target-label { font-size: 0.75rem; color: #6b7280; }
+  .dark .target-label { color: #9ca3af; }
+
+  /* Charts */
+  .charts-section { margin-bottom: 2rem; }
+  .charts-section h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 1rem; }
 
   .chart-container {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1rem;
+    margin-bottom: 1rem;
     overflow-x: auto;
   }
+  .dark .chart-container { border-color: #333; }
+  .chart-container canvas { display: block; max-width: 100%; height: auto; }
 
-  .dark .chart-container {
-    border-color: #333;
-  }
-
-  .chart-container canvas {
-    display: block;
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Table Section */
-  .table-section {
-    margin-bottom: 2rem;
-  }
-
-  .table-section h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 1rem;
-  }
+  /* Table */
+  .table-section { margin-bottom: 2rem; }
+  .table-section h2 { font-size: 1.125rem; font-weight: 600; margin: 0 0 1rem; }
 
   .table-wrapper {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     overflow-x: auto;
   }
+  .dark .table-wrapper { border-color: #333; }
 
-  .dark .table-wrapper {
-    border-color: #333;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-  }
-
-  th, td {
-    padding: 0.75rem 1rem;
-    text-align: right;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .dark th, .dark td {
-    border-color: #333;
-  }
-
-  th {
-    background: #f9fafb;
-    font-weight: 600;
-    text-align: right;
-  }
-
-  .dark th {
-    background: #1a1a1a;
-  }
-
-  th:first-child, td:first-child {
-    text-align: left;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th, td { padding: 0.75rem 1rem; text-align: right; border-bottom: 1px solid #e5e7eb; }
+  .dark th, .dark td { border-color: #333; }
+  th { background: #f9fafb; font-weight: 600; }
+  .dark th { background: #1a1a1a; }
+  th:first-child, td:first-child { text-align: left; }
+  tr:last-child td { border-bottom: none; }
 
   .revenue { color: #16a34a; }
   .expense { color: #6b7280; }
   .cash { color: #2563eb; font-weight: 600; }
-  .positive { color: #16a34a; }
-  .negative { color: #dc2626; }
-
-  /* Metrics Section */
-  .metrics-section {
-    margin-bottom: 2rem;
-  }
-
-  .metrics-section h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0 0 1rem;
-  }
-
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-  }
-
-  .metric-card {
-    padding: 1.25rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-  }
-
-  .dark .metric-card {
-    border-color: #333;
-  }
-
-  .metric-card.recommended {
-    border-color: #2563eb;
-    background: #eff6ff;
-  }
-
-  .dark .metric-card.recommended {
-    background: #1e3a5f;
-  }
-
-  .metric-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .metric-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .dark .metric-label {
-    color: #9ca3af;
-  }
-
-  .badge {
-    font-size: 0.625rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 0.25rem 0.5rem;
-    background: #2563eb;
-    color: white;
-    border-radius: 4px;
-  }
-
-  .metric-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-  }
-
-  .metric-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8125rem;
-    color: #6b7280;
-  }
-
-  .dark .detail-row {
-    color: #9ca3af;
-  }
 
   /* Footer */
-  .footer {
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-    text-align: center;
-  }
-
-  .dark .footer {
-    border-color: #333;
-  }
-
-  .footer p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .footer a {
-    color: #2563eb;
-    text-decoration: none;
-  }
-
-  .footer a:hover {
-    text-decoration: underline;
-  }
+  .footer { padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; }
+  .dark .footer { border-color: #333; }
+  .footer p { margin: 0; font-size: 0.875rem; color: #6b7280; }
+  .footer a { color: #2563eb; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
 
   /* Password Gate */
   .password-gate {
@@ -696,37 +616,13 @@
     width: 100%;
   }
 
-  .gate-content .logo {
-    height: 48px;
-    margin-bottom: 1.5rem;
-  }
+  .gate-content .logo { height: 48px; margin-bottom: 1.5rem; }
+  .gate-content h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.5rem; }
+  .gate-content .subtitle { color: #6b7280; margin-bottom: 2rem; }
+  .dark .gate-content .subtitle { color: #9ca3af; }
+  .gate-content form { width: 100%; }
 
-  .gate-content h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem;
-  }
-
-  .gate-content .subtitle {
-    color: #6b7280;
-    margin-bottom: 2rem;
-  }
-
-  .dark .gate-content .subtitle {
-    color: #9ca3af;
-  }
-
-  .gate-content form {
-    width: 100%;
-  }
-
-  .input-group {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
+  .input-group { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1rem; }
   .input-group input {
     flex: 1;
     padding: 0.75rem 1rem;
@@ -736,21 +632,9 @@
     background: white;
     color: #111;
   }
-
-  .dark .input-group input {
-    border-color: #333;
-    background: #1a1a1a;
-    color: white;
-  }
-
-  .input-group input:focus {
-    outline: none;
-    border-color: #2563eb;
-  }
-
-  .input-group input.error {
-    border-color: #dc2626;
-  }
+  .dark .input-group input { border-color: #333; background: #1a1a1a; color: white; }
+  .input-group input:focus { outline: none; border-color: #2563eb; }
+  .input-group input.error { border-color: #dc2626; }
 
   .input-group button {
     padding: 0.75rem 1.5rem;
@@ -761,60 +645,21 @@
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
   }
+  .dark .input-group button { background: white; color: #111; }
+  .input-group button:hover { background: #333; }
+  .dark .input-group button:hover { background: #e5e7eb; }
 
-  .dark .input-group button {
-    background: white;
-    color: #111;
-  }
+  .error-message { color: #dc2626; font-size: 0.875rem; margin-bottom: 1rem; }
+  .contact { font-size: 0.875rem; color: #6b7280; }
+  .dark .contact { color: #9ca3af; }
+  .contact a { color: #2563eb; text-decoration: none; }
 
-  .input-group button:hover {
-    background: #333;
-  }
-
-  .dark .input-group button:hover {
-    background: #e5e7eb;
-  }
-
-  .error-message {
-    color: #dc2626;
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-  }
-
-  .contact {
-    font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  .dark .contact {
-    color: #9ca3af;
-  }
-
-  .contact a {
-    color: #2563eb;
-    text-decoration: none;
-  }
-
-  /* Responsive */
   @media (max-width: 640px) {
-    .container {
-      padding: 1rem;
-    }
-
-    .header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .pdf-viewer {
-      height: 60vh;
-    }
-
-    .metrics-grid {
-      grid-template-columns: 1fr;
-    }
+    .container { padding: 1rem; }
+    .header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .pdf-viewer { height: 60vh; }
+    .raise-details, .raise-targets { gap: 1rem; }
+    .raise-amount { font-size: 2rem; }
   }
 </style>
