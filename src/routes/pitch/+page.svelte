@@ -3,22 +3,13 @@
   import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
   import type { PageData, ActionData } from './$types';
-
-  // Components
-  import MetricCard from '$lib/components/pitch/MetricCard.svelte';
-  import ARRChart from '$lib/components/pitch/ARRChart.svelte';
-  import CashflowChart from '$lib/components/pitch/CashflowChart.svelte';
-  import ScenarioTable from '$lib/components/pitch/ScenarioTable.svelte';
-  import MilestoneTimeline from '$lib/components/pitch/MilestoneTimeline.svelte';
-  import UnitEconomics from '$lib/components/pitch/UnitEconomics.svelte';
-  import { RAISE_SCENARIOS, MARKET_SIZE, formatCurrency } from '$lib/components/pitch/FinancialData';
+  import { onMount } from 'svelte';
+  import { CASHFLOW_DATA, RAISE_SCENARIOS, formatCurrency, formatPercent } from '$lib/components/pitch/FinancialData';
 
   export let data: PageData;
   export let form: ActionData;
 
   $: unlocked = data.unlocked;
-
-  let activeTab: 'overview' | 'financials' | 'materials' = 'overview';
 
   function handleSubmit() {
     return async ({ result, update }: { result: any; update: () => Promise<void> }) => {
@@ -30,223 +21,283 @@
     };
   }
 
-  const recommendedScenario = RAISE_SCENARIOS.find(s => s.recommended)!;
+  // Simple SVG chart drawing
+  let chartCanvas: HTMLCanvasElement;
+
+  onMount(() => {
+    if (chartCanvas && unlocked) {
+      drawChart();
+    }
+  });
+
+  function drawChart() {
+    if (!chartCanvas) return;
+    const ctx = chartCanvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = chartCanvas.width;
+    const height = chartCanvas.height;
+    const padding = 50;
+    const chartWidth = width - padding * 2;
+    const chartHeight = height - padding * 2;
+
+    // Clear
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    // Get data points
+    const months = CASHFLOW_DATA.map(d => d.month);
+    const revenues = CASHFLOW_DATA.map(d => d.revenue);
+    const expenses = CASHFLOW_DATA.map(d => d.totalCosts);
+    const cashPosition = CASHFLOW_DATA.map(d => d.cashPosition);
+
+    // Find max values for scaling
+    const maxVal = Math.max(...revenues, ...expenses, ...cashPosition);
+    const minVal = Math.min(...cashPosition, 0);
+    const range = maxVal - minVal;
+
+    // Scale functions
+    const scaleX = (i: number) => padding + (i / (months.length - 1)) * chartWidth;
+    const scaleY = (val: number) => height - padding - ((val - minVal) / range) * chartHeight;
+
+    // Draw grid lines
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = padding + (i / 5) * chartHeight;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(width - padding, y);
+      ctx.stroke();
+    }
+
+    // Draw axes
+    ctx.strokeStyle = '#374151';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, height - padding);
+    ctx.lineTo(width - padding, height - padding);
+    ctx.stroke();
+
+    // Draw Cash Position line (blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleY(cashPosition[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Revenue line (green)
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleY(revenues[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Expenses line (red/orange)
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleY(expenses[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels
+    ctx.fillStyle = '#374151';
+    ctx.font = '12px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+
+    // X-axis labels (every 6 months)
+    for (let i = 0; i < months.length; i += 6) {
+      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding + 20);
+    }
+    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding + 20);
+
+    // Y-axis labels
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 5; i++) {
+      const val = minVal + (range * (5 - i)) / 5;
+      ctx.fillText(formatCurrency(val, true), padding - 10, padding + (i / 5) * chartHeight + 4);
+    }
+
+    // Legend
+    ctx.textAlign = 'left';
+    const legendY = 20;
+
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(padding, legendY - 8, 20, 3);
+    ctx.fillStyle = '#374151';
+    ctx.fillText('Cash Position', padding + 25, legendY);
+
+    ctx.fillStyle = '#16a34a';
+    ctx.fillRect(padding + 130, legendY - 8, 20, 3);
+    ctx.fillStyle = '#374151';
+    ctx.fillText('Revenue', padding + 155, legendY);
+
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(padding + 230, legendY - 8, 20, 3);
+    ctx.fillStyle = '#374151';
+    ctx.fillText('Expenses', padding + 255, legendY);
+  }
+
+  $: if (unlocked && chartCanvas) {
+    drawChart();
+  }
 </script>
 
 <svelte:head>
   <title>Saga - Investor Materials</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 
 <div class="pitch-page" class:dark={$theme === 'dark'}>
   {#if unlocked}
-    <div class="dashboard">
+    <div class="container">
       <!-- Header -->
       <header class="header">
-        <div class="header-left">
-          <a href="/dashboard" class="logo-link">
-            <img src="/saga-logo.svg" alt="Saga" class="logo" />
-          </a>
-          <div class="header-title">
-            <h1>Investor Materials</h1>
-            <span class="badge">Seed Round</span>
-          </div>
-        </div>
-        <nav class="tabs">
-          <button class:active={activeTab === 'overview'} on:click={() => activeTab = 'overview'}>
-            Overview
-          </button>
-          <button class:active={activeTab === 'financials'} on:click={() => activeTab = 'financials'}>
-            Financials
-          </button>
-          <button class:active={activeTab === 'materials'} on:click={() => activeTab = 'materials'}>
-            Documents
-          </button>
-        </nav>
+        <a href="/" class="logo-link">
+          <img src="/saga-logo.svg" alt="Saga" class="logo" />
+        </a>
+        <h1>Investor Materials</h1>
       </header>
 
-      <!-- Content -->
-      <main class="content">
-        {#if activeTab === 'overview'}
-          <!-- Hero Section -->
-          <section class="hero">
-            <div class="hero-content">
-              <h2>Intelligence Infrastructure for Asset Managers</h2>
-              <p class="tagline">AI-powered research that thinks like a macro PM, executes like a quant</p>
-              <div class="hero-stats">
-                <div class="hero-stat">
-                  <span class="stat-value">{formatCurrency(MARKET_SIZE.tam, true)}</span>
-                  <span class="stat-label">TAM</span>
+      <!-- Download Section -->
+      <section class="materials-section">
+        <div class="materials-grid">
+          <a href="/investor/saga_pitch_deck.pdf" target="_blank" class="material-card">
+            <div class="material-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+            </div>
+            <div class="material-info">
+              <h3>Pitch Deck</h3>
+              <p>View PDF</p>
+            </div>
+          </a>
+
+          <a href="/investor/saga_budget.xlsx" download class="material-card">
+            <div class="material-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+                <line x1="15" y1="3" x2="15" y2="21"/>
+              </svg>
+            </div>
+            <div class="material-info">
+              <h3>Financial Model</h3>
+              <p>Download Excel</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- PDF Preview -->
+      <section class="pdf-section">
+        <h2>Pitch Deck Preview</h2>
+        <div class="pdf-viewer">
+          <iframe
+            src="/investor/saga_pitch_deck.pdf"
+            title="Saga Pitch Deck"
+          ></iframe>
+        </div>
+      </section>
+
+      <!-- Financial Charts -->
+      <section class="charts-section">
+        <h2>24-Month Financial Projection</h2>
+        <div class="chart-container">
+          <canvas bind:this={chartCanvas} width="800" height="400"></canvas>
+        </div>
+      </section>
+
+      <!-- Cashflow Table -->
+      <section class="table-section">
+        <h2>Monthly Cashflow Summary</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Revenue</th>
+                <th>Costs</th>
+                <th>Net</th>
+                <th>Cash Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each CASHFLOW_DATA.filter((_, i) => i % 3 === 0) as row}
+                <tr>
+                  <td>M{row.month}</td>
+                  <td class="revenue">{formatCurrency(row.revenue, true)}</td>
+                  <td class="expense">{formatCurrency(row.totalCosts, true)}</td>
+                  <td class:positive={row.revenue - row.totalCosts >= 0} class:negative={row.revenue - row.totalCosts < 0}>
+                    {formatCurrency(row.revenue - row.totalCosts, true)}
+                  </td>
+                  <td class="cash">{formatCurrency(row.cashPosition, true)}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Key Metrics -->
+      <section class="metrics-section">
+        <h2>Raise Scenarios</h2>
+        <div class="metrics-grid">
+          {#each RAISE_SCENARIOS as scenario}
+            <div class="metric-card" class:recommended={scenario.recommended}>
+              <div class="metric-header">
+                <span class="metric-label">{scenario.name}</span>
+                {#if scenario.recommended}
+                  <span class="badge">Recommended</span>
+                {/if}
+              </div>
+              <div class="metric-value">{formatCurrency(scenario.amount, true)}</div>
+              <div class="metric-details">
+                <div class="detail-row">
+                  <span>Pre-money:</span>
+                  <span>{formatCurrency(scenario.preMoneyVal, true)}</span>
                 </div>
-                <div class="hero-stat">
-                  <span class="stat-value">{formatCurrency(recommendedScenario.arrY2, true)}</span>
-                  <span class="stat-label">Target ARR Y2</span>
+                <div class="detail-row">
+                  <span>Runway:</span>
+                  <span>{scenario.runway} months</span>
                 </div>
-                <div class="hero-stat">
-                  <span class="stat-value">43x</span>
-                  <span class="stat-label">LTV:CAC</span>
+                <div class="detail-row">
+                  <span>Target ARR Y2:</span>
+                  <span>{formatCurrency(scenario.arrY2, true)}</span>
                 </div>
               </div>
             </div>
-          </section>
-
-          <!-- Key Metrics -->
-          <section class="section">
-            <h3 class="section-title">The Ask</h3>
-            <div class="metrics-grid">
-              <MetricCard
-                title="Raise"
-                value={formatCurrency(recommendedScenario.amount, true)}
-                subtitle="Seed round"
-                highlight
-              />
-              <MetricCard
-                title="Pre-Money"
-                value={formatCurrency(recommendedScenario.preMoneyVal, true)}
-                subtitle="Valuation"
-              />
-              <MetricCard
-                title="Dilution"
-                value="20%"
-                subtitle="Founder-friendly"
-              />
-              <MetricCard
-                title="Runway"
-                value="{recommendedScenario.runway} mo"
-                subtitle="To Series A"
-              />
-            </div>
-          </section>
-
-          <!-- ARR Chart -->
-          <section class="section">
-            <ARRChart />
-          </section>
-
-          <!-- Why $2M -->
-          <section class="section why-section">
-            <div class="why-card">
-              <h3>Why $2M is the Right Amount</h3>
-              <ul class="why-list">
-                <li>
-                  <span class="check"></span>
-                  <span><strong>24-month runway</strong> to Series A without pressure</span>
-                </li>
-                <li>
-                  <span class="check"></span>
-                  <span><strong>8-person team</strong> balances velocity with capital efficiency</span>
-                </li>
-                <li>
-                  <span class="check"></span>
-                  <span><strong>Not over-dilutive</strong> - 20% is founder-friendly</span>
-                </li>
-                <li>
-                  <span class="check"></span>
-                  <span><strong>$3.6M ARR target</strong> - strong Series A position at 10-15x</span>
-                </li>
-                <li>
-                  <span class="check"></span>
-                  <span><strong>Matches ambition</strong> - category-defining, not lifestyle business</span>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- Milestones -->
-          <section class="section">
-            <MilestoneTimeline />
-          </section>
-
-        {:else if activeTab === 'financials'}
-          <!-- Scenario Comparison -->
-          <section class="section">
-            <ScenarioTable />
-          </section>
-
-          <!-- Cashflow -->
-          <section class="section">
-            <CashflowChart />
-          </section>
-
-          <!-- Unit Economics -->
-          <section class="section">
-            <UnitEconomics />
-          </section>
-
-        {:else if activeTab === 'materials'}
-          <!-- Download Section -->
-          <section class="section">
-            <div class="materials-grid">
-              <div class="material-card">
-                <div class="material-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-                  </svg>
-                </div>
-                <h3>Pitch Deck</h3>
-                <p>Our seed round investor presentation</p>
-                <div class="material-actions">
-                  <a href="/investor/saga_pitch_deck.pdf" target="_blank" class="btn primary">
-                    View PDF
-                  </a>
-                  <a href="/investor/saga_pitch_deck.pdf" download class="btn secondary">
-                    Download
-                  </a>
-                </div>
-              </div>
-
-              <div class="material-card">
-                <div class="material-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/>
-                  </svg>
-                </div>
-                <h3>Financial Model</h3>
-                <p>24-month budget and projections (Excel)</p>
-                <div class="material-actions">
-                  <a href="/investor/saga_budget.xlsx" download class="btn primary">
-                    Download Excel
-                  </a>
-                </div>
-              </div>
-
-              <div class="material-card">
-                <div class="material-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                  </svg>
-                </div>
-                <h3>Data Room</h3>
-                <p>Additional due diligence materials</p>
-                <div class="material-actions">
-                  <a href="mailto:investors@saga-labs.com" class="btn primary">
-                    Request Access
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- PDF Viewer -->
-          <section class="section">
-            <div class="pdf-viewer-container">
-              <h3>Pitch Deck Preview</h3>
-              <div class="pdf-viewer">
-                <iframe
-                  src="/investor/saga_pitch_deck.pdf"
-                  title="Saga Pitch Deck"
-                ></iframe>
-              </div>
-            </div>
-          </section>
-        {/if}
-      </main>
+          {/each}
+        </div>
+      </section>
 
       <!-- Footer -->
       <footer class="footer">
-        <p>Questions? Contact us at <a href="mailto:investors@saga-labs.com">investors@saga-labs.com</a></p>
+        <p>Questions? <a href="mailto:investors@saga-labs.com">investors@saga-labs.com</a></p>
       </footer>
     </div>
 
@@ -275,13 +326,8 @@
         {/if}
 
         <p class="contact">
-          Need access? Contact us at <a href="mailto:investors@saga-labs.com">investors@saga-labs.com</a>
+          Need access? Contact <a href="mailto:investors@saga-labs.com">investors@saga-labs.com</a>
         </p>
-      </div>
-
-      <!-- Background animation -->
-      <div class="bg-animation">
-        <div class="grid"></div>
       </div>
     </div>
   {/if}
@@ -290,35 +336,35 @@
 <style>
   .pitch-page {
     min-height: 100vh;
-    background: #0a0a0f;
+    background: white;
+    color: #111;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  .pitch-page.dark {
+    background: #111;
     color: white;
-    font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* Dashboard Layout */
-  .dashboard {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  /* Container */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
   }
 
+  /* Header */
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background: rgba(10, 10, 15, 0.95);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-  }
-
-  .header-left {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .dark .header {
+    border-color: #333;
   }
 
   .logo-link {
@@ -326,304 +372,103 @@
   }
 
   .logo {
-    height: 32px;
+    height: 36px;
+  }
+
+  .dark .logo {
     filter: invert(1);
   }
 
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .header-title h1 {
-    font-size: 1.25rem;
-    font-weight: 600;
+  .header h1 {
     margin: 0;
-  }
-
-  .badge {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
-  .tabs {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .tabs button {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.2s;
-  }
-
-  .tabs button:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .tabs button.active {
-    color: white;
-    background: rgba(99, 102, 241, 0.2);
-  }
-
-  .content {
-    flex: 1;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  /* Hero Section */
-  .hero {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
-    border-radius: 24px;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+  /* Materials Section */
+  .materials-section {
     margin-bottom: 2rem;
   }
 
-  .hero h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    background: linear-gradient(135deg, white 0%, rgba(255, 255, 255, 0.8) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .tagline {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0 0 2rem 0;
-  }
-
-  .hero-stats {
-    display: flex;
-    justify-content: center;
-    gap: 4rem;
-  }
-
-  .hero-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #6366f1;
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  /* Sections */
-  .section {
-    margin-bottom: 2rem;
-  }
-
-  .section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 1rem 0;
-    color: white;
-  }
-
-  .metrics-grid {
+  .materials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
   }
 
-  /* Why Section */
-  .why-section {
-    display: flex;
-    justify-content: center;
-  }
-
-  .why-card {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.02) 100%);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 600px;
-    width: 100%;
-  }
-
-  .why-card h3 {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: white;
-    text-align: center;
-  }
-
-  .why-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .why-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .check {
-    width: 20px;
-    height: 20px;
-    background: rgba(34, 197, 94, 0.2);
-    border-radius: 50%;
-    flex-shrink: 0;
-    position: relative;
-    margin-top: 2px;
-  }
-
-  .check::after {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 3px;
-    width: 5px;
-    height: 10px;
-    border: solid #22c55e;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-  }
-
-  /* Materials Grid */
-  .materials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
   .material-card {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+  }
+
+  .dark .material-card {
+    border-color: #333;
   }
 
   .material-card:hover {
-    border-color: rgba(99, 102, 241, 0.5);
-    transform: translateY(-2px);
+    border-color: #2563eb;
+    background: #f8fafc;
+  }
+
+  .dark .material-card:hover {
+    background: #1a1a1a;
   }
 
   .material-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(99, 102, 241, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    color: #6366f1;
+    width: 40px;
+    height: 40px;
+    color: #2563eb;
   }
 
   .material-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 100%;
+    height: 100%;
   }
 
-  .material-card h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
+  .material-info h3 {
+    margin: 0;
+    font-size: 1rem;
     font-weight: 600;
   }
 
-  .material-card p {
-    margin: 0 0 1rem 0;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
+  .material-info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: #6b7280;
   }
 
-  .material-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+  .dark .material-info p {
+    color: #9ca3af;
   }
 
-  .btn {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-    cursor: pointer;
+  /* PDF Section */
+  .pdf-section {
+    margin-bottom: 2rem;
   }
 
-  .btn.primary {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: white;
-  }
-
-  .btn.primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-  }
-
-  .btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-
-  .btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  /* PDF Viewer */
-  .pdf-viewer-container {
-    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 1.5rem;
-  }
-
-  .pdf-viewer-container h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
+  .pdf-section h2 {
+    font-size: 1.125rem;
     font-weight: 600;
+    margin: 0 0 1rem;
   }
 
   .pdf-viewer {
     width: 100%;
-    height: 70vh;
-    border-radius: 12px;
+    height: 80vh;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     overflow: hidden;
-    background: #111;
+  }
+
+  .dark .pdf-viewer {
+    border-color: #333;
   }
 
   .pdf-viewer iframe {
@@ -632,21 +477,199 @@
     border: none;
   }
 
+  /* Charts Section */
+  .charts-section {
+    margin-bottom: 2rem;
+  }
+
+  .charts-section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+  }
+
+  .chart-container {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .dark .chart-container {
+    border-color: #333;
+  }
+
+  .chart-container canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Table Section */
+  .table-section {
+    margin-bottom: 2rem;
+  }
+
+  .table-section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+  }
+
+  .table-wrapper {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  .dark .table-wrapper {
+    border-color: #333;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: right;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .dark th, .dark td {
+    border-color: #333;
+  }
+
+  th {
+    background: #f9fafb;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .dark th {
+    background: #1a1a1a;
+  }
+
+  th:first-child, td:first-child {
+    text-align: left;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .revenue { color: #16a34a; }
+  .expense { color: #6b7280; }
+  .cash { color: #2563eb; font-weight: 600; }
+  .positive { color: #16a34a; }
+  .negative { color: #dc2626; }
+
+  /* Metrics Section */
+  .metrics-section {
+    margin-bottom: 2rem;
+  }
+
+  .metrics-section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .metric-card {
+    padding: 1.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+
+  .dark .metric-card {
+    border-color: #333;
+  }
+
+  .metric-card.recommended {
+    border-color: #2563eb;
+    background: #eff6ff;
+  }
+
+  .dark .metric-card.recommended {
+    background: #1e3a5f;
+  }
+
+  .metric-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .dark .metric-label {
+    color: #9ca3af;
+  }
+
+  .badge {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    background: #2563eb;
+    color: white;
+    border-radius: 4px;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .metric-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+
+  .dark .detail-row {
+    color: #9ca3af;
+  }
+
   /* Footer */
   .footer {
-    padding: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
     text-align: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dark .footer {
+    border-color: #333;
   }
 
   .footer p {
     margin: 0;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.875rem;
+    color: #6b7280;
   }
 
   .footer a {
-    color: #6366f1;
+    color: #2563eb;
     text-decoration: none;
   }
 
@@ -660,8 +683,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
-    overflow: hidden;
+    padding: 2rem;
   }
 
   .gate-content {
@@ -670,26 +692,27 @@
     align-items: center;
     text-align: center;
     max-width: 400px;
-    padding: 2rem;
-    position: relative;
-    z-index: 1;
+    width: 100%;
   }
 
   .gate-content .logo {
     height: 48px;
-    filter: invert(1);
     margin-bottom: 1.5rem;
   }
 
   .gate-content h1 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
   }
 
   .gate-content .subtitle {
-    color: rgba(255, 255, 255, 0.6);
+    color: #6b7280;
     margin-bottom: 2rem;
+  }
+
+  .dark .gate-content .subtitle {
+    color: #9ca3af;
   }
 
   .gate-content form {
@@ -706,112 +729,91 @@
   .input-group input {
     flex: 1;
     padding: 0.75rem 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
     font-size: 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: white;
+    color: #111;
+  }
+
+  .dark .input-group input {
+    border-color: #333;
+    background: #1a1a1a;
     color: white;
-    outline: none;
-    transition: border-color 0.2s;
   }
 
   .input-group input:focus {
-    border-color: #6366f1;
+    outline: none;
+    border-color: #2563eb;
   }
 
   .input-group input.error {
-    border-color: #ef4444;
+    border-color: #dc2626;
   }
 
   .input-group button {
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: #111;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s;
+  }
+
+  .dark .input-group button {
+    background: white;
+    color: #111;
   }
 
   .input-group button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    background: #333;
+  }
+
+  .dark .input-group button:hover {
+    background: #e5e7eb;
   }
 
   .error-message {
-    color: #ef4444;
-    font-size: 0.9rem;
+    color: #dc2626;
+    font-size: 0.875rem;
     margin-bottom: 1rem;
   }
 
   .contact {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: #6b7280;
+  }
+
+  .dark .contact {
+    color: #9ca3af;
   }
 
   .contact a {
-    color: #6366f1;
+    color: #2563eb;
     text-decoration: none;
   }
 
-  /* Background animation */
-  .bg-animation {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    z-index: 0;
-  }
-
-  .grid {
-    position: absolute;
-    inset: -50%;
-    background-image:
-      linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 20s linear infinite;
-  }
-
-  @keyframes grid-move {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(50px, 50px) rotate(0deg); }
-  }
-
   /* Responsive */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
+    .container {
+      padding: 1rem;
+    }
+
     .header {
       flex-direction: column;
-      gap: 1rem;
-      padding: 1rem;
+      align-items: flex-start;
+      gap: 0.75rem;
     }
 
-    .header-left {
-      flex-direction: column;
-      gap: 0.5rem;
+    .pdf-viewer {
+      height: 60vh;
     }
 
-    .tabs {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .content {
-      padding: 1rem;
-    }
-
-    .hero h2 {
-      font-size: 1.5rem;
-    }
-
-    .hero-stats {
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
+    .metrics-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
