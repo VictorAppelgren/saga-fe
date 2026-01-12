@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { StrategyDetail, ImproveStrategyTextResponse } from '$lib/api/strategies';
+  import type { StrategyDetail, ImproveStrategyTextResponse, Stance, PositionStatus, TimeHorizon } from '$lib/api/strategies';
   import { createEventDispatcher } from 'svelte';
 
   export let mode: 'create' | 'edit' = 'create';
@@ -14,6 +14,9 @@
   let strategy_text = strategy?.user_input.strategy_text || '';
   let position_text = strategy?.user_input.position_text || '';
   let target = strategy?.user_input.target || '';
+  let stance: Stance = strategy?.stance || null;
+  let positionStatus: PositionStatus = strategy?.position_status || null;
+  let timeHorizon: TimeHorizon = strategy?.time_horizon || null;
 
   // Advanced settings toggle
   let showAdvanced = !!(position_text || target);
@@ -29,8 +32,15 @@
       asset_primary,
       strategy_text,
       position_text,
-      target
+      target,
+      stance,
+      position_status: positionStatus,
+      time_horizon: timeHorizon
     });
+  }
+
+  function selectStance(newStance: Stance) {
+    stance = newStance;
   }
 
   async function handleImproveThesis() {
@@ -128,6 +138,125 @@
         />
         <span class="help-text">The primary asset for this strategy</span>
       </div>
+
+      <!-- Stance Selector -->
+      <div class="form-group">
+        <label>
+          Your View
+        </label>
+        <div class="stance-selector">
+          <button
+            type="button"
+            class="stance-btn stance-bull"
+            class:selected={stance === 'bull'}
+            on:click={() => selectStance('bull')}
+          >
+            <span class="stance-icon">&#8593;</span>
+            <span class="stance-label">Bullish</span>
+            <span class="stance-desc">I believe it goes UP</span>
+          </button>
+          <button
+            type="button"
+            class="stance-btn stance-neutral"
+            class:selected={stance === 'neutral' || stance === null}
+            on:click={() => selectStance('neutral')}
+          >
+            <span class="stance-icon">&#8596;</span>
+            <span class="stance-label">Neutral</span>
+            <span class="stance-desc">Monitoring / No view</span>
+          </button>
+          <button
+            type="button"
+            class="stance-btn stance-bear"
+            class:selected={stance === 'bear'}
+            on:click={() => selectStance('bear')}
+          >
+            <span class="stance-icon">&#8595;</span>
+            <span class="stance-label">Bearish</span>
+            <span class="stance-desc">I believe it goes DOWN</span>
+          </button>
+        </div>
+        <span class="help-text">Your directional view helps Saga tailor analysis to validate or challenge your thesis</span>
+      </div>
+
+      <!-- Position Status Selector -->
+      <div class="form-group">
+        <label>
+          Position Status
+        </label>
+        <div class="position-selector">
+          <button
+            type="button"
+            class="position-btn"
+            class:selected={positionStatus === 'monitoring' || positionStatus === null}
+            on:click={() => positionStatus = 'monitoring'}
+          >
+            <span class="position-icon">&#128065;</span>
+            <span class="position-label">Monitoring</span>
+            <span class="position-desc">Gathering intel, no thesis yet</span>
+          </button>
+          <button
+            type="button"
+            class="position-btn"
+            class:selected={positionStatus === 'looking_to_enter'}
+            on:click={() => positionStatus = 'looking_to_enter'}
+          >
+            <span class="position-icon">&#127919;</span>
+            <span class="position-label">Looking to Enter</span>
+            <span class="position-desc">Have thesis, seeking confirmation</span>
+          </button>
+          <button
+            type="button"
+            class="position-btn"
+            class:selected={positionStatus === 'in_position'}
+            on:click={() => positionStatus = 'in_position'}
+          >
+            <span class="position-icon">&#9989;</span>
+            <span class="position-label">In Position</span>
+            <span class="position-desc">Holding, watch for invalidation</span>
+          </button>
+        </div>
+        <span class="help-text">Where are you in your investment journey with this asset?</span>
+      </div>
+
+      <!-- Time Horizon Selector (only show when looking to enter or in position) -->
+      {#if positionStatus === 'looking_to_enter' || positionStatus === 'in_position'}
+        <div class="form-group">
+          <label>
+            Time Horizon
+          </label>
+          <div class="horizon-selector">
+            <button
+              type="button"
+              class="horizon-btn"
+              class:selected={timeHorizon === 'weeks'}
+              on:click={() => timeHorizon = 'weeks'}
+            >
+              <span class="horizon-label">Weeks</span>
+              <span class="horizon-desc">1-4 weeks</span>
+            </button>
+            <button
+              type="button"
+              class="horizon-btn"
+              class:selected={timeHorizon === 'months'}
+              on:click={() => timeHorizon = 'months'}
+            >
+              <span class="horizon-label">Months</span>
+              <span class="horizon-desc">1-6 months</span>
+            </button>
+            <button
+              type="button"
+              class="horizon-btn"
+              class:selected={timeHorizon === 'quarters'}
+              on:click={() => timeHorizon = 'quarters'}
+            >
+              <span class="horizon-label">Quarters</span>
+              <span class="horizon-desc">6+ months</span>
+            </button>
+          </div>
+          <span class="help-text">Swing trading to buy-and-hold (no intraday)</span>
+        </div>
+      {/if}
 
       <div class="form-group">
         <div class="label-row">
@@ -417,6 +546,194 @@
     display: block;
     margin-top: 0.25rem;
     font-size: 0.875rem;
+    color: var(--text-muted, #666);
+  }
+
+  /* Stance Selector */
+  .stance-selector {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .stance-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    border: 2px solid var(--border-color, #e0e0e0);
+    border-radius: 12px;
+    background: var(--bg-color, white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .stance-btn:hover {
+    border-color: var(--text-muted, #999);
+  }
+
+  .stance-btn.selected {
+    border-width: 2px;
+  }
+
+  .stance-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .stance-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .stance-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted, #666);
+    text-align: center;
+  }
+
+  /* Bull stance */
+  .stance-bull.selected {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.08);
+  }
+
+  .stance-bull.selected .stance-icon,
+  .stance-bull.selected .stance-label {
+    color: #16a34a;
+  }
+
+  .stance-bull:hover:not(.selected) {
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+
+  /* Bear stance */
+  .stance-bear.selected {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+  }
+
+  .stance-bear.selected .stance-icon,
+  .stance-bear.selected .stance-label {
+    color: #dc2626;
+  }
+
+  .stance-bear:hover:not(.selected) {
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  /* Neutral stance */
+  .stance-neutral.selected {
+    border-color: #6b7280;
+    background: rgba(107, 114, 128, 0.08);
+  }
+
+  .stance-neutral.selected .stance-icon,
+  .stance-neutral.selected .stance-label {
+    color: #4b5563;
+  }
+
+  .stance-neutral:hover:not(.selected) {
+    border-color: rgba(107, 114, 128, 0.5);
+  }
+
+  /* Position Status Selector */
+  .position-selector {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .position-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.85rem 0.5rem;
+    border: 2px solid var(--border-color, #e0e0e0);
+    border-radius: 12px;
+    background: var(--bg-color, white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .position-btn:hover {
+    border-color: var(--text-muted, #999);
+  }
+
+  .position-btn.selected {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  .position-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .position-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-color, black);
+  }
+
+  .position-btn.selected .position-label {
+    color: #2563eb;
+  }
+
+  .position-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted, #666);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  /* Time Horizon Selector */
+  .horizon-selector {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .horizon-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid var(--border-color, #e0e0e0);
+    border-radius: 10px;
+    background: var(--bg-color, white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .horizon-btn:hover {
+    border-color: var(--text-muted, #999);
+  }
+
+  .horizon-btn.selected {
+    border-color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.08);
+  }
+
+  .horizon-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color, black);
+  }
+
+  .horizon-btn.selected .horizon-label {
+    color: #7c3aed;
+  }
+
+  .horizon-desc {
+    font-size: 0.75rem;
     color: var(--text-muted, #666);
   }
 

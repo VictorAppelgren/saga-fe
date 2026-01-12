@@ -6,6 +6,15 @@ const API_BASE = isServer
   ? 'http://apis:8000/api' 
   : (import.meta.env.VITE_API_BASE_URL || '/api');
 
+// Stance type: directional view on the asset
+export type Stance = 'bull' | 'bear' | 'neutral' | null;
+
+// Position status: where in the position lifecycle
+export type PositionStatus = 'monitoring' | 'looking_to_enter' | 'in_position' | null;
+
+// Time horizon: swing trading to buy-and-hold (NO intraday)
+export type TimeHorizon = 'weeks' | 'months' | 'quarters' | null;
+
 export interface Strategy {
   id: string;
   asset: string;
@@ -13,6 +22,9 @@ export interface Strategy {
   updated_at: string;
   has_analysis: boolean;
   is_default: boolean;
+  stance: Stance;  // bull, bear, neutral, or null
+  position_status: PositionStatus;  // monitoring, looking_to_enter, in_position
+  time_horizon: TimeHorizon;  // weeks, months, quarters
 }
 
 // Latest analysis structure saved by backend (simplified for FE)
@@ -45,6 +57,9 @@ export interface StrategyDetail {
   updated_at: string;
   version: number;
   is_default: boolean;
+  stance: Stance;  // bull, bear, neutral, or null
+  position_status: PositionStatus;  // monitoring, looking_to_enter, in_position
+  time_horizon: TimeHorizon;  // weeks, months, quarters
   asset: {
     primary: string;
     related: string[];
@@ -192,6 +207,80 @@ export async function improveStrategyText(
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Failed to improve strategy text: ${errorText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update strategy stance (directional view).
+ *
+ * Stance values:
+ * - "bull": User believes asset will go UP
+ * - "bear": User believes asset will go DOWN
+ * - "neutral": Monitoring/no view
+ * - null: Not set (treated as neutral)
+ *
+ * Note: Changing stance triggers re-analysis.
+ */
+export async function updateStance(
+  username: string,
+  strategyId: string,
+  stance: Stance
+): Promise<{ success: boolean; stance: Stance; message: string }> {
+  const response = await fetch(
+    `${API_BASE}/users/${username}/strategies/${strategyId}/stance`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ stance })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to update stance: ${errorText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Update strategy position status and time horizon.
+ *
+ * Position Status reflects where you are in the investment lifecycle:
+ * - "monitoring": Watching the asset, gathering intel, no active thesis
+ * - "looking_to_enter": Have a thesis, seeking confirmation to pull the trigger
+ * - "in_position": Currently holding, monitoring for thesis invalidation
+ *
+ * Time Horizon (swing trading to buy-and-hold, NO INTRADAY):
+ * - "weeks": 1-4 weeks
+ * - "months": 1-6 months
+ * - "quarters": 6+ months / multi-quarter
+ */
+export async function updatePositionStatus(
+  username: string,
+  strategyId: string,
+  positionStatus: PositionStatus,
+  timeHorizon?: TimeHorizon
+): Promise<{ success: boolean; position_status: PositionStatus; time_horizon: TimeHorizon; message: string }> {
+  const response = await fetch(
+    `${API_BASE}/users/${username}/strategies/${strategyId}/position-status`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        position_status: positionStatus,
+        time_horizon: timeHorizon
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to update position status: ${errorText}`);
   }
 
   return response.json();

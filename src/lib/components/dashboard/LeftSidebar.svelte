@@ -67,6 +67,13 @@
               >
                 <div class="strategy-item">
                   <span class="strategy-asset">
+                    {#if strategy.stance === 'bull'}
+                      <span class="stance-indicator bull" title="Bullish view">&#8593;</span>
+                    {:else if strategy.stance === 'bear'}
+                      <span class="stance-indicator bear" title="Bearish view">&#8595;</span>
+                    {:else}
+                      <span class="stance-indicator neutral" title="Neutral / Monitoring">&#8596;</span>
+                    {/if}
                     {strategy.asset}
                     {#if strategy.is_default}
                       <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
@@ -325,6 +332,27 @@
   .strategy-asset {
     font-weight: 600;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .stance-indicator {
+    font-weight: 700;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  .stance-indicator.bull {
+    color: #22c55e;
+  }
+
+  .stance-indicator.bear {
+    color: #ef4444;
+  }
+
+  .stance-indicator.neutral {
+    color: #6b7280;
   }
 
   .default-badge {
