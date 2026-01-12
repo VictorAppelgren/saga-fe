@@ -4,7 +4,7 @@
   import { invalidateAll } from '$app/navigation';
   import type { PageData, ActionData } from './$types';
   import { onMount } from 'svelte';
-  import { CASHFLOW_DATA, RAISE_SCENARIOS, formatCurrency, formatPercent } from '$lib/components/pitch/FinancialData';
+  import { CASHFLOW_24M, RAISE_SCENARIOS, formatCurrency } from '$lib/components/pitch/FinancialData';
 
   export let data: PageData;
   export let form: ActionData;
@@ -45,11 +45,11 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    // Get data points
-    const months = CASHFLOW_DATA.map(d => d.month);
-    const revenues = CASHFLOW_DATA.map(d => d.revenue);
-    const expenses = CASHFLOW_DATA.map(d => d.totalCosts);
-    const cashPosition = CASHFLOW_DATA.map(d => d.cashPosition);
+    // Get data points from CASHFLOW_24M
+    const months = CASHFLOW_24M.months.map((_, i) => i + 1);
+    const revenues = CASHFLOW_24M.mrr;
+    const expenses = CASHFLOW_24M.totalExpenses;
+    const cashPosition = CASHFLOW_24M.cumulativeCash;
 
     // Find max values for scaling
     const maxVal = Math.max(...revenues, ...expenses, ...cashPosition);
@@ -247,15 +247,16 @@
               </tr>
             </thead>
             <tbody>
-              {#each CASHFLOW_DATA.filter((_, i) => i % 3 === 0) as row}
+              {#each CASHFLOW_24M.months.filter((_, i) => i % 3 === 0) as month, idx}
+                {@const i = idx * 3}
                 <tr>
-                  <td>M{row.month}</td>
-                  <td class="revenue">{formatCurrency(row.revenue, true)}</td>
-                  <td class="expense">{formatCurrency(row.totalCosts, true)}</td>
-                  <td class:positive={row.revenue - row.totalCosts >= 0} class:negative={row.revenue - row.totalCosts < 0}>
-                    {formatCurrency(row.revenue - row.totalCosts, true)}
+                  <td>{month}</td>
+                  <td class="revenue">{formatCurrency(CASHFLOW_24M.mrr[i], true)}</td>
+                  <td class="expense">{formatCurrency(CASHFLOW_24M.totalExpenses[i], true)}</td>
+                  <td class:positive={CASHFLOW_24M.netCashFlow[i] >= 0} class:negative={CASHFLOW_24M.netCashFlow[i] < 0}>
+                    {formatCurrency(CASHFLOW_24M.netCashFlow[i], true)}
                   </td>
-                  <td class="cash">{formatCurrency(row.cashPosition, true)}</td>
+                  <td class="cash">{formatCurrency(CASHFLOW_24M.cumulativeCash[i], true)}</td>
                 </tr>
               {/each}
             </tbody>
