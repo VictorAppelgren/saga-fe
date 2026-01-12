@@ -169,7 +169,9 @@
   {#if loading}
     <div class="loading">Loading...</div>
   {:else}
-    <!-- 1. USER ENGAGEMENT - Who is using the system -->
+    <!-- ============================================================ -->
+    <!-- SECTION 1: USER ENGAGEMENT - Who is using the system -->
+    <!-- ============================================================ -->
     <h2>👥 User Activity</h2>
     <div class="stats-grid">
       <AdminCard
@@ -199,7 +201,174 @@
       />
     </div>
 
-    <!-- 2. STRATEGY ANALYSIS - What users triggered -->
+    <!-- ============================================================ -->
+    <!-- SECTION 2: ARTICLE PIPELINE - Content flowing in -->
+    <!-- ============================================================ -->
+    <h2>📊 Article Pipeline</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Queries"
+        value={summary?.pipeline?.queries}
+        subtitle="API calls"
+      />
+      <AdminCard
+        title="Fetched"
+        value={summary?.pipeline?.fetched}
+        subtitle="from sources"
+      />
+      <AdminCard
+        title="Processed"
+        value={summary?.pipeline?.processed}
+        subtitle="entered pipeline"
+      />
+      <AdminCard
+        title="Added"
+        value={summary?.pipeline?.added}
+        subtitle="to graph"
+      />
+      <AdminCard
+        title="Rejected"
+        value={summary?.pipeline?.rejected}
+        subtitle="filtered out"
+      />
+    </div>
+
+    <!-- Articles by Tier -->
+    <h3>📈 By Quality Tier</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Tier 3"
+        value={summary?.tier_breakdown?.tier_3 || 0}
+        subtitle="premium"
+      />
+      <AdminCard
+        title="Tier 2"
+        value={summary?.tier_breakdown?.tier_2 || 0}
+        subtitle="standard"
+      />
+      <AdminCard
+        title="Tier 1"
+        value={summary?.tier_breakdown?.tier_1 || 0}
+        subtitle="filler"
+      />
+      <AdminCard
+        title="Tier 0"
+        value={summary?.tier_breakdown?.tier_0 || 0}
+        subtitle="archive"
+      />
+    </div>
+
+    <!-- Capacity Management -->
+    <h3>🔧 Capacity Management</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Downgraded"
+        value={summary?.capacity?.downgraded || 0}
+        subtitle="priority reduced"
+      />
+      <AdminCard
+        title="Archived"
+        value={summary?.capacity?.archived || 0}
+        subtitle="moved to tier 0"
+      />
+      <AdminCard
+        title="Rejected (Capacity)"
+        value={summary?.capacity?.rejected_capacity || 0}
+        subtitle="capacity full"
+      />
+      <AdminCard
+        title="Duplicates Skipped"
+        value={summary?.capacity?.duplicates_skipped || 0}
+        subtitle="already exists"
+      />
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TOPIC ACTIVITY - Topics discovered from articles -->
+    <!-- ============================================================ -->
+    <h2>🏷️ Topic Activity</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Suggested"
+        value={summary?.topics?.suggested || 0}
+        subtitle="LLM proposals"
+      />
+      <AdminCard
+        title="Created"
+        value={summary?.topics?.created || 0}
+        subtitle="added to graph"
+      />
+      <AdminCard
+        title="Rejected"
+        value={summary?.topics?.rejected || 0}
+        subtitle="failed gates"
+      />
+      <AdminCard
+        title="Deleted"
+        value={summary?.topics?.deleted || 0}
+        subtitle="removed"
+      />
+    </div>
+
+    <!-- Topic Rejection Breakdown (compact) -->
+    {#if (summary?.topics?.rejected || 0) > 0}
+    <div class="compact-breakdown">
+      Rejected: {summary?.topics?.rejected_no_proposal || 0} no proposal, {summary?.topics?.rejected_relevance || 0} relevance, {summary?.topics?.rejected_capacity || 0} capacity
+    </div>
+    {/if}
+
+    <!-- Recently Added Topics (always show) -->
+    <h3>📈 New Topics</h3>
+    <div class="recent-topics">
+      <div class="topic-row">
+        <span class="topic-label">Today:</span>
+        <span class="topic-list">{recentTopics?.today?.length > 0 ? recentTopics.today.map((t: any) => t.name).join(', ') : 'None'}</span>
+      </div>
+      {#if recentTopics?.yesterday?.length > 0}
+        <div class="topic-row">
+          <span class="topic-label">Yesterday:</span>
+          <span class="topic-list">{recentTopics.yesterday.map((t: any) => t.name).join(', ')}</span>
+        </div>
+      {/if}
+      {#if recentTopics?.this_week?.length > 0}
+        <div class="topic-row">
+          <span class="topic-label">This week:</span>
+          <span class="topic-list">{recentTopics.this_week.map((t: any) => t.name).join(', ')}</span>
+        </div>
+      {/if}
+      <p class="topic-total">Total: {recentTopics?.total || 0} new topics in last 7 days (limit: 2/day)</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: TOPIC ANALYSIS - Analysis agent writes reports -->
+    <!-- ============================================================ -->
+    <h2>🤖 Topic Analysis</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Triggered"
+        value={summary?.analysis?.triggered || 0}
+        subtitle="new articles found"
+      />
+      <AdminCard
+        title="Completed"
+        value={summary?.analysis?.completed || 0}
+        subtitle="analysis finished"
+      />
+      <AdminCard
+        title="Skipped"
+        value={(summary?.analysis?.skipped_no_new || 0) + (summary?.analysis?.skipped_cooldown || 0)}
+        subtitle="no new / cooldown"
+      />
+      <AdminCard
+        title="Sections"
+        value={summary?.analysis?.sections || 0}
+        subtitle="written"
+      />
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: STRATEGY ANALYSIS - User-triggered pipeline -->
+    <!-- ============================================================ -->
     <h2>💼 Strategy Analysis Pipeline</h2>
     <div class="stats-grid">
       <AdminCard
@@ -289,87 +458,9 @@
     </div>
     {/if}
 
-    <!-- 3. ARTICLE PIPELINE - Content flowing in -->
-    <h2>📊 Article Pipeline</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Queries"
-        value={summary?.pipeline?.queries}
-        subtitle="API calls"
-      />
-      <AdminCard
-        title="Fetched"
-        value={summary?.pipeline?.fetched}
-        subtitle="from sources"
-      />
-      <AdminCard
-        title="Processed"
-        value={summary?.pipeline?.processed}
-        subtitle="entered pipeline"
-      />
-      <AdminCard
-        title="Added"
-        value={summary?.pipeline?.added}
-        subtitle="to graph"
-      />
-      <AdminCard
-        title="Rejected"
-        value={summary?.pipeline?.rejected}
-        subtitle="filtered out"
-      />
-    </div>
-
-    <!-- Articles by Tier -->
-    <h3>📈 By Quality Tier</h3>
-    <div class="stats-grid">
-      <AdminCard
-        title="Tier 3"
-        value={summary?.tier_breakdown?.tier_3 || 0}
-        subtitle="premium"
-      />
-      <AdminCard
-        title="Tier 2"
-        value={summary?.tier_breakdown?.tier_2 || 0}
-        subtitle="standard"
-      />
-      <AdminCard
-        title="Tier 1"
-        value={summary?.tier_breakdown?.tier_1 || 0}
-        subtitle="filler"
-      />
-      <AdminCard
-        title="Tier 0"
-        value={summary?.tier_breakdown?.tier_0 || 0}
-        subtitle="archive"
-      />
-    </div>
-
-    <!-- 4. TOPIC ANALYSIS - Reports being written -->
-    <h2>🤖 Topic Analysis</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Triggered"
-        value={summary?.analysis?.triggered || 0}
-        subtitle="new articles found"
-      />
-      <AdminCard
-        title="Completed"
-        value={summary?.analysis?.completed || 0}
-        subtitle="analysis finished"
-      />
-      <AdminCard
-        title="Skipped"
-        value={(summary?.analysis?.skipped_no_new || 0) + (summary?.analysis?.skipped_cooldown || 0)}
-        subtitle="no new / cooldown"
-      />
-      <AdminCard
-        title="Sections"
-        value={summary?.analysis?.sections || 0}
-        subtitle="written"
-      />
-    </div>
-
-    <!-- 5. LLM CALLS - Resource usage -->
+    <!-- ============================================================ -->
+    <!-- SECTION 6: LLM CALLS - Resource usage -->
+    <!-- ============================================================ -->
     <h2>🤖 LLM Calls</h2>
     <div class="stats-grid">
       <AdminCard title="Simple (20B)" value={summary?.llm_calls?.tiers?.simple || 0} subtitle="local/external" />
@@ -385,87 +476,9 @@
       {/each}
     </div>
 
-
-    <!-- Capacity Management -->
-    <h2>🔧 Capacity Management</h2>
-    <div class="stats-grid">
-      <AdminCard 
-        title="Downgraded" 
-        value={summary?.capacity?.downgraded || 0} 
-        subtitle="priority reduced" 
-      />
-      <AdminCard 
-        title="Archived" 
-        value={summary?.capacity?.archived || 0} 
-        subtitle="moved to tier 0" 
-      />
-      <AdminCard 
-        title="Rejected (Capacity)" 
-        value={summary?.capacity?.rejected_capacity || 0} 
-        subtitle="capacity full" 
-      />
-      <AdminCard 
-        title="Duplicates Skipped" 
-        value={summary?.capacity?.duplicates_skipped || 0} 
-        subtitle="already exists" 
-      />
-    </div>
-    
-    <!-- Topic Activity -->
-    <h2>🏷️ Topic Activity</h2>
-    <div class="stats-grid">
-      <AdminCard
-        title="Suggested"
-        value={summary?.topics?.suggested || 0}
-        subtitle="LLM proposals"
-      />
-      <AdminCard
-        title="Created"
-        value={summary?.topics?.created || 0}
-        subtitle="added to graph"
-      />
-      <AdminCard
-        title="Rejected"
-        value={summary?.topics?.rejected || 0}
-        subtitle="failed gates"
-      />
-      <AdminCard
-        title="Deleted"
-        value={summary?.topics?.deleted || 0}
-        subtitle="removed"
-      />
-    </div>
-
-    <!-- Topic Rejection Breakdown (compact) -->
-    {#if (summary?.topics?.rejected || 0) > 0}
-    <div class="compact-breakdown">
-      Rejected: {summary?.topics?.rejected_no_proposal || 0} no proposal, {summary?.topics?.rejected_relevance || 0} relevance, {summary?.topics?.rejected_capacity || 0} capacity
-    </div>
-    {/if}
-
-    <!-- Recently Added Topics (always show) -->
-    <h3>📈 New Topics</h3>
-    <div class="recent-topics">
-      <div class="topic-row">
-        <span class="topic-label">Today:</span>
-        <span class="topic-list">{recentTopics?.today?.length > 0 ? recentTopics.today.map((t: any) => t.name).join(', ') : 'None'}</span>
-      </div>
-      {#if recentTopics?.yesterday?.length > 0}
-        <div class="topic-row">
-          <span class="topic-label">Yesterday:</span>
-          <span class="topic-list">{recentTopics.yesterday.map((t: any) => t.name).join(', ')}</span>
-        </div>
-      {/if}
-      {#if recentTopics?.this_week?.length > 0}
-        <div class="topic-row">
-          <span class="topic-label">This week:</span>
-          <span class="topic-list">{recentTopics.this_week.map((t: any) => t.name).join(', ')}</span>
-        </div>
-      {/if}
-      <p class="topic-total">Total: {recentTopics?.total || 0} new topics in last 7 days (limit: 2/day)</p>
-    </div>
-
-    <!-- Storage Stats -->
+    <!-- ============================================================ -->
+    <!-- SECTION 7: STORAGE & GRAPH - Descriptive stats -->
+    <!-- ============================================================ -->
     <h2>💾 Article Storage</h2>
     <div class="stats-grid">
       <AdminCard
