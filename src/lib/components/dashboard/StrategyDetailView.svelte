@@ -1,7 +1,7 @@
 <!-- StrategyDetailView.svelte - Strategy detail view with analysis -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { getStrategy, updateStance, updatePositionStatus, type StrategyDetail, type Stance, type PositionStatus, type TimeHorizon } from '$lib/api/strategies';
+  import { getStrategy, type StrategyDetail, type Stance, type PositionStatus, type TimeHorizon } from '$lib/api/strategies';
   import EntityHeader from '$lib/components/EntityHeader.svelte';
   import AnalysisDisplay from '$lib/components/AnalysisDisplay.svelte';
   import FindingsCards from '$lib/components/FindingsCards.svelte';
@@ -15,8 +15,6 @@
   export let openSections: Record<string, boolean> = {};
 
   let showPdfModal = false;
-  let isUpdatingStance = false;
-  let isUpdatingPosition = false;
 
   const dispatch = createEventDispatcher();
 
@@ -55,36 +53,6 @@
         return '6+ months';
       default:
         return '';
-    }
-  }
-
-  async function handleStanceChange(strategy: StrategyDetail, newStance: Stance) {
-    if (isUpdatingStance) return;
-    isUpdatingStance = true;
-
-    try {
-      await updateStance(username, strategy.id, newStance);
-      // Trigger refresh to show updated stance and re-trigger analysis
-      dispatch('stanceChanged', { strategyId: strategy.id, stance: newStance });
-    } catch (error) {
-      console.error('Failed to update stance:', error);
-    } finally {
-      isUpdatingStance = false;
-    }
-  }
-
-  async function handlePositionChange(strategy: StrategyDetail, newStatus: PositionStatus, newHorizon?: TimeHorizon) {
-    if (isUpdatingPosition) return;
-    isUpdatingPosition = true;
-
-    try {
-      await updatePositionStatus(username, strategy.id, newStatus, newHorizon);
-      // Trigger refresh to show updated position status
-      dispatch('positionChanged', { strategyId: strategy.id, position_status: newStatus, time_horizon: newHorizon });
-    } catch (error) {
-      console.error('Failed to update position status:', error);
-    } finally {
-      isUpdatingPosition = false;
     }
   }
 
@@ -183,104 +151,26 @@
         on:improveStrategy={() => handleImproveStrategy(strategy)}
       />
 
-      <!-- Stance Selector -->
-      {#if !strategy.is_default || isAdmin}
-        {@const stanceInfo = getStanceDisplay(strategy.stance)}
-        <div class="stance-section">
-          <div class="stance-current">
-            <span class="stance-label">Your View:</span>
-            <span class="stance-value" style="color: {stanceInfo.color}">
-              {stanceInfo.icon} {stanceInfo.label}
+      <!-- Strategy Settings (Read-Only Display) -->
+      <div class="strategy-settings-display">
+        <div class="setting-item">
+          <span class="setting-label">View:</span>
+          <span class="setting-value" style="color: {getStanceDisplay(strategy.stance).color}">
+            {getStanceDisplay(strategy.stance).icon} {getStanceDisplay(strategy.stance).label}
+          </span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Status:</span>
+          <span class="setting-value" style="color: {getPositionDisplay(strategy.position_status).color}">
+            {getPositionDisplay(strategy.position_status).icon} {getPositionDisplay(strategy.position_status).label}
+          </span>
+          {#if strategy.time_horizon}
+            <span class="horizon-badge">
+              {getHorizonDisplay(strategy.time_horizon)}
             </span>
-          </div>
-          <div class="stance-buttons" class:disabled={isUpdatingStance}>
-            <button
-              type="button"
-              class="stance-btn bull"
-              class:active={strategy.stance === 'bull'}
-              disabled={isUpdatingStance}
-              on:click={() => handleStanceChange(strategy, 'bull')}
-              title="I believe it goes UP"
-            >
-              &#8593; Bull
-            </button>
-            <button
-              type="button"
-              class="stance-btn neutral"
-              class:active={strategy.stance === 'neutral' || strategy.stance === null}
-              disabled={isUpdatingStance}
-              on:click={() => handleStanceChange(strategy, 'neutral')}
-              title="Monitoring / No view"
-            >
-              &#8596; Neutral
-            </button>
-            <button
-              type="button"
-              class="stance-btn bear"
-              class:active={strategy.stance === 'bear'}
-              disabled={isUpdatingStance}
-              on:click={() => handleStanceChange(strategy, 'bear')}
-              title="I believe it goes DOWN"
-            >
-              &#8595; Bear
-            </button>
-          </div>
-          {#if isUpdatingStance}
-            <span class="stance-updating">Updating...</span>
           {/if}
         </div>
-
-        <!-- Position Status Row -->
-        {@const posInfo = getPositionDisplay(strategy.position_status)}
-        <div class="position-section">
-          <div class="position-current">
-            <span class="position-label">Status:</span>
-            <span class="position-value" style="color: {posInfo.color}">
-              {posInfo.icon} {posInfo.label}
-            </span>
-            {#if strategy.time_horizon}
-              <span class="horizon-badge">
-                {getHorizonDisplay(strategy.time_horizon)}
-              </span>
-            {/if}
-          </div>
-          <div class="position-buttons" class:disabled={isUpdatingPosition}>
-            <button
-              type="button"
-              class="position-btn"
-              class:active={strategy.position_status === 'monitoring' || strategy.position_status === null}
-              disabled={isUpdatingPosition}
-              on:click={() => handlePositionChange(strategy, 'monitoring')}
-              title="Gathering intel, no thesis yet"
-            >
-              &#128065; Monitor
-            </button>
-            <button
-              type="button"
-              class="position-btn looking"
-              class:active={strategy.position_status === 'looking_to_enter'}
-              disabled={isUpdatingPosition}
-              on:click={() => handlePositionChange(strategy, 'looking_to_enter')}
-              title="Have thesis, seeking confirmation"
-            >
-              &#127919; Looking
-            </button>
-            <button
-              type="button"
-              class="position-btn in-pos"
-              class:active={strategy.position_status === 'in_position'}
-              disabled={isUpdatingPosition}
-              on:click={() => handlePositionChange(strategy, 'in_position')}
-              title="Holding, watch for invalidation"
-            >
-              &#9989; In Position
-            </button>
-          </div>
-          {#if isUpdatingPosition}
-            <span class="stance-updating">Updating...</span>
-          {/if}
-        </div>
-      {/if}
+      </div>
 
       <!-- Analysis Display Component -->
       {#if strategy.latest_analysis?.analyzed_at && strategy.latest_analysis.final_analysis}
@@ -386,11 +276,11 @@
     color: #ff3b30;
   }
 
-  /* Stance Section */
-  .stance-section {
+  /* Strategy Settings Display (Read-Only) */
+  .strategy-settings-display {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 2rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1.5rem;
     background: var(--hover-bg, #f8f9fa);
@@ -398,98 +288,18 @@
     flex-wrap: wrap;
   }
 
-  .stance-current {
+  .setting-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
 
-  .stance-label {
+  .setting-label {
     font-size: 0.9rem;
     color: var(--text-muted, #666);
   }
 
-  .stance-value {
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .stance-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .stance-buttons.disabled {
-    opacity: 0.6;
-  }
-
-  .stance-btn {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 6px;
-    background: var(--bg-color, white);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .stance-btn:hover:not(:disabled) {
-    border-color: var(--text-muted, #999);
-  }
-
-  .stance-btn:disabled {
-    cursor: not-allowed;
-  }
-
-  .stance-btn.bull.active {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: #22c55e;
-    color: #16a34a;
-  }
-
-  .stance-btn.bear.active {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-    color: #dc2626;
-  }
-
-  .stance-btn.neutral.active {
-    background: rgba(107, 114, 128, 0.1);
-    border-color: #6b7280;
-    color: #4b5563;
-  }
-
-  .stance-updating {
-    font-size: 0.8rem;
-    color: var(--text-muted, #666);
-    font-style: italic;
-  }
-
-  /* Position Status Section */
-  .position-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1.5rem;
-    background: var(--hover-bg, #f8f9fa);
-    border-radius: 10px;
-    flex-wrap: wrap;
-  }
-
-  .position-current {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .position-label {
-    font-size: 0.9rem;
-    color: var(--text-muted, #666);
-  }
-
-  .position-value {
+  .setting-value {
     font-weight: 600;
     font-size: 0.95rem;
   }
@@ -501,52 +311,6 @@
     color: #7c3aed;
     border-radius: 4px;
     font-weight: 500;
-  }
-
-  .position-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .position-buttons.disabled {
-    opacity: 0.6;
-  }
-
-  .position-btn {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--border-color, #e0e0e0);
-    border-radius: 6px;
-    background: var(--bg-color, white);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .position-btn:hover:not(:disabled) {
-    border-color: var(--text-muted, #999);
-  }
-
-  .position-btn:disabled {
-    cursor: not-allowed;
-  }
-
-  .position-btn.active {
-    background: rgba(107, 114, 128, 0.1);
-    border-color: #6b7280;
-    color: #4b5563;
-  }
-
-  .position-btn.looking.active {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: #f59e0b;
-    color: #d97706;
-  }
-
-  .position-btn.in-pos.active {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: #3b82f6;
-    color: #2563eb;
   }
 
   /* Mobile responsive */
