@@ -11,12 +11,13 @@
   let logs: any = $state(null);
   let distribution: any = $state(null);
   let recentTopics: any = $state(null);
+  let materialStats: any = $state(null);
   let loading = $state(true);
 
   onMount(async () => {
     try {
       // Fetch all data in parallel
-      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes, distRes, recentRes] = await Promise.all([
+      const [summaryRes, articlesRes, analysisRes, strategyAnalysisRes, queriesRes, logsRes, distRes, recentRes, materialRes] = await Promise.all([
         fetch('/api/admin/summary'),
         fetch('/api/admin/trends/articles?days=7'),
         fetch('/api/admin/trends/analysis?days=7'),
@@ -24,7 +25,8 @@
         fetch('/api/admin/trends/queries?days=7'),
         fetch('/api/admin/logs/today?lines=20'),
         fetch('/api/admin/article-distribution'),
-        fetch('/api/admin/topics-recent?days=7')
+        fetch('/api/admin/topics-recent?days=7'),
+        fetch('/api/admin/stats/material?days=7')
       ]);
 
       summary = await summaryRes.json();
@@ -35,6 +37,7 @@
       logs = await logsRes.json();
       distribution = await distRes.json();
       recentTopics = await recentRes.json();
+      materialStats = await materialRes.json();
       
       loading = false;
       
@@ -365,6 +368,98 @@
         subtitle="written"
       />
     </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4.5: MATERIAL BUILDER - What goes into each analysis -->
+    <!-- ============================================================ -->
+    <h2>📦 Material Builder</h2>
+    {#if materialStats?.runs > 0}
+    <p class="section-hint">{materialStats.runs} runs in last {materialStats.days} days - averages per run:</p>
+    <div class="stats-grid">
+      <AdminCard
+        title="Topics"
+        value={materialStats.averages?.topics?.toFixed(1) || 0}
+        subtitle={`total: ${materialStats.totals?.topics || 0}`}
+      />
+      <AdminCard
+        title="Articles"
+        value={materialStats.averages?.articles?.toFixed(1) || 0}
+        subtitle={`total: ${materialStats.totals?.articles || 0}`}
+      />
+      <AdminCard
+        title="Tier 3"
+        value={materialStats.averages?.tier3?.toFixed(1) || 0}
+        subtitle={`total: ${materialStats.totals?.tier3 || 0}`}
+      />
+      <AdminCard
+        title="Tier 2"
+        value={materialStats.averages?.tier2?.toFixed(1) || 0}
+        subtitle={`total: ${materialStats.totals?.tier2 || 0}`}
+      />
+      <AdminCard
+        title="Tier 1"
+        value={materialStats.averages?.tier1?.toFixed(1) || 0}
+        subtitle={`total: ${materialStats.totals?.tier1 || 0}`}
+      />
+      <AdminCard
+        title="Tokens Est."
+        value={materialStats.averages?.tokens_est ? Math.round(materialStats.averages.tokens_est).toLocaleString() : 0}
+        subtitle={`total: ${materialStats.totals?.tokens_est?.toLocaleString() || 0}`}
+      />
+    </div>
+
+    <!-- Freshness by Timeframe -->
+    {#if materialStats.freshness && Object.keys(materialStats.freshness).length > 0}
+    <h3>⏱️ Article Freshness (avg age when collected)</h3>
+    <div class="freshness-grid">
+      {#if materialStats.freshness.current}
+        <div class="freshness-card">
+          <span class="freshness-label">Current</span>
+          <span class="freshness-value">{materialStats.freshness.current.avg_hours?.toFixed(1) || '?'}h</span>
+          <span class="freshness-range">({materialStats.freshness.current.min_hours?.toFixed(0) || 0}-{materialStats.freshness.current.max_hours?.toFixed(0) || 0}h)</span>
+        </div>
+      {/if}
+      {#if materialStats.freshness.medium}
+        <div class="freshness-card">
+          <span class="freshness-label">Medium</span>
+          <span class="freshness-value">{materialStats.freshness.medium.avg_days?.toFixed(1) || '?'}d</span>
+          <span class="freshness-range">({materialStats.freshness.medium.min_days?.toFixed(0) || 0}-{materialStats.freshness.medium.max_days?.toFixed(0) || 0}d)</span>
+        </div>
+      {/if}
+      {#if materialStats.freshness.fundamental}
+        <div class="freshness-card">
+          <span class="freshness-label">Fundamental</span>
+          <span class="freshness-value">{materialStats.freshness.fundamental.avg_days?.toFixed(1) || '?'}d</span>
+          <span class="freshness-range">({materialStats.freshness.fundamental.min_days?.toFixed(0) || 0}-{materialStats.freshness.fundamental.max_days?.toFixed(0) || 0}d)</span>
+        </div>
+      {/if}
+    </div>
+    {/if}
+
+    <!-- Self-Healing Stats -->
+    {#if materialStats.healing && materialStats.healing.total_attempts > 0}
+    <h3>🩹 Self-Healing (missing articles)</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Success"
+        value={materialStats.healing.success || 0}
+        subtitle="recovered"
+      />
+      <AdminCard
+        title="Deleted"
+        value={materialStats.healing.deleted || 0}
+        subtitle="not in Perigon"
+      />
+      <AdminCard
+        title="Failed"
+        value={materialStats.healing.failed || 0}
+        subtitle="errors"
+      />
+    </div>
+    {/if}
+    {:else}
+    <p class="no-data">No Material Builder runs recorded yet. Tracking will appear after the next analysis.</p>
+    {/if}
 
     <!-- ============================================================ -->
     <!-- SECTION 5: STRATEGY ANALYSIS - User-triggered pipeline -->
@@ -948,5 +1043,57 @@
     border-radius: 3px;
     margin-left: 0.3rem;
     font-size: 0.7rem;
+  }
+
+  /* Section hint text */
+  .section-hint {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+
+  .no-data {
+    background: #f3f4f6;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  /* Freshness grid */
+  .freshness-grid {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .freshness-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+  }
+
+  .freshness-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  .freshness-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .freshness-range {
+    font-size: 0.75rem;
+    color: #9ca3af;
   }
 </style>

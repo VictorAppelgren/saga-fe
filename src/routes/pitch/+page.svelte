@@ -376,6 +376,7 @@
       <section class="raise-section">
         <h2>The Raise</h2>
         <div class="raise-card">
+          <div class="raise-status">Live product with test customers and LOIs. Raising to scale.</div>
           <div class="raise-amount">{formatSEK(RAISE_INFO.amount, true)} SEK</div>
           <div class="raise-details">
             <div class="detail">
@@ -595,6 +596,21 @@
     background: #eff6ff;
   }
   .dark .raise-card { background: #1e3a5f; }
+
+  .raise-status {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #16a34a;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: rgba(22, 163, 74, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .dark .raise-status {
+    background: rgba(22, 163, 74, 0.2);
+    color: #4ade80;
+  }
 
   .raise-amount {
     font-size: 2.5rem;
