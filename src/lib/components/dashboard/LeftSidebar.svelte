@@ -1,7 +1,6 @@
 <!-- LeftSidebar.svelte - Watchlists and Topics navigation -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import type { Strategy } from '$lib/api/strategies';
 
   // Props
@@ -13,6 +12,10 @@
   export let isMobile: boolean = false;
 
   const dispatch = createEventDispatcher();
+
+  // Separate default strategies from user strategies
+  $: defaultStrategies = strategies.filter(s => s.is_default);
+  $: userStrategies = strategies.filter(s => !s.is_default);
 
   function handleSelectStrategy(strategy: Strategy) {
     dispatch('selectStrategy', strategy);
@@ -29,9 +32,28 @@
   function handleCreateStrategy() {
     dispatch('createStrategy');
   }
+
+  function handleToggle() {
+    dispatch('toggle');
+  }
 </script>
 
 <aside class="sidebar left-sidebar" class:open={isOpen} class:mobile={isMobile}>
+  <!-- Desktop toggle button -->
+  {#if !isMobile}
+    <button class="sidebar-toggle-btn" on:click={handleToggle} aria-label="Toggle sidebar">
+      {#if isOpen}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      {:else}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+        </svg>
+      {/if}
+    </button>
+  {/if}
+
   <div class="logo-container">
     <a href="/dashboard" aria-label="Go to main dashboard">
       <img src="/saga-logo.svg" alt="Saga" class="logo" />
@@ -40,10 +62,44 @@
 
   <div class="scrollable-section">
     <div class="themes-section">
-      <!-- WATCHLISTS SECTION -->
+      <!-- EXAMPLES SECTION (Default Strategies) -->
+      {#if defaultStrategies.length > 0}
+        <div class="section-header">
+          <h3 class="section-title">
+            Examples
+            <span class="info-tooltip" title="Pre-built example strategies to help you get started. These are read-only.">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </span>
+          </h3>
+        </div>
+
+        <ul class="themes-list">
+          {#each defaultStrategies as strategy}
+            <li class="strategy-list-item">
+              <button
+                class:active={currentSelection.type === 'strategy' && currentSelection.value === strategy.id}
+                on:click={() => handleSelectStrategy(strategy)}
+              >
+                <div class="strategy-item">
+                  <span class="strategy-asset">
+                    {strategy.asset}
+                    <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
+                  </span>
+                </div>
+              </button>
+            </li>
+          {/each}
+        </ul>
+
+        <div class="section-divider"></div>
+      {/if}
+
+      <!-- USER WATCHLISTS SECTION -->
       <div class="section-header">
         <h3 class="section-title">
-          Watchlists
+          {user?.username ? `${user.username}'s Watchlist` : 'My Watchlist'}
           <span class="info-tooltip" title="Your investment positions and theses. Add macro-level positions you're tracking, and Saga's AI agents will monitor risks, opportunities, and relevant news for each one.">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
@@ -58,8 +114,8 @@
       </div>
 
       <ul class="themes-list">
-        {#if strategies && strategies.length > 0}
-          {#each strategies as strategy}
+        {#if userStrategies.length > 0}
+          {#each userStrategies as strategy}
             <li class="strategy-list-item">
               <button
                 class:active={currentSelection.type === 'strategy' && currentSelection.value === strategy.id}
@@ -68,9 +124,7 @@
                 <div class="strategy-item">
                   <span class="strategy-asset">
                     {strategy.asset}
-                    {#if strategy.is_default}
-                      <span class="default-badge" title="Example Strategy (Read-Only)">📌</span>
-                    {:else if strategy.has_analysis}
+                    {#if strategy.has_analysis}
                       <span class="analysis-badge" title="Has AI analysis">✓</span>
                     {/if}
                   </span>
@@ -79,7 +133,7 @@
             </li>
           {/each}
         {:else}
-          <li class="empty-state">No watchlists yet</li>
+          <li class="empty-state">No watchlists yet - create one!</li>
         {/if}
       </ul>
 
@@ -131,17 +185,13 @@
     </li>
   </ul>
 
-  <div class="theme-section">
-    <ThemeToggle />
-  </div>
-
   <div class="user-section">
     <div class="user-info">
       <div class="avatar">{user?.username?.[0]?.toUpperCase() || 'U'}</div>
       <span class="username">{user?.username || 'User'}</span>
     </div>
     {#if user?.is_admin}
-      <a href="/admin" class="admin-link" title="Admin Dashboard">
+      <a href="/admin" class="admin-link" title="Admin Dashboard" aria-label="Admin Dashboard">
         <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
@@ -163,12 +213,69 @@
     flex-direction: column;
     overflow: hidden;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
+    position: relative;
   }
 
   .left-sidebar {
     width: 280px;
     padding: 1.5rem 0 0 1.25rem;
     border-right: 1px solid var(--border-color, #d2d2d7);
+    position: relative;
+    overflow: visible;
+  }
+
+  .left-sidebar:not(.open) {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    border: none;
+    padding: 0;
+    visibility: hidden;
+  }
+
+  .left-sidebar:not(.open) .sidebar-toggle-btn {
+    visibility: visible;
+  }
+
+  .sidebar-toggle-btn {
+    position: absolute;
+    top: 1rem;
+    right: -40px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #d2d2d7);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted, #86868b);
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-toggle-btn:hover {
+    background: var(--hover-bg, #f5f5f7);
+    color: var(--text-color, #1d1d1f);
+  }
+
+  .left-sidebar:not(.open) .sidebar-toggle-btn {
+    right: -45px;
+    background: var(--primary, #007aff);
+    color: white;
+    border-color: var(--primary, #007aff);
+  }
+
+  .left-sidebar:not(.open) .sidebar-toggle-btn:hover {
+    background: var(--primary-hover, #0066d6);
+    color: white;
+  }
+
+  :global(.dark) .sidebar-toggle-btn {
+    background: var(--card-bg, #1c1c1e);
+    border-color: var(--border-color, #38383a);
   }
 
   .logo-container {
@@ -178,7 +285,7 @@
     padding: 0 3rem 0 0;
     margin-bottom: 2rem;
     text-align: center;
-    background: var(--surface-color, #ffffff);
+    background: transparent;
   }
 
   .logo {
@@ -392,13 +499,6 @@
     fill: currentColor;
   }
 
-  .theme-section {
-    padding: 1rem 2.5rem 1rem 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
   .user-section {
     display: flex;
     align-items: center;
@@ -495,6 +595,10 @@
       width: 85vw !important;
       max-width: 320px;
       z-index: 100;
+    }
+
+    .sidebar-toggle-btn {
+      display: none;
     }
   }
 </style>

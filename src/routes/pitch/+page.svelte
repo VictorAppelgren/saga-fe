@@ -22,29 +22,29 @@
   }
 
   // Chart drawing
-  let cashCanvas: HTMLCanvasElement;
-  let growthCanvas: HTMLCanvasElement;
+  let mainCanvas: HTMLCanvasElement;
+  let teamCanvas: HTMLCanvasElement;
 
   onMount(() => {
     if (unlocked) {
-      drawCashChart();
-      drawGrowthChart();
+      drawMainChart();
+      drawTeamChart();
     }
   });
 
-  $: if (unlocked && cashCanvas) {
-    drawCashChart();
-    drawGrowthChart();
+  $: if (unlocked && mainCanvas) {
+    drawMainChart();
+    drawTeamChart();
   }
 
-  function drawCashChart() {
-    if (!cashCanvas) return;
-    const ctx = cashCanvas.getContext('2d');
+  function drawMainChart() {
+    if (!mainCanvas) return;
+    const ctx = mainCanvas.getContext('2d');
     if (!ctx) return;
 
-    const width = cashCanvas.width;
-    const height = cashCanvas.height;
-    const padding = { top: 40, right: 20, bottom: 40, left: 80 };
+    const width = mainCanvas.width;
+    const height = mainCanvas.height;
+    const padding = { top: 50, right: 80, bottom: 50, left: 80 };
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
 
@@ -57,24 +57,38 @@
     const revenue = CASHFLOW.monthlyRevenue;
     const expenses = CASHFLOW.totalExpenses;
 
-    // Scale for cash (left axis) - starts from raise amount going down then up
-    const cashMax = RAISE_INFO.amount;
-    const cashMin = Math.min(...cashBalance) * 0.9;
-    const cashRange = cashMax - cashMin;
+    // Scale for cash (left axis) - from 0 to max cash
+    const cashMax = Math.max(...cashBalance) * 1.05;
+    const cashMin = 0;
+
+    // Scale for revenue/expenses (right axis) - from 0 to max
+    const reMax = Math.max(...revenue, ...expenses) * 1.1;
 
     const scaleX = (i: number) => padding.left + (i / (months.length - 1)) * chartWidth;
-    const scaleCash = (val: number) => padding.top + ((cashMax - val) / cashRange) * chartHeight;
+    const scaleCash = (val: number) => padding.top + ((cashMax - val) / (cashMax - cashMin)) * chartHeight;
+    const scaleRE = (val: number) => padding.top + ((reMax - val) / reMax) * chartHeight;
 
     // Draw grid
-    ctx.strokeStyle = '#e5e7eb';
+    ctx.strokeStyle = '#f0f0f0';
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = padding.top + (i / 4) * chartHeight;
+    for (let i = 0; i <= 5; i++) {
+      const y = padding.top + (i / 5) * chartHeight;
       ctx.beginPath();
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
     }
+
+    // Draw Cash Balance area (light blue fill)
+    ctx.fillStyle = 'rgba(37, 99, 235, 0.1)';
+    ctx.beginPath();
+    ctx.moveTo(scaleX(0), scaleCash(0));
+    for (let i = 0; i < months.length; i++) {
+      ctx.lineTo(scaleX(i), scaleCash(cashBalance[i]));
+    }
+    ctx.lineTo(scaleX(months.length - 1), scaleCash(0));
+    ctx.closePath();
+    ctx.fill();
 
     // Draw Cash Balance line (blue, thick)
     ctx.strokeStyle = '#2563eb';
@@ -88,11 +102,31 @@
     }
     ctx.stroke();
 
-    // Draw starting point marker
-    ctx.fillStyle = '#2563eb';
+    // Draw Revenue line (green)
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(scaleX(0), scaleCash(cashBalance[0]), 5, 0, Math.PI * 2);
-    ctx.fill();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleRE(revenue[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw Expenses line (red, dashed)
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < months.length; i++) {
+      const x = scaleX(i);
+      const y = scaleRE(expenses[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
 
     // Draw breakeven marker (M21)
     const breakevenIdx = MILESTONES.breakeven - 1;
@@ -101,45 +135,108 @@
     ctx.arc(scaleX(breakevenIdx), scaleCash(cashBalance[breakevenIdx]), 6, 0, Math.PI * 2);
     ctx.fill();
 
+    // Breakeven vertical line
+    ctx.strokeStyle = 'rgba(22, 163, 74, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(scaleX(breakevenIdx), padding.top);
+    ctx.lineTo(scaleX(breakevenIdx), height - padding.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // Labels
     ctx.fillStyle = '#374151';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = '11px system-ui, sans-serif';
     ctx.textAlign = 'center';
 
     // X-axis labels
-    for (let i = 0; i < months.length; i += 6) {
-      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 20);
+    for (let i = 0; i < months.length; i += 3) {
+      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 18);
     }
-    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 20);
+    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 18);
 
-    // Y-axis labels (Cash)
+    // Left Y-axis labels (Cash - blue)
     ctx.textAlign = 'right';
-    for (let i = 0; i <= 4; i++) {
-      const val = cashMax - (cashRange * i) / 4;
-      ctx.fillText(formatSEK(val, true), padding.left - 10, padding.top + (i / 4) * chartHeight + 4);
+    ctx.fillStyle = '#2563eb';
+    ctx.font = '10px system-ui, sans-serif';
+    for (let i = 0; i <= 5; i++) {
+      const val = cashMax - ((cashMax - cashMin) * i) / 5;
+      ctx.fillText(formatSEK(val, true), padding.left - 8, padding.top + (i / 5) * chartHeight + 3);
     }
 
-    // Title
-    ctx.fillStyle = '#111';
-    ctx.font = 'bold 14px system-ui, sans-serif';
+    // Right Y-axis labels (Revenue/Expenses)
     ctx.textAlign = 'left';
-    ctx.fillText('Cash Balance (SEK)', padding.left, 20);
+    ctx.fillStyle = '#6b7280';
+    for (let i = 0; i <= 5; i++) {
+      const val = reMax - (reMax * i) / 5;
+      ctx.fillText(formatSEK(val, true), width - padding.right + 8, padding.top + (i / 5) * chartHeight + 3);
+    }
 
-    // Breakeven annotation
+    // Legend at top
+    ctx.font = '12px system-ui, sans-serif';
+    const legendY = 20;
+    let legendX = padding.left;
+
+    // Cash Balance
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(legendX, legendY - 8, 20, 3);
+    ctx.fillText('Cash Balance', legendX + 25, legendY);
+    legendX += 110;
+
+    // Revenue
     ctx.fillStyle = '#16a34a';
-    ctx.font = '11px system-ui, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('Breakeven M21', scaleX(breakevenIdx) + 10, scaleCash(cashBalance[breakevenIdx]) - 5);
+    ctx.fillRect(legendX, legendY - 8, 20, 3);
+    ctx.fillText('Revenue', legendX + 25, legendY);
+    legendX += 85;
+
+    // Expenses
+    ctx.fillStyle = '#dc2626';
+    ctx.setLineDash([4, 2]);
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY - 6);
+    ctx.lineTo(legendX + 20, legendY - 6);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillText('Expenses', legendX + 25, legendY);
+    legendX += 90;
+
+    // Breakeven marker
+    ctx.fillStyle = '#16a34a';
+    ctx.beginPath();
+    ctx.arc(legendX + 5, legendY - 6, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText('Breakeven (M21)', legendX + 15, legendY);
+
+    // Axis titles
+    ctx.font = '10px system-ui, sans-serif';
+    ctx.fillStyle = '#2563eb';
+    ctx.save();
+    ctx.translate(15, height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText('Cash Balance (SEK)', 0, 0);
+    ctx.restore();
+
+    ctx.fillStyle = '#6b7280';
+    ctx.save();
+    ctx.translate(width - 10, height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText('Revenue / Expenses (SEK)', 0, 0);
+    ctx.restore();
   }
 
-  function drawGrowthChart() {
-    if (!growthCanvas) return;
-    const ctx = growthCanvas.getContext('2d');
+  function drawTeamChart() {
+    if (!teamCanvas) return;
+    const ctx = teamCanvas.getContext('2d');
     if (!ctx) return;
 
-    const width = growthCanvas.width;
-    const height = growthCanvas.height;
-    const padding = { top: 40, right: 60, bottom: 40, left: 80 };
+    const width = teamCanvas.width;
+    const height = teamCanvas.height;
+    const padding = { top: 30, right: 80, bottom: 35, left: 80 };
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
 
@@ -148,45 +245,37 @@
     ctx.fillRect(0, 0, width, height);
 
     const months = CASHFLOW.months;
-    const revenue = CASHFLOW.monthlyRevenue;
     const team = CASHFLOW.teamSize;
-    const customers = CASHFLOW.totalCustomers;
 
-    // Scales
-    const revenueMax = Math.max(...revenue) * 1.1;
-    const teamMax = Math.max(...team) * 1.2;
-
+    const teamMax = Math.max(...team) * 1.15;
     const scaleX = (i: number) => padding.left + (i / (months.length - 1)) * chartWidth;
-    const scaleRevenue = (val: number) => padding.top + ((revenueMax - val) / revenueMax) * chartHeight;
     const scaleTeam = (val: number) => padding.top + ((teamMax - val) / teamMax) * chartHeight;
 
     // Draw grid
-    ctx.strokeStyle = '#e5e7eb';
+    ctx.strokeStyle = '#f0f0f0';
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = padding.top + (i / 4) * chartHeight;
+    for (let i = 0; i <= 3; i++) {
+      const y = padding.top + (i / 3) * chartHeight;
       ctx.beginPath();
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
     }
 
-    // Draw Revenue line (green)
-    ctx.strokeStyle = '#16a34a';
-    ctx.lineWidth = 3;
+    // Draw area fill
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
     ctx.beginPath();
+    ctx.moveTo(scaleX(0), scaleTeam(0));
     for (let i = 0; i < months.length; i++) {
-      const x = scaleX(i);
-      const y = scaleRevenue(revenue[i]);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+      ctx.lineTo(scaleX(i), scaleTeam(team[i]));
     }
-    ctx.stroke();
+    ctx.lineTo(scaleX(months.length - 1), scaleTeam(0));
+    ctx.closePath();
+    ctx.fill();
 
-    // Draw Team line (orange, dashed)
+    // Draw Team line (orange)
     ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     for (let i = 0; i < months.length; i++) {
       const x = scaleX(i);
@@ -195,41 +284,30 @@
       else ctx.lineTo(x, y);
     }
     ctx.stroke();
-    ctx.setLineDash([]);
 
     // X-axis labels
     ctx.fillStyle = '#374151';
-    ctx.font = '12px system-ui, sans-serif';
+    ctx.font = '10px system-ui, sans-serif';
     ctx.textAlign = 'center';
     for (let i = 0; i < months.length; i += 6) {
-      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 20);
+      ctx.fillText(`M${months[i]}`, scaleX(i), height - padding.bottom + 15);
     }
-    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 20);
+    ctx.fillText(`M${months[months.length - 1]}`, scaleX(months.length - 1), height - padding.bottom + 15);
 
-    // Left Y-axis (Revenue)
+    // Y-axis labels (Team)
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#16a34a';
-    for (let i = 0; i <= 4; i++) {
-      const val = revenueMax - (revenueMax * i) / 4;
-      ctx.fillText(formatSEK(val, true), padding.left - 10, padding.top + (i / 4) * chartHeight + 4);
-    }
-
-    // Right Y-axis (Team)
-    ctx.textAlign = 'left';
     ctx.fillStyle = '#f59e0b';
-    for (let i = 0; i <= 4; i++) {
-      const val = teamMax - (teamMax * i) / 4;
-      ctx.fillText(Math.round(val).toString(), width - padding.right + 10, padding.top + (i / 4) * chartHeight + 4);
+    for (let i = 0; i <= 3; i++) {
+      const val = teamMax - (teamMax * i) / 3;
+      ctx.fillText(Math.round(val).toString(), padding.left - 8, padding.top + (i / 3) * chartHeight + 3);
     }
 
     // Legend
-    ctx.font = 'bold 14px system-ui, sans-serif';
-    ctx.fillStyle = '#16a34a';
-    ctx.textAlign = 'left';
-    ctx.fillText('Monthly Revenue', padding.left, 20);
-
+    ctx.font = '12px system-ui, sans-serif';
     ctx.fillStyle = '#f59e0b';
-    ctx.fillText('Team Size', padding.left + 150, 20);
+    ctx.textAlign = 'left';
+    ctx.fillRect(padding.left, 12, 20, 3);
+    ctx.fillText('Team Size (employees)', padding.left + 25, 18);
   }
 </script>
 
@@ -334,12 +412,12 @@
       <section class="charts-section">
         <h2>24-Month Financial Projection</h2>
 
-        <div class="chart-container">
-          <canvas bind:this={cashCanvas} width="800" height="300"></canvas>
+        <div class="chart-container main-chart">
+          <canvas bind:this={mainCanvas} width="900" height="400"></canvas>
         </div>
 
-        <div class="chart-container">
-          <canvas bind:this={growthCanvas} width="800" height="300"></canvas>
+        <div class="chart-container team-chart">
+          <canvas bind:this={teamCanvas} width="900" height="140"></canvas>
         </div>
       </section>
 

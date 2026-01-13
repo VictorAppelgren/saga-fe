@@ -83,28 +83,6 @@
         <div class="chat-placeholder-content">
           <h3>Ask Saga Anything</h3>
           <p>Select a <strong>watchlist</strong> or <strong>topic</strong> from the sidebar to start chatting.</p>
-          <div class="example-prompts">
-            <p class="prompts-label">Or try one of these:</p>
-            <div class="prompt-chips">
-              {#each ["What's moving BTC today?", "Risks to my position?", "Latest Fed policy news"] as prompt}
-                <button
-                  class="prompt-chip"
-                  on:click={() => {
-                    const defaultStrategy = strategies?.find(s => s.is_default) || strategies?.[0];
-                    if (defaultStrategy) {
-                      handleSelectStrategy(defaultStrategy);
-                      handleTriggerChat(prompt);
-                    } else if (interests?.[0]) {
-                      handleSelectInterest(interests[0]);
-                      handleTriggerChat(prompt);
-                    }
-                  }}
-                >
-                  {prompt}
-                </button>
-              {/each}
-            </div>
-          </div>
         </div>
       </div>
     {/if}
@@ -227,66 +205,6 @@
     color: var(--text-muted, #86868b);
     line-height: 1.5;
     font-size: 0.9375rem;
-  }
-
-  .example-prompts {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color, #e5e5e7);
-  }
-
-  .prompts-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted, #86868b);
-    margin-bottom: 0.5rem;
-  }
-
-  .prompt-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
-
-  .prompt-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.625rem 1rem;
-    background: var(--surface-variant, #f5f5f7);
-    border: 1px solid var(--border-color, #e5e5e7);
-    border-radius: 20px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text-color, #1d1d1f);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .prompt-chip:hover {
-    background: var(--primary, #007aff);
-    border-color: var(--primary, #007aff);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-  }
-
-  :global(.dark) .example-prompts {
-    border-color: var(--border-color, #38383a);
-  }
-
-  :global(.dark) .prompt-chip {
-    background: var(--surface-variant, #2c2c2e);
-    border-color: var(--border-color, #48484a);
-    color: var(--text-color, #f5f5f7);
-  }
-
-  :global(.dark) .prompt-chip:hover {
-    background: #0a84ff;
-    border-color: #0a84ff;
-    color: white;
   }
 
   :global(.dark) .chat-placeholder {

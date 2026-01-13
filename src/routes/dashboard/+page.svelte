@@ -321,6 +321,7 @@
     on:selectInterest={(e) => selectInterest(e.detail)}
     on:selectNav={(e) => selectNav(e.detail)}
     on:createStrategy={openCreateStrategyModal}
+    on:toggle={toggleLeftSidebar}
   />
 
   <!-- Main Content -->
@@ -468,9 +469,24 @@
     overflow: hidden;
   }
 
+  /* When left sidebar is closed on desktop */
+  .app-container:has(:global(.left-sidebar:not(.open))) {
+    grid-template-columns: 0 1fr 320px;
+  }
+
   /* When right sidebar is closed on desktop */
   .app-container:has(:global(.right-sidebar:not(.open))) {
     grid-template-columns: 280px 1fr 0;
+  }
+
+  /* When both sidebars are closed */
+  .app-container:has(:global(.left-sidebar:not(.open))):has(:global(.right-sidebar:not(.open))) {
+    grid-template-columns: 0 1fr 0;
+  }
+
+  /* When left is closed but right is open */
+  .app-container:has(:global(.left-sidebar:not(.open))):has(:global(.right-sidebar.open)) {
+    grid-template-columns: 0 1fr 320px;
   }
 
   .app-container:has(:global(.right-sidebar:not(.open))) .main-content {
