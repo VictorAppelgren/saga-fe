@@ -18,14 +18,27 @@
   let positionStatus: PositionStatus = strategy?.position_status || null;
   let timeHorizon: TimeHorizon = strategy?.time_horizon || null;
 
-  // Advanced settings toggle
-  let showAdvanced = !!(position_text || target);
+  // Advanced settings toggle - default closed
+  let showAdvanced = false;
 
   // AI Improvement state
   let isImproving = false;
   let suggestion: ImproveStrategyTextResponse | null = null;
   let improveError: string | null = null;
   let copySuccess = false;
+
+  // Helper functions for display
+  function getStanceDisplay(s: Stance) {
+    if (s === 'bull') return { icon: '↑', label: 'Bullish', color: '#16a34a' };
+    if (s === 'bear') return { icon: '↓', label: 'Bearish', color: '#dc2626' };
+    return { icon: '↔', label: 'Neutral', color: '#6b7280' };
+  }
+
+  function getPositionDisplay(p: PositionStatus) {
+    if (p === 'looking_to_enter') return { icon: '🎯', label: 'Looking to Enter' };
+    if (p === 'in_position') return { icon: '✅', label: 'In Position' };
+    return { icon: '👁', label: 'Monitoring' };
+  }
 
   function handleSubmit() {
     onSave({
@@ -139,125 +152,6 @@
         <span class="help-text">The primary asset for this strategy</span>
       </div>
 
-      <!-- Stance Selector -->
-      <div class="form-group">
-        <label>
-          Your View
-        </label>
-        <div class="stance-selector">
-          <button
-            type="button"
-            class="stance-btn stance-bull"
-            class:selected={stance === 'bull'}
-            on:click={() => selectStance('bull')}
-          >
-            <span class="stance-icon">&#8593;</span>
-            <span class="stance-label">Bullish</span>
-            <span class="stance-desc">I believe it goes UP</span>
-          </button>
-          <button
-            type="button"
-            class="stance-btn stance-neutral"
-            class:selected={stance === 'neutral' || stance === null}
-            on:click={() => selectStance('neutral')}
-          >
-            <span class="stance-icon">&#8596;</span>
-            <span class="stance-label">Neutral</span>
-            <span class="stance-desc">Monitoring / No view</span>
-          </button>
-          <button
-            type="button"
-            class="stance-btn stance-bear"
-            class:selected={stance === 'bear'}
-            on:click={() => selectStance('bear')}
-          >
-            <span class="stance-icon">&#8595;</span>
-            <span class="stance-label">Bearish</span>
-            <span class="stance-desc">I believe it goes DOWN</span>
-          </button>
-        </div>
-        <span class="help-text">Your directional view helps Saga tailor analysis to validate or challenge your thesis</span>
-      </div>
-
-      <!-- Position Status Selector -->
-      <div class="form-group">
-        <label>
-          Position Status
-        </label>
-        <div class="position-selector">
-          <button
-            type="button"
-            class="position-btn"
-            class:selected={positionStatus === 'monitoring' || positionStatus === null}
-            on:click={() => positionStatus = 'monitoring'}
-          >
-            <span class="position-icon">&#128065;</span>
-            <span class="position-label">Monitoring</span>
-            <span class="position-desc">Gathering intel, no thesis yet</span>
-          </button>
-          <button
-            type="button"
-            class="position-btn"
-            class:selected={positionStatus === 'looking_to_enter'}
-            on:click={() => positionStatus = 'looking_to_enter'}
-          >
-            <span class="position-icon">&#127919;</span>
-            <span class="position-label">Looking to Enter</span>
-            <span class="position-desc">Have thesis, seeking confirmation</span>
-          </button>
-          <button
-            type="button"
-            class="position-btn"
-            class:selected={positionStatus === 'in_position'}
-            on:click={() => positionStatus = 'in_position'}
-          >
-            <span class="position-icon">&#9989;</span>
-            <span class="position-label">In Position</span>
-            <span class="position-desc">Holding, watch for invalidation</span>
-          </button>
-        </div>
-        <span class="help-text">Where are you in your investment journey with this asset?</span>
-      </div>
-
-      <!-- Time Horizon Selector (only show when looking to enter or in position) -->
-      {#if positionStatus === 'looking_to_enter' || positionStatus === 'in_position'}
-        <div class="form-group">
-          <label>
-            Time Horizon
-          </label>
-          <div class="horizon-selector">
-            <button
-              type="button"
-              class="horizon-btn"
-              class:selected={timeHorizon === 'weeks'}
-              on:click={() => timeHorizon = 'weeks'}
-            >
-              <span class="horizon-label">Weeks</span>
-              <span class="horizon-desc">1-4 weeks</span>
-            </button>
-            <button
-              type="button"
-              class="horizon-btn"
-              class:selected={timeHorizon === 'months'}
-              on:click={() => timeHorizon = 'months'}
-            >
-              <span class="horizon-label">Months</span>
-              <span class="horizon-desc">1-6 months</span>
-            </button>
-            <button
-              type="button"
-              class="horizon-btn"
-              class:selected={timeHorizon === 'quarters'}
-              on:click={() => timeHorizon = 'quarters'}
-            >
-              <span class="horizon-label">Quarters</span>
-              <span class="horizon-desc">6+ months</span>
-            </button>
-          </div>
-          <span class="help-text">Swing trading to buy-and-hold (no intraday)</span>
-        </div>
-      {/if}
-
       <div class="form-group">
         <div class="label-row">
           <label for="strategy">
@@ -354,60 +248,192 @@
         </div>
       {/if}
 
-      <!-- Advanced Settings (Collapsible) -->
-      <div class="advanced-section">
+      <!-- Current Settings Summary (clickable to expand) -->
+      <div class="settings-summary">
         <button
           type="button"
-          class="advanced-toggle"
+          class="summary-toggle"
           on:click={() => showAdvanced = !showAdvanced}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class:rotated={showAdvanced}
-          >
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-          Advanced Settings
-          {#if position_text || target}
-            <span class="has-values-indicator"></span>
-          {/if}
+          <div class="summary-content">
+            <span class="summary-item">
+              <span class="summary-label">View:</span>
+              <span class="summary-value" style="color: {getStanceDisplay(stance).color}">
+                {getStanceDisplay(stance).icon} {getStanceDisplay(stance).label}
+              </span>
+            </span>
+            <span class="summary-divider">|</span>
+            <span class="summary-item">
+              <span class="summary-label">Status:</span>
+              <span class="summary-value">
+                {getPositionDisplay(positionStatus).icon} {getPositionDisplay(positionStatus).label}
+              </span>
+            </span>
+          </div>
+          <span class="summary-edit">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class:rotated={showAdvanced}
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            {showAdvanced ? 'Hide' : 'Edit'}
+          </span>
         </button>
+      </div>
 
-        {#if showAdvanced}
-          <div class="advanced-content">
-            <div class="form-group">
-              <label for="position">
-                Target Outlook
-              </label>
-              <textarea
-                id="position"
-                bind:value={position_text}
-                placeholder="What scenario are you expecting? Price targets, timeline, key levels to watch..."
-                rows="3"
-              ></textarea>
-              <span class="help-text">Your expected scenario — whether you're in a position or just monitoring</span>
-            </div>
+      <!-- Advanced Settings (Collapsible) -->
+      {#if showAdvanced}
+        <div class="advanced-section">
+          <div class="advanced-explanation">
+            <strong>How Saga uses these settings:</strong>
+            <ul>
+              <li><strong>With a direction (Bull/Bear):</strong> We actively look for evidence that supports or challenges your thesis</li>
+              <li><strong>Looking to Enter:</strong> We surface potential entry signals and confirmations</li>
+              <li><strong>In Position:</strong> We watch for invalidation signals and exit triggers</li>
+            </ul>
+          </div>
 
-            <div class="form-group">
-              <label for="target">
-                Key Level or Milestone
-              </label>
-              <input
-                id="target"
-                type="text"
-                bind:value={target}
-                placeholder="e.g., 1.1200, $180, Q2 earnings, Fed meeting"
-              />
-              <span class="help-text">A specific price, date, or event you're watching for</span>
+          <!-- Stance Selector -->
+          <div class="form-group">
+            <label>Your View</label>
+            <div class="stance-selector">
+              <button
+                type="button"
+                class="stance-btn stance-bull"
+                class:selected={stance === 'bull'}
+                on:click={() => selectStance('bull')}
+              >
+                <span class="stance-icon">&#8593;</span>
+                <span class="stance-label">Bullish</span>
+                <span class="stance-desc">I believe it goes UP</span>
+              </button>
+              <button
+                type="button"
+                class="stance-btn stance-neutral"
+                class:selected={stance === 'neutral' || stance === null}
+                on:click={() => selectStance('neutral')}
+              >
+                <span class="stance-icon">&#8596;</span>
+                <span class="stance-label">Neutral</span>
+                <span class="stance-desc">Monitoring / No view</span>
+              </button>
+              <button
+                type="button"
+                class="stance-btn stance-bear"
+                class:selected={stance === 'bear'}
+                on:click={() => selectStance('bear')}
+              >
+                <span class="stance-icon">&#8595;</span>
+                <span class="stance-label">Bearish</span>
+                <span class="stance-desc">I believe it goes DOWN</span>
+              </button>
             </div>
           </div>
-        {/if}
-      </div>
+
+          <!-- Position Status Selector -->
+          <div class="form-group">
+            <label>Position Status</label>
+            <div class="position-selector">
+              <button
+                type="button"
+                class="position-btn"
+                class:selected={positionStatus === 'monitoring' || positionStatus === null}
+                on:click={() => positionStatus = 'monitoring'}
+              >
+                <span class="position-icon">&#128065;</span>
+                <span class="position-label">Monitoring</span>
+                <span class="position-desc">Gathering intel</span>
+              </button>
+              <button
+                type="button"
+                class="position-btn"
+                class:selected={positionStatus === 'looking_to_enter'}
+                on:click={() => positionStatus = 'looking_to_enter'}
+              >
+                <span class="position-icon">&#127919;</span>
+                <span class="position-label">Looking to Enter</span>
+                <span class="position-desc">Seeking confirmation</span>
+              </button>
+              <button
+                type="button"
+                class="position-btn"
+                class:selected={positionStatus === 'in_position'}
+                on:click={() => positionStatus = 'in_position'}
+              >
+                <span class="position-icon">&#9989;</span>
+                <span class="position-label">In Position</span>
+                <span class="position-desc">Watch for invalidation</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Time Horizon Selector (only show when looking to enter or in position) -->
+          {#if positionStatus === 'looking_to_enter' || positionStatus === 'in_position'}
+            <div class="form-group">
+              <label>Time Horizon</label>
+              <div class="horizon-selector">
+                <button
+                  type="button"
+                  class="horizon-btn"
+                  class:selected={timeHorizon === 'weeks'}
+                  on:click={() => timeHorizon = 'weeks'}
+                >
+                  <span class="horizon-label">Weeks</span>
+                  <span class="horizon-desc">1-4 weeks</span>
+                </button>
+                <button
+                  type="button"
+                  class="horizon-btn"
+                  class:selected={timeHorizon === 'months'}
+                  on:click={() => timeHorizon = 'months'}
+                >
+                  <span class="horizon-label">Months</span>
+                  <span class="horizon-desc">1-6 months</span>
+                </button>
+                <button
+                  type="button"
+                  class="horizon-btn"
+                  class:selected={timeHorizon === 'quarters'}
+                  on:click={() => timeHorizon = 'quarters'}
+                >
+                  <span class="horizon-label">Quarters</span>
+                  <span class="horizon-desc">6+ months</span>
+                </button>
+              </div>
+            </div>
+          {/if}
+
+          <!-- Target Outlook -->
+          <div class="form-group">
+            <label for="position">Target Outlook</label>
+            <textarea
+              id="position"
+              bind:value={position_text}
+              placeholder="What scenario are you expecting? Price targets, timeline, key levels to watch..."
+              rows="3"
+            ></textarea>
+            <span class="help-text">Your expected scenario — whether you're in a position or just monitoring</span>
+          </div>
+
+          <!-- Key Level -->
+          <div class="form-group">
+            <label for="target">Key Level or Milestone</label>
+            <input
+              id="target"
+              type="text"
+              bind:value={target}
+              placeholder="e.g., 1.1200, $180, Q2 earnings, Fed meeting"
+            />
+            <span class="help-text">A specific price, date, or event you're watching for</span>
+          </div>
+        </div>
+      {/if}
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" on:click={onCancel}>
@@ -547,6 +573,103 @@
     margin-top: 0.25rem;
     font-size: 0.875rem;
     color: var(--text-muted, #666);
+  }
+
+  /* Settings Summary */
+  .settings-summary {
+    margin-bottom: 1rem;
+  }
+
+  .summary-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--hover-bg, #f8f9fa);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .summary-toggle:hover {
+    border-color: var(--primary, #1976d2);
+    background: var(--bg-color, white);
+  }
+
+  .summary-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .summary-label {
+    font-size: 0.8rem;
+    color: var(--text-muted, #666);
+  }
+
+  .summary-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .summary-divider {
+    color: var(--border-color, #e0e0e0);
+  }
+
+  .summary-edit {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+  }
+
+  .summary-edit svg {
+    transition: transform 0.2s;
+  }
+
+  .summary-edit svg.rotated {
+    transform: rotate(90deg);
+  }
+
+  /* Advanced Section */
+  .advanced-section {
+    background: var(--hover-bg, #f8f9fa);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .advanced-explanation {
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+  }
+
+  .advanced-explanation strong {
+    color: var(--text-color, black);
+  }
+
+  .advanced-explanation ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.25rem;
+  }
+
+  .advanced-explanation li {
+    margin-bottom: 0.35rem;
+    line-height: 1.4;
   }
 
   /* Stance Selector */
@@ -909,61 +1032,6 @@
   .btn-discard:hover {
     background: var(--hover-bg, #f5f5f5);
     color: var(--text-color, black);
-  }
-
-  /* Advanced Settings */
-  .advanced-section {
-    margin-bottom: 1.5rem;
-    border-top: 1px solid var(--border-color, #e0e0e0);
-    padding-top: 1rem;
-  }
-
-  .advanced-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    background: transparent;
-    border: none;
-    color: var(--text-muted, #666);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-
-  .advanced-toggle:hover {
-    color: var(--text-color, black);
-  }
-
-  .advanced-toggle svg {
-    transition: transform 0.2s;
-  }
-
-  .advanced-toggle svg.rotated {
-    transform: rotate(90deg);
-  }
-
-  .has-values-indicator {
-    width: 6px;
-    height: 6px;
-    background: var(--primary, #1976d2);
-    border-radius: 50%;
-    margin-left: 0.25rem;
-  }
-
-  .advanced-content {
-    margin-top: 1rem;
-    padding-left: 1.5rem;
-    border-left: 2px solid var(--border-color, #e0e0e0);
-  }
-
-  .advanced-content .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .advanced-content textarea {
-    min-height: 80px;
   }
 
   .modal-actions {
