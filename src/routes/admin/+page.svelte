@@ -286,6 +286,76 @@
       />
     </div>
 
+    <!-- Article Lifecycle (Backend vs Neo4j sync) -->
+    <h3>🔄 Article Lifecycle</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Backend Stored"
+        value={summary?.article_lifecycle?.backend_stored || 0}
+        subtitle="saved to disk"
+      />
+      <AdminCard
+        title="Neo4j Created"
+        value={summary?.article_lifecycle?.neo4j_created || 0}
+        subtitle="graph nodes"
+      />
+      <AdminCard
+        title="ABOUT Links"
+        value={summary?.article_lifecycle?.about_links_created || 0}
+        subtitle="topic connections"
+      />
+      <AdminCard
+        title="Neo4j Deleted"
+        value={summary?.article_lifecycle?.neo4j_deleted || 0}
+        subtitle="removed from graph"
+      />
+    </div>
+
+    <!-- Self-Healing Stats -->
+    <h3>🩹 Self-Healing</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Heal Attempted"
+        value={summary?.self_healing?.attempted || 0}
+        subtitle="missing articles"
+      />
+      <AdminCard
+        title="Heal Success"
+        value={summary?.self_healing?.success || 0}
+        subtitle="recovered"
+      />
+      <AdminCard
+        title="Heal Deleted"
+        value={summary?.self_healing?.deleted || 0}
+        subtitle="orphans removed"
+      />
+      <AdminCard
+        title="Heal Failed"
+        value={summary?.self_healing?.failed || 0}
+        subtitle="errors"
+      />
+    </div>
+
+    <!-- Relationship Discovery Stats -->
+    <h3>🔗 Relationship Discovery</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="Run"
+        value={summary?.relationship_discovery?.run || 0}
+        subtitle="discoveries executed"
+      />
+      <AdminCard
+        title="Throttled"
+        value={summary?.relationship_discovery?.throttled || 0}
+        subtitle="skipped (well-connected)"
+      />
+      <AdminCard
+        title="Failed"
+        value={summary?.relationship_discovery?.failed || 0}
+        subtitle="errors"
+      />
+    </div>
+
     <!-- ============================================================ -->
     <!-- SECTION 3: TOPIC ACTIVITY - Topics discovered from articles -->
     <!-- ============================================================ -->
@@ -359,13 +429,18 @@
       />
       <AdminCard
         title="Skipped"
-        value={(summary?.analysis?.skipped_no_new || 0) + (summary?.analysis?.skipped_cooldown || 0)}
-        subtitle="no new / cooldown"
+        value={(summary?.analysis?.skipped_no_new || 0) + (summary?.analysis?.skipped_cooldown || 0) + (summary?.analysis?.skipped_no_articles || 0)}
+        subtitle="no new / cooldown / no articles"
       />
       <AdminCard
-        title="Sections"
-        value={summary?.analysis?.sections || 0}
-        subtitle="written"
+        title="Sections Written"
+        value={summary?.analysis?.sections_written || 0}
+        subtitle="successful"
+      />
+      <AdminCard
+        title="Sections Failed"
+        value={summary?.analysis?.sections_failed || 0}
+        subtitle="errors"
       />
     </div>
 
@@ -549,6 +624,51 @@
             </span>
           {/each}
         </div>
+      {/if}
+    </div>
+    {/if}
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5.5: BACKEND ERRORS - API failures -->
+    <!-- ============================================================ -->
+    {@const totalBackendErrors = (summary?.backend_errors?.ingest || 0) +
+      (summary?.backend_errors?.get || 0) +
+      (summary?.backend_errors?.search || 0) +
+      (summary?.backend_errors?.stats || 0) +
+      (summary?.backend_errors?.users || 0) +
+      (summary?.backend_errors?.strategy || 0) +
+      (summary?.backend_errors?.analysis || 0) +
+      (summary?.backend_errors?.dashboard || 0) +
+      (summary?.backend_errors?.findings || 0)}
+    {#if totalBackendErrors > 0}
+    <h2 class="error-header">⚠️ Backend Errors ({totalBackendErrors})</h2>
+    <div class="stats-grid">
+      {#if summary?.backend_errors?.ingest > 0}
+        <AdminCard title="Ingest" value={summary.backend_errors.ingest} subtitle="article storage" />
+      {/if}
+      {#if summary?.backend_errors?.get > 0}
+        <AdminCard title="Get" value={summary.backend_errors.get} subtitle="article retrieval" />
+      {/if}
+      {#if summary?.backend_errors?.search > 0}
+        <AdminCard title="Search" value={summary.backend_errors.search} subtitle="keyword search" />
+      {/if}
+      {#if summary?.backend_errors?.strategy > 0}
+        <AdminCard title="Strategy" value={summary.backend_errors.strategy} subtitle="strategy ops" />
+      {/if}
+      {#if summary?.backend_errors?.analysis > 0}
+        <AdminCard title="Analysis" value={summary.backend_errors.analysis} subtitle="analysis ops" />
+      {/if}
+      {#if summary?.backend_errors?.findings > 0}
+        <AdminCard title="Findings" value={summary.backend_errors.findings} subtitle="exploration findings" />
+      {/if}
+      {#if summary?.backend_errors?.users > 0}
+        <AdminCard title="Users" value={summary.backend_errors.users} subtitle="user listing" />
+      {/if}
+      {#if summary?.backend_errors?.dashboard > 0}
+        <AdminCard title="Dashboard" value={summary.backend_errors.dashboard} subtitle="dashboard ops" />
+      {/if}
+      {#if summary?.backend_errors?.stats > 0}
+        <AdminCard title="Stats" value={summary.backend_errors.stats} subtitle="storage stats" />
       {/if}
     </div>
     {/if}
@@ -1095,5 +1215,14 @@
   .freshness-range {
     font-size: 0.75rem;
     color: #9ca3af;
+  }
+
+  /* Error header styling */
+  .error-header {
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
   }
 </style>
