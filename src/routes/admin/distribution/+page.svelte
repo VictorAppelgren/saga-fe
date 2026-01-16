@@ -176,11 +176,13 @@
         {@const t = topic as any}
         {@const total = getTopicTotal(t)}
         {@const topicOver = isTopicOverLimit(total)}
+        {@const fundTotal = getTimeframeTotal(t, 'fundamental')}
+        {@const medTotal = getTimeframeTotal(t, 'medium')}
+        {@const curTotal = getTimeframeTotal(t, 'current')}
         <div class="distribution-row" class:over-limit={topicOver}>
           <span class="topic-col" title={topicId}>{t.name || topicId}</span>
 
           <!-- Fundamental -->
-          {@const fundTotal = getTimeframeTotal(t, 'fundamental')}
           <div class="timeframe-col" class:tf-over={isTimeframeOverLimit(fundTotal)}>
             <div class="bar-group">
               <span class="mini-bar risk" class:bar-over={isPerspectiveOverLimit(t.fundamental?.risk || 0)} style="width: {getBarWidthPx(t.fundamental?.risk || 0)}px" title="Risk: {t.fundamental?.risk || 0}"></span>
@@ -192,7 +194,6 @@
           </div>
 
           <!-- Medium -->
-          {@const medTotal = getTimeframeTotal(t, 'medium')}
           <div class="timeframe-col" class:tf-over={isTimeframeOverLimit(medTotal)}>
             <div class="bar-group">
               <span class="mini-bar risk" class:bar-over={isPerspectiveOverLimit(t.medium?.risk || 0)} style="width: {getBarWidthPx(t.medium?.risk || 0)}px" title="Risk: {t.medium?.risk || 0}"></span>
@@ -204,7 +205,6 @@
           </div>
 
           <!-- Current -->
-          {@const curTotal = getTimeframeTotal(t, 'current')}
           <div class="timeframe-col" class:tf-over={isTimeframeOverLimit(curTotal)}>
             <div class="bar-group">
               <span class="mini-bar risk" class:bar-over={isPerspectiveOverLimit(t.current?.risk || 0)} style="width: {getBarWidthPx(t.current?.risk || 0)}px" title="Risk: {t.current?.risk || 0}"></span>
