@@ -10,6 +10,7 @@
   export let currentSelection: { type: string; value: string };
   export let isOpen: boolean = true;
   export let isMobile: boolean = false;
+  export let activeSignalCount: number = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -171,6 +172,21 @@
   </div>
 
   <ul class="nav-links">
+    <li>
+      <a
+        href="/dashboard/positions"
+        class="nav-link"
+        aria-label="Navigate to Positions"
+      >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        Positions
+        {#if activeSignalCount > 0}
+          <span class="signal-badge">{activeSignalCount}</span>
+        {/if}
+      </a>
+    </li>
     <li class:active={currentSelection.type === 'nav' && currentSelection.value === 'settings'}>
       <button
         class="nav-button {currentSelection.type === 'nav' && currentSelection.value === 'settings' ? 'active' : ''}"
@@ -465,7 +481,8 @@
     width: 100%;
   }
 
-  .nav-links button {
+  .nav-links button,
+  .nav-links .nav-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -481,15 +498,29 @@
     border-radius: 8px 0 0 8px;
   }
 
-  .nav-links button:hover {
+  .nav-links button:hover,
+  .nav-links .nav-link:hover {
     background: var(--hover-bg, #eeeeee);
     margin-right: 0;
   }
 
-  .nav-links li.active button {
+  .nav-links li.active button,
+  .nav-links li.active .nav-link {
     background: var(--bg-color, white);
     margin-right: 0;
     font-weight: 500;
+  }
+
+  .signal-badge {
+    background: #ff3b30;
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    margin-left: auto;
   }
 
   .icon {

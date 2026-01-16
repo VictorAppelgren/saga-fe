@@ -27,6 +27,7 @@
   import type { Theme } from '$lib/types/storage';
   import type { Strategy, StrategyDetail, ImproveStrategyTextResponse } from '$lib/api/strategies';
   import { updateStrategy, createStrategy, deleteStrategy as deleteStrategyAPI, improveStrategyText } from '$lib/api/strategies';
+  import { getActiveSignals } from '$lib/api/positions';
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -56,6 +57,9 @@
   // --- CHAT STATE ---
   let chatTriggerMessage: string | null = null;
 
+  // --- ACTIVE SIGNALS COUNT (for positions badge) ---
+  let activeSignalCount = 0;
+
   // --- FEEDBACK CONTEXT (for suggesting changes) ---
   interface FeedbackContext {
     section: string;
@@ -67,6 +71,22 @@
 
   // For theme display (legacy)
   $: themeForDisplay = null;
+
+  // --- LOAD ACTIVE SIGNALS COUNT ---
+  async function loadActiveSignalCount() {
+    if (!data?.user?.username) return;
+    try {
+      const result = await getActiveSignals(data.user.username);
+      activeSignalCount = result.count;
+    } catch (e) {
+      // Silently fail - badge just won't show
+      activeSignalCount = 0;
+    }
+  }
+
+  onMount(() => {
+    loadActiveSignalCount();
+  });
 
   // --- SELECTION HANDLERS ---
   function selectStrategy(strategy: Strategy): void {
@@ -317,6 +337,7 @@
     {currentSelection}
     isOpen={$leftSidebarOpen}
     isMobile={$isMobile}
+    {activeSignalCount}
     on:selectStrategy={(e) => selectStrategy(e.detail)}
     on:selectInterest={(e) => selectInterest(e.detail)}
     on:selectNav={(e) => selectNav(e.detail)}
