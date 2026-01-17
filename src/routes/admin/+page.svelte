@@ -603,6 +603,68 @@
       />
     </div>
 
+    <!-- ============================================================ -->
+    <!-- SECTION: SIGNAL GENERATION -->
+    <!-- ============================================================ -->
+    <h2>📡 Signal Generation</h2>
+    <div class="stats-grid">
+      <AdminCard
+        title="Total Signals"
+        value={summary?.signals?.total_generated || 0}
+        subtitle="generated today"
+      />
+      <AdminCard
+        title="Enter"
+        value={summary?.signals?.enter || 0}
+        subtitle="buy signals"
+      />
+      <AdminCard
+        title="Exit"
+        value={summary?.signals?.exit || 0}
+        subtitle="sell signals"
+      />
+      <AdminCard
+        title="Hold"
+        value={summary?.signals?.hold || 0}
+        subtitle="no action"
+      />
+    </div>
+
+    <!-- Signal Confidence -->
+    <h3>Signal Confidence</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="High"
+        value={summary?.signals?.confidence_high || 0}
+        subtitle="strong conviction"
+      />
+      <AdminCard
+        title="Medium"
+        value={summary?.signals?.confidence_medium || 0}
+        subtitle="moderate"
+      />
+      <AdminCard
+        title="Low"
+        value={summary?.signals?.confidence_low || 0}
+        subtitle="tentative"
+      />
+    </div>
+
+    <!-- Scheduled Runs -->
+    <h3>Scheduled Runs</h3>
+    <div class="stats-grid">
+      <AdminCard
+        title="6am Run"
+        value={`${summary?.scheduled_runs?.morning_completed || 0}/${summary?.scheduled_runs?.morning_started || 0}`}
+        subtitle="morning window"
+      />
+      <AdminCard
+        title="2pm Run"
+        value={`${summary?.scheduled_runs?.afternoon_completed || 0}/${summary?.scheduled_runs?.afternoon_started || 0}`}
+        subtitle="afternoon window"
+      />
+    </div>
+
     <!-- Strategy Health (Real-time check) -->
     {#if summary?.strategy_health}
     <div class="health-check" class:healthy={summary.strategy_health.healthy} class:unhealthy={!summary.strategy_health.healthy}>
